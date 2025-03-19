@@ -169,166 +169,100 @@ code {
 @layer utilities {
   /* Background colors */
   .bg-cream {
-    background-color: hsl(var(--cream));
+    background-color: var(--cream);
   }
 
   .bg-beige {
-    background-color: hsl(var(--beige));
-  }
-
-  .bg-beige-light {
-    background-color: hsl(var(--beige-light));
-  }
-
-  .bg-beige-dark {
-    background-color: hsl(var(--beige-dark));
+    background-color: var(--beige);
   }
 
   .bg-sand {
-    background-color: hsl(var(--sand));
-  }
-
-  .bg-sand-light {
-    background-color: hsl(var(--sand-light));
-  }
-
-  .bg-sand-dark {
-    background-color: hsl(var(--sand-dark));
+    background-color: var(--sand);
   }
 
   .bg-navy {
-    background-color: hsl(var(--navy));
+    background-color: var(--navy);
   }
 
   .bg-navy-light {
-    background-color: hsl(var(--navy-light));
+    background-color: var(--navy-light);
   }
 
   .bg-navy-dark {
-    background-color: hsl(var(--navy-dark));
+    background-color: var(--navy-dark);
   }
 
   /* Text colors */
   .text-cream {
-    color: hsl(var(--cream));
+    color: var(--cream);
   }
 
   .text-beige {
-    color: hsl(var(--beige));
+    color: var(--beige);
   }
 
   .text-sand {
-    color: hsl(var(--sand));
+    color: var(--sand);
   }
 
   .text-navy {
-    color: hsl(var(--navy));
+    color: var(--navy);
   }
 
   /* With opacity modifiers */
   .text-navy\/70 {
-    color: hsl(var(--navy) / 0.7);
+    color: color-mix(in oklch, var(--navy), transparent 30%);
   }
 
   .text-navy\/80 {
-    color: hsl(var(--navy) / 0.8);
+    color: color-mix(in oklch, var(--navy), transparent 20%);
   }
 
   .text-navy\/50 {
-    color: hsl(var(--navy) / 0.5);
+    color: color-mix(in oklch, var(--navy), transparent 50%);
   }
 
   .text-cream\/70 {
-    color: hsl(var(--cream) / 0.7);
+    color: color-mix(in oklch, var(--cream), transparent 30%);
   }
 
   /* Border colors */
   .border-cream {
-    border-color: hsl(var(--cream));
+    border-color: var(--cream);
   }
 
   .border-beige {
-    border-color: hsl(var(--beige));
+    border-color: var(--beige);
   }
 
   .border-sand {
-    border-color: hsl(var(--sand));
+    border-color: var(--sand);
   }
 
   .border-navy {
-    border-color: hsl(var(--navy));
+    border-color: var(--navy);
   }
 
   /* Fill colors for SVGs */
   .fill-sand {
-    fill: hsl(var(--sand));
+    fill: var(--sand);
   }
 
   .fill-navy {
-    fill: hsl(var(--navy));
-  }
-
-  /* Hover states */
-  .hover\:bg-navy:hover {
-    background-color: hsl(var(--navy));
-  }
-
-  .hover\:bg-navy-light:hover {
-    background-color: hsl(var(--navy-light));
-  }
-
-  .hover\:bg-beige:hover {
-    background-color: hsl(var(--beige));
-  }
-
-  .hover\:bg-beige\/50:hover {
-    background-color: hsl(var(--beige) / 0.5);
-  }
-
-  .hover\:bg-sand:hover {
-    background-color: hsl(var(--sand));
-  }
-
-  .hover\:text-navy:hover {
-    color: hsl(var(--navy));
-  }
-
-  .hover\:text-cream:hover {
-    color: hsl(var(--cream));
+    fill: var(--navy);
   }
 
   /* Active states for tabs */
   .data-\[state\=active\]\:bg-navy[data-state="active"] {
-    background-color: hsl(var(--navy));
+    background-color: var(--navy);
   }
 
   .data-\[state\=active\]\:text-cream[data-state="active"] {
-    color: hsl(var(--cream));
+    color: var(--cream);
   }
 
   /* Switch component */
   .data-\[state\=checked\]\:bg-navy[data-state="checked"] {
-    background-color: hsl(var(--navy));
+    background-color: var(--navy);
   }
-}
-
-/* Additional component-specific styles */
-.btn-primary {
-  @apply bg-navy text-cream hover:bg-navy-light;
-}
-
-.btn-outline {
-  @apply border-navy text-navy hover:bg-navy hover:text-cream;
-}
-
-.card-default {
-  @apply border-beige bg-cream;
-}
-
-.tab-active {
-  @apply bg-navy text-cream;
-}
-
-.tab-inactive {
-  @apply bg-beige text-navy hover:bg-beige-dark;
 }
