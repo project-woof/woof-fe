@@ -78,14 +78,14 @@ const petsitters = [
 
 function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cream">
       <main className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Petsitters Nearby</h1>
+          <h1 className="text-2xl font-bold text-navy">Petsitters Nearby</h1>
           <Button
             variant="outline"
             size="sm"
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 border-navy text-navy hover:bg-navy hover:text-cream"
           >
             <Filter className="h-4 w-4" />
             Filter
@@ -95,7 +95,7 @@ function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {petsitters.map((petsitter) => (
             <Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
-              <Card className="h-full hover:shadow-md transition-shadow">
+              <Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream">
                 <div className="aspect-square relative overflow-hidden">
                   <img
                     src={petsitter.image || "/placeholder.svg"}
@@ -106,18 +106,20 @@ function Home() {
                 <CardContent className="pt-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="font-semibold text-lg text-navy">
                         {petsitter.name}
                       </h3>
-                      <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                      <div className="flex items-center mt-1 text-sm text-navy/70">
                         <MapPin className="h-3.5 w-3.5 mr-1" />
                         <span>{petsitter.distance}</span>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="font-medium">{petsitter.rating}</span>
-                      <span className="text-muted-foreground text-sm ml-1">
+                      <span className="font-medium text-navy">
+                        {petsitter.rating}
+                      </span>
+                      <span className="text-navy/70 text-sm ml-1">
                         ({petsitter.reviews})
                       </span>
                     </div>
@@ -126,7 +128,7 @@ function Home() {
                     {petsitter.services.map((service, index) => (
                       <span
                         key={index}
-                        className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded-full"
+                        className="inline-block bg-beige text-navy text-xs px-2 py-1 rounded-full"
                       >
                         {service}
                       </span>
@@ -135,13 +137,16 @@ function Home() {
                 </CardContent>
                 <CardFooter className="pt-0">
                   <div className="w-full flex justify-between items-center">
-                    <span className="font-semibold">
+                    <span className="font-semibold text-navy">
                       {petsitter.price}
-                      <span className="text-muted-foreground font-normal">
-                        /hour
-                      </span>
+                      <span className="text-navy/70 font-normal">/hour</span>
                     </span>
-                    <Button size="sm">View Profile</Button>
+                    <Button
+                      size="sm"
+                      className="bg-navy hover:bg-navy-light text-cream"
+                    >
+                      View Profile
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>

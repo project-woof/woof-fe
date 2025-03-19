@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Star,
   MapPin,
@@ -79,6 +81,10 @@ function Petsitter() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("about");
+  const [hours, setHours] = useState<number>(2);
+  const [totalPrice, setTotalPrice] = useState<number>(
+    petsitterData.hourlyRate * 2
+  );
 
   // Mock time slots
   const timeSlots = [
@@ -93,6 +99,11 @@ function Petsitter() {
     "4:00 PM",
     "5:00 PM",
   ];
+
+  const updateTotalPrice = (newHours: number) => {
+    setHours(newHours);
+    setTotalPrice(petsitterData.hourlyRate * newHours);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -327,7 +338,71 @@ function Petsitter() {
                   </div>
                 </div>
 
-                <Button className="w-full mb-3">Book Now</Button>
+                <div className="mb-6">
+                  <h4 className="font-medium mb-2 flex items-center text-navy">
+                    <Clock className="h-4 w-4 mr-2" />
+                    Duration
+                  </h4>
+                  <div className="flex items-center space-x-3">
+                    <Label htmlFor="hours" className="text-navy">
+                      Hours:
+                    </Label>
+                    <div className="flex items-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-r-none border-beige text-navy"
+                        onClick={() => hours > 1 && updateTotalPrice(hours - 1)}
+                      >
+                        <span>-</span>
+                      </Button>
+                      <Input
+                        id="hours"
+                        type="number"
+                        min="1"
+                        value={hours}
+                        onChange={(e) =>
+                          updateTotalPrice(Number.parseInt(e.target.value) || 1)
+                        }
+                        
+                        className="h-8 w-16 rounded-none text-center border-x-0 border-beige"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-l-none border-beige text-navy"
+                        onClick={() =>
+                          updateTotalPrice(hours + 1)
+                        }
+                      >
+                        <span>+</span>
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-beige/30 rounded-md">
+                    <div className="flex justify-between items-center text-navy">
+                      <span>Hourly Rate:</span>
+                      <span>${petsitterData.hourlyRate}/hour</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1 text-navy">
+                      <span>Duration:</span>
+                      <span>
+                        {hours} hour{hours !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="border-t border-beige my-2"></div>
+                    <div className="flex justify-between items-center font-semibold text-navy">
+                      <span>Total:</span>
+                      <span>${totalPrice}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream">
+                  Book Now
+                </Button>
                 <Button
                   variant="outline"
                   className="w-full flex items-center justify-center"
