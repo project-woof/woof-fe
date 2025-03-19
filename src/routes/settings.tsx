@@ -5,16 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/settings")({
@@ -22,7 +14,6 @@ export const Route = createFileRoute("/settings")({
 });
 
 function Settings() {
-  const [activeTab, setActiveTab] = useState("profile");
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john.doe@example.com");
   const [bio, setBio] = useState(
@@ -37,97 +28,113 @@ function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cream">
       <main className="container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Settings</h1>
+          <h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-1">
-              <TabsTrigger value="profile" className="flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </TabsTrigger>
-            </TabsList>
+          {/* Profile Information Card */}
+          <Card className="border-beige bg-cream">
+            <CardContent className="pt-6">
+              <div>
+                <h2 className="text-xl font-semibold text-navy mb-1">
+                  Profile Information
+                </h2>
+                <p className="text-navy/70 text-sm mb-6">
+                  Update your personal information
+                </p>
 
-            <TabsContent value="profile" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>
-                    Update your personal information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSaveProfile} className="space-y-6">
-                    <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-                      <Avatar className="h-24 w-24">
-                        <AvatarImage
-                          src="/placeholder.svg?height=150&width=150"
-                          alt="Profile"
-                        />
-                        <AvatarFallback>JD</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Button variant="outline" size="sm" className="mb-2">
-                          Change Avatar
-                        </Button>
-                        <p className="text-xs text-muted-foreground">
-                          JPG, GIF or PNG. Max size 2MB.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input
-                          id="name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        rows={4}
+                <form onSubmit={handleSaveProfile} className="space-y-6">
+                  <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
+                    <Avatar className="h-24 w-24 bg-beige">
+                      <AvatarImage
+                        src="/placeholder.svg?height=150&width=150"
+                        alt="Profile"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Brief description for your profile. URLs are
-                        hyperlinked.
+                      <AvatarFallback className="text-navy text-xl">
+                        JD
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mb-2 border-beige bg-cream text-navy hover:bg-beige hover:text-navy"
+                      >
+                        Change Avatar
+                      </Button>
+                      <p className="text-xs text-navy/70">
+                        JPG, GIF or PNG. Max size 2MB.
                       </p>
                     </div>
+                  </div>
 
-                    <div className="flex justify-end">
-                      <Button type="submit">Save Changes</Button>
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-navy">
+                        Full Name
+                      </Label>
+                      <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="border-beige bg-cream"
+                      />
                     </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-navy">
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="border-beige bg-cream"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location" className="text-navy">
+                      Location
+                    </Label>
+                    <Input
+                      id="location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="border-beige bg-cream"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bio" className="text-navy">
+                      Bio
+                    </Label>
+                    <Textarea
+                      id="bio"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
+                      className="border-beige bg-cream"
+                    />
+                    <p className="text-xs text-navy/70">
+                      Brief description for your profile. URLs are hyperlinked.
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      className="bg-navy hover:bg-navy-light text-cream"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
