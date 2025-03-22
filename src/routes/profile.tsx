@@ -17,6 +17,8 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
+const storedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+
 // Define interfaces for type safety
 interface Booking {
   id: number;
@@ -324,7 +326,7 @@ function Profile() {
                     <AvatarFallback>
                       {userData.username
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n: string) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
