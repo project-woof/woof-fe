@@ -256,15 +256,9 @@ function Profile() {
                     Member since {userData.memberSince}
                   </p>
                   <div className="mt-2">
-                    {storedProfile.userType && (
-                      <Badge variant="default">
-                        {storedProfile.userType === 'both' ? 'Pet Owner & Sitter' : 'Pet Owner'}
-                      </Badge>
-                    )}
-                    
-                    {userData.is_petsitter === 1 && !storedProfile.userType && (
-                      <Badge variant="secondary">Pet Sitter</Badge>
-                    )}
+                    <Badge variant="default">
+                      {userData.is_petsitter === 1 ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                    </Badge>
                   </div>
 
                   <Button

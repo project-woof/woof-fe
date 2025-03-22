@@ -28,7 +28,7 @@ function Signup() {
   const search = useSearch({ from: "/signup" });
   const fromLogin = search.fromLogin === "true";
   
-  const [userType, setUserType] = useState<"petowner" | "both">("petowner");
+  const [isPetsitter, setIsPetsitter] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,16 +137,15 @@ function Signup() {
         throw new Error(errorData.message || "Failed to check user profile");
       }
       
-      const userData = await checkUserResponse.json() as { exists: boolean; userType?: string };
+      const userData = await checkUserResponse.json() as { exists: boolean; is_petsitter?: number };
       
       if (userData.exists) {
-        // User already exists, update localStorage with user type and redirect to dashboard
+        // User already exists, update localStorage with petsitter status and redirect to dashboard
         const updatedProfile = {
           name: decodedProfile.name,
           email: decodedProfile.email,
           picture: decodedProfile.picture,
-          userType: userData.userType,
-          is_petsitter: userData.userType === 'both' ? 1 : 0
+          is_petsitter: userData.is_petsitter || 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
         
@@ -166,7 +165,7 @@ function Signup() {
             email: decodedProfile.email,
             username: decodedProfile.name,
             profile_image_url: decodedProfile.picture,
-            is_petsitter: userType === 'both' ? 1 : 0
+            is_petsitter: isPetsitter ? 1 : 0
           }),
         });
 
@@ -180,8 +179,7 @@ function Signup() {
           name: decodedProfile.name,
           email: decodedProfile.email,
           picture: decodedProfile.picture,
-          userType: userType,
-          is_petsitter: userType === 'both' ? 1 : 0
+          is_petsitter: isPetsitter ? 1 : 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
 
@@ -242,13 +240,13 @@ function Signup() {
         throw new Error(errorData.message || "Failed to check user profile");
       }
       
-      const userData = await checkUserResponse.json() as { exists: boolean; userType?: string };
+      const userData = await checkUserResponse.json() as { exists: boolean; is_petsitter?: number };
       
       if (userData.exists) {
-        // User already exists, update localStorage with user type and redirect to dashboard
+        // User already exists, update localStorage with petsitter status and redirect to dashboard
         const updatedProfile = {
           ...userProfile,
-          userType: userData.userType
+          is_petsitter: userData.is_petsitter || 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
         
@@ -268,7 +266,7 @@ function Signup() {
           email: userProfile.email,
           username: userProfile.name,
           profile_image_url: userProfile.picture,
-          is_petsitter: userType === 'both' ? 1 : 0
+          is_petsitter: isPetsitter ? 1 : 0
         }),
       });
 
@@ -280,8 +278,7 @@ function Signup() {
       // Update localStorage with user type
       const updatedProfile = {
         ...userProfile,
-        userType: userType,
-        is_petsitter: userType === 'both' ? 1 : 0
+        is_petsitter: isPetsitter ? 1 : 0
       };
       localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
 
@@ -304,7 +301,7 @@ function Signup() {
           <Tabs 
             defaultValue="petowner" 
             className="w-full" 
-            onValueChange={(value) => setUserType(value as "petowner" | "both")}
+            onValueChange={(value) => setIsPetsitter(value === "both")}
           >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="petowner" className="flex items-center justify-center">
@@ -348,7 +345,7 @@ function Signup() {
           <Tabs 
             defaultValue="petowner" 
             className="w-full" 
-            onValueChange={(value) => setUserType(value as "petowner" | "both")}
+            onValueChange={(value) => setIsPetsitter(value === "both")}
           >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="petowner" className="flex items-center justify-center">

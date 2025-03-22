@@ -32,10 +32,10 @@ export const Route = createRootRoute({
       return;
     }
     
-    // If authenticated but no userType in profile (except on signup page), redirect to signup
+    // If authenticated but no is_petsitter field in profile (except on signup page), redirect to signup
     if (isAuthenticated && location.pathname !== "/signup") {
       const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if (!userProfile.userType) {
+      if (userProfile.is_petsitter === undefined) {
         navigate({ 
           to: "/signup",
           search: { fromLogin: "true" }

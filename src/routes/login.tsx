@@ -69,14 +69,13 @@ function Login() {
           throw new Error(errorData.message || "Failed to check user profile");
         }
         
-        const userData = await checkUserResponse.json() as { exists: boolean; userType?: string };
+        const userData = await checkUserResponse.json() as { exists: boolean; is_petsitter?: number };
         
         if (userData.exists) {
-          // User exists, update localStorage with user type
+          // User exists, update localStorage with petsitter status
           const updatedProfile = {
             ...JSON.parse(localStorage.getItem('userProfile') || '{}'),
-            userType: userData.userType,
-            is_petsitter: userData.userType === 'both' ? 1 : 0
+            is_petsitter: userData.is_petsitter || 0
           };
           localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
           
