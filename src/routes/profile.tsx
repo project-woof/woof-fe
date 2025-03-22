@@ -10,7 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Calendar, Edit, PawPrint } from "lucide-react";
+import { Star, MapPin, Calendar, Edit } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
@@ -86,7 +86,38 @@ const userData = {
 };
 
 function Profile() {
-  const [activeTab, setActiveTab] = useState("pets");
+  const [activeTab, setActiveTab] = useState("bookings");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [health, setHealth] = useState<{
+    status: string;
+    timestamp: string;
+  } | null>(null);
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Retrieve your gateway URL from Vite's environment variables.
+      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL;
+      if (!gatewayUrl) {
+        throw new Error("Gateway URL is not defined in the environment.");
+      }
+      // Append the health endpoint (or other endpoint) to the gateway URL
+      const res = await fetch(`${gatewayUrl}/profile/health`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = (await res.json()) as { status: string; timestamp: string };
+      setHealth(data);
+    } catch (err) {
+      setError("Failed to fetch health data.");
+      console.error("Error fetching health data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -118,10 +149,18 @@ function Profile() {
                   <Button
                     variant="outline"
                     className="mt-4 w-full flex items-center justify-center"
+                    onClick={handleClick}
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
+                    {loading ? "Loading..." : "Edit Profile"}
                   </Button>
+                  {error && <p className="text-red-500">{error}</p>}
+                  {health && (
+                    <div>
+                      <p>Status: {health.status}</p>
+                      <p>Timestamp: {health.timestamp}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-6">
@@ -137,75 +176,10 @@ function Profile() {
           {/* Tabs Content */}
           <div className="md:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="pets">My Pets</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="bookings">Bookings</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
-
-              <TabsContent value="pets" className="mt-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle>My Pets</CardTitle>
-                      <CardDescription>
-                        Manage your pets' information
-                      </CardDescription>
-                    </div>
-                    <Button size="sm">Add Pet</Button>
-                  </CardHeader>
-                  <CardContent>
-                    {userData.pets.length > 0 ? (
-                      <div className="space-y-4">
-                        {userData.pets.map((pet) => (
-                          <div
-                            key={pet.id}
-                            className="flex items-start p-4 border rounded-lg"
-                          >
-                            <img
-                              src={pet.image || "/placeholder.svg"}
-                              alt={pet.name}
-                              className="h-16 w-16 rounded-full object-cover mr-4"
-                            />
-                            <div>
-                              <h3 className="font-medium">{pet.name}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {pet.breed}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {pet.age} years old
-                              </p>
-                              <div className="mt-2">
-                                <Badge variant="outline" className="mr-2">
-                                  {pet.type}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="ml-auto"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <PawPrint className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                        <h3 className="font-medium text-lg mb-1">
-                          No pets added yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          Add your pets to find the perfect sitter
-                        </p>
-                        <Button>Add Your First Pet</Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
               <TabsContent value="bookings" className="mt-4">
                 <Card>
