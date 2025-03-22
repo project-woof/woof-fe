@@ -154,7 +154,7 @@ function Profile() {
     setUserError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:61931";
+      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:61931";
       const res = await fetch(`http://localhost:61931/get?id=${userId}`);
 
       if (!res.ok) {
@@ -206,7 +206,7 @@ function Profile() {
     setReviewsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
       
       const res = await fetch(
         `http://localhost:8787/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
@@ -220,7 +220,7 @@ function Profile() {
       const data = (await res.json()) as ReviewsApiResponse;
 
       console.log("Fetched reviews:", data);
-      
+
       // Process the reviews to extract user info for display
       const processedReviews = processFetchedReviews(data.reviews);
 
