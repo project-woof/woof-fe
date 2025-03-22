@@ -10,7 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Calendar, Edit } from "lucide-react";
+import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
@@ -40,15 +40,19 @@ interface Pet {
 }
 
 interface User {
-  id: string;
-  name: string;
+  user_id: string;
+  username: string;
   email: string;
-  location: string;
-  bio: string;
-  memberSince: string;
-  avatar: string;
-  pets: Pet[];
-  bookings: Booking[];
+  profile_image_url?: string;
+  latitude?: number;
+  longitude?: number;
+  description?: string;
+  is_petsitter?: number;
+  created_at: string;
+  last_updated: string;
+  location?: string; // We'll derive this from latitude/longitude or use a placeholder
+  pets?: Pet[]; // For now we'll leave this empty or add mock data
+  bookings?: Booking[]; // For now we'll leave this empty or add mock data
 }
 
 // Updated Review interface to match API response format with joined user data
@@ -81,54 +85,47 @@ interface HealthResponse {
   timestamp: string;
 }
 
-const userData: User = {
-  id: "uuid-user2", // Adding a user ID for API calls
-  name: storedProfile.name || "John Doe",
-  email: storedProfile.email || "john.doe@example.com",
-  location: "New York, NY",
-  bio: "Pet lover and proud owner of Max, a golden retriever. Always looking for reliable pet sitters when I travel for work.",
-  memberSince: "January 2023",
-  avatar: storedProfile.picture || "/placeholder.svg?height=150&width=150",
-  pets: [
-    {
-      id: 1,
-      name: "Max",
-      type: "Dog",
-      breed: "Golden Retriever",
-      age: 3,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-  ],
-  bookings: [
-    {
-      id: 1,
-      petsitter: "Sarah Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      service: "Pet Sitting",
-      date: "May 15, 2023",
-      status: "Completed",
-      rating: 5,
-    },
-    {
-      id: 2,
-      petsitter: "Michael Chen",
-      avatar: "/placeholder.svg?height=40&width=40",
-      service: "Dog Walking",
-      date: "June 10, 2023",
-      status: "Completed",
-      rating: 4,
-    },
-    {
-      id: 3,
-      petsitter: "Emily Rodriguez",
-      avatar: "/placeholder.svg?height=40&width=40",
-      service: "Pet Sitting",
-      date: "July 5, 2023",
-      status: "Upcoming",
-      rating: null,
-    },
-  ],
-};
+// Mock data for bookings and pets
+const mockBookings: Booking[] = [
+  {
+    id: 1,
+    petsitter: "Sarah Johnson",
+    avatar: "/placeholder.svg?height=40&width=40",
+    service: "Pet Sitting",
+    date: "May 15, 2023",
+    status: "Completed",
+    rating: 5,
+  },
+  {
+    id: 2,
+    petsitter: "Michael Chen",
+    avatar: "/placeholder.svg?height=40&width=40",
+    service: "Dog Walking",
+    date: "June 10, 2023",
+    status: "Completed",
+    rating: 4,
+  },
+  {
+    id: 3,
+    petsitter: "Emily Rodriguez",
+    avatar: "/placeholder.svg?height=40&width=40",
+    service: "Pet Sitting",
+    date: "July 5, 2023",
+    status: "Upcoming",
+    rating: null,
+  },
+];
+
+const mockPets: Pet[] = [
+  {
+    id: 1,
+    name: "Max",
+    type: "Dog",
+    breed: "Golden Retriever",
+    age: 3,
+    image: "/placeholder.svg?height=100&width=100",
+  },
+];
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
@@ -140,7 +137,53 @@ function Profile() {
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [reviewsPage, setReviewsPage] = useState(0);
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState<string | null>(null);
+  
   const reviewsLimit = 5;
+  
+  // Assuming we have a user ID - in a real app, this would come from auth context or similar
+  const userId = "uuid-user3"; // Replace with actual user ID or get from auth context
+
+  // Fetch user data
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  async function fetchUserData() {
+    setUserLoading(true);
+    setUserError(null);
+
+    try {
+      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:61931";
+      const res = await fetch(`http://localhost:61931/get?id=${userId}`);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json() as User;
+      
+      // Enhance the user data with mock data for now
+      // In a real app, you would fetch pets and bookings from their respective endpoints
+      const enhancedUserData: User = {
+        ...data,
+        location: data.latitude && data.longitude 
+          ? `${data.latitude.toFixed(2)}, ${data.longitude.toFixed(2)}` 
+          : "No location set",
+        pets: mockPets, 
+        bookings: mockBookings
+      };
+
+      setUserData(enhancedUserData);
+    } catch (err) {
+      setUserError("Failed to fetch user data.");
+      console.error("Error fetching user data:", err);
+    } finally {
+      setUserLoading(false);
+    }
+  }
 
   // Helper function to process the reviews from API response
   function processFetchedReviews(reviews: Review[]): Review[] {
@@ -153,30 +196,32 @@ function Profile() {
 
   // Fetch reviews when the component mounts or when tab changes to reviews
   useEffect(() => {
-    if (activeTab === "reviews") {
+    if (activeTab === "reviews" && userData) {
       fetchReviews();
     }
-  }, [activeTab, reviewsPage]);
+  }, [activeTab, reviewsPage, userData]);
 
   async function fetchReviews() {
+    if (!userData) return;
+    
     setReviewsLoading(true);
     setReviewsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL;
-      if (!gatewayUrl) {
-        throw new Error("Gateway URL is not defined in the environment.");
-      }
-
+      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      
       const res = await fetch(
-        `http://localhost:8787/reviewee?revieweeId=${userData.id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `http://localhost:8787/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
       );
 
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = (await res.json()) as ReviewsApiResponse;
+
+      console.log("Fetched reviews:", data);
 
       // Process the reviews to extract user info for display
       const processedReviews = processFetchedReviews(data.reviews);
@@ -198,18 +243,13 @@ function Profile() {
     }
   }
 
-  async function handleClick() {
+  async function handleHealthCheck() {
     setLoading(true);
     setError(null);
 
     try {
-      // Retrieve your gateway URL from Vite's environment variables.
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL;
-      if (!gatewayUrl) {
-        throw new Error("Gateway URL is not defined in the environment.");
-      }
-      // Append the health endpoint (or other endpoint) to the gateway URL
-      const res = await fetch(`${gatewayUrl}/profile/health`);
+      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      const res = await fetch(`${gatewayUrl}/health`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -228,6 +268,47 @@ function Profile() {
     setReviewsPage((prevPage) => prevPage + 1);
   };
 
+  // Format date from ISO string
+  const formatMemberSince = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  };
+
+  // Loading state UI
+  if (userLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state UI
+  if (userError || !userData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-500">Error Loading Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>{userError || "Failed to load user data."}</p>
+            <Button 
+              variant="outline" 
+              onClick={fetchUserData} 
+              className="mt-4"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="container mx-auto px-4 py-6">
@@ -238,34 +319,41 @@ function Profile() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center">
                   <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                    <AvatarImage 
+                      src={userData.profile_image_url || "/placeholder.svg?height=150&width=150"} 
+                      alt={userData.username} 
+                    />
                     <AvatarFallback>
-                      {userData.name
+                      {userData.username
                         .split(" ")
                         .map((n: string) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <h2 className="text-xl font-bold">{userData.name}</h2>
+                  <h2 className="text-xl font-bold">{userData.username}</h2>
                   <div className="flex items-center mt-1 text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{userData.location}</span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Member since {userData.memberSince}
+                    Member since {formatMemberSince(userData.created_at)}
                   </p>
+                  
+                  {userData.is_petsitter === 1 && (
+                    <Badge className="mt-2" variant="secondary">Pet Sitter</Badge>
+                  )}
 
                   <Button
                     variant="outline"
                     className="mt-4 w-full flex items-center justify-center"
-                    onClick={handleClick}
+                    onClick={handleHealthCheck}
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     {loading ? "Loading..." : "Edit Profile"}
                   </Button>
-                  {error && <p className="text-red-500">{error}</p>}
+                  {error && <p className="text-red-500 mt-2">{error}</p>}
                   {health && (
-                    <div>
+                    <div className="mt-2 text-sm">
                       <p>Status: {health.status}</p>
                       <p>Timestamp: {health.timestamp}</p>
                     </div>
@@ -275,7 +363,7 @@ function Profile() {
                 <div className="mt-6">
                   <h3 className="font-medium mb-2">About</h3>
                   <p className="text-sm text-muted-foreground">
-                    {userData.bio}
+                    {userData.description || "No bio provided."}
                   </p>
                 </div>
               </CardContent>
@@ -299,7 +387,7 @@ function Profile() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {userData.bookings.length > 0 ? (
+                    {userData.bookings && userData.bookings.length > 0 ? (
                       <div className="space-y-4">
                         {userData.bookings.map((booking) => (
                           <div
@@ -384,6 +472,7 @@ function Profile() {
                   <CardContent>
                     {reviewsLoading && reviews.length === 0 ? (
                       <div className="text-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
                         <p>Loading reviews...</p>
                       </div>
                     ) : reviewsError ? (
@@ -461,9 +550,14 @@ function Profile() {
                               onClick={loadMoreReviews}
                               disabled={reviewsLoading}
                             >
-                              {reviewsLoading
-                                ? "Loading..."
-                                : "Load More Reviews"}
+                              {reviewsLoading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                "Load More Reviews"
+                              )}
                             </Button>
                           </div>
                         )}
