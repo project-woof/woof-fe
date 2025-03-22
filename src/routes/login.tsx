@@ -26,10 +26,27 @@ function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleCredentialResponse = (response: any) => {
-      document.cookie = `auth_token=${response.credential}; path=/; max-age=86400`;
-      router.navigate({ to: "/" });
-    };
+const handleCredentialResponse = (response: any) => {
+  const decodeJwt = (token: string) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  };
+
+  const userProfile = decodeJwt(response.credential);
+console.log("Decoded JWT payload:", userProfile);
+  localStorage.setItem('userProfile', JSON.stringify({
+    name: userProfile.name,
+    email: userProfile.email,
+    picture: userProfile.picture,
+  }));
+
+  document.cookie = `auth_token=${response.credential}; path=/; max-age=86400`;
+  router.navigate({ to: "/" });
+};
 
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";

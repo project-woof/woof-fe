@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+declare const google: any;
 import { Link, useRouter } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +23,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
@@ -67,11 +70,11 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
                 <Avatar>
-                  <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="User"
-                  />
-                  <AvatarFallback>JD</AvatarFallback>
+<AvatarImage
+  src={userProfile.picture || "/placeholder.svg?height=32&width=32"}
+  alt={userProfile.name || "User"}
+/>
+<AvatarFallback>{userProfile.name ? userProfile.name[0] : "U"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -85,10 +88,10 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-0.5">
-                  <p className="text-sm font-medium">John Doe</p>
-                  <p className="text-xs text-muted-foreground">
-                    john.doe@example.com
-                  </p>
+<p className="text-sm font-medium">{userProfile.name || "User"}</p>
+<p className="text-xs text-muted-foreground">
+  {userProfile.email || "user@example.com"}
+</p>
                 </div>
               </div>
               <DropdownMenuSeparator />

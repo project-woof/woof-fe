@@ -1,4 +1,4 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { Outlet, createRootRoute, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Header from "../components/Header";
@@ -23,6 +23,12 @@ useEffect(() => {
 };
 
 export const Route = createRootRoute({
+  beforeLoad: ({ location, navigate }) => {
+    const isAuthenticated = document.cookie.includes("auth_token=");
+    if (!isAuthenticated && location.pathname !== "/login") {
+      navigate({ to: "/login" });
+    }
+  },
   component: () => (
     <>
       <Header isAuthenticated={useAuth()} />
