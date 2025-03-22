@@ -117,11 +117,43 @@ function Signup() {
       });
       setIsAuthenticated(true);
       
-      // If we're on the signup page with role selection, automatically create the profile
-      if (roleFirst) {
-        // Get the profile service URL from environment variables or use default
-        const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
-
+      // Get the profile service URL from environment variables or use default
+      const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
+      
+      // First check if user already exists
+      const checkUserResponse = await fetch(`${profileServiceUrl}/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${credential.credential}`
+        },
+        body: JSON.stringify({
+          email: decodedProfile.email
+        }),
+      });
+      
+      if (!checkUserResponse.ok) {
+        const errorData = await checkUserResponse.json() as { message?: string };
+        throw new Error(errorData.message || "Failed to check user profile");
+      }
+      
+      const userData = await checkUserResponse.json() as { exists: boolean; userType?: string };
+      
+      if (userData.exists) {
+        // User already exists, update localStorage with user type and redirect to dashboard
+        const updatedProfile = {
+          name: decodedProfile.name,
+          email: decodedProfile.email,
+          picture: decodedProfile.picture,
+          userType: userData.userType
+        };
+        localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+        
+        // Redirect to home page
+        router.navigate({ to: "/" });
+      } 
+      // If user doesn't exist and we're on the signup page with role selection, create the profile
+      else if (roleFirst) {
         // Create user profile in database
         const createResponse = await fetch(`${profileServiceUrl}/create`, {
           method: 'POST',
@@ -191,7 +223,39 @@ function Signup() {
       // Get the profile service URL from environment variables or use default
       const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
 
-      // Create user profile in database
+      // First check if user already exists
+      const checkUserResponse = await fetch(`${profileServiceUrl}/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          email: userProfile.email
+        }),
+      });
+      
+      if (!checkUserResponse.ok) {
+        const errorData = await checkUserResponse.json() as { message?: string };
+        throw new Error(errorData.message || "Failed to check user profile");
+      }
+      
+      const userData = await checkUserResponse.json() as { exists: boolean; userType?: string };
+      
+      if (userData.exists) {
+        // User already exists, update localStorage with user type and redirect to dashboard
+        const updatedProfile = {
+          ...userProfile,
+          userType: userData.userType
+        };
+        localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+        
+        // Redirect to home page
+        router.navigate({ to: "/" });
+        return;
+      }
+
+      // If user doesn't exist, create the profile
       const response = await fetch(`${profileServiceUrl}/create`, {
         method: 'POST',
         headers: {
