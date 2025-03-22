@@ -17,7 +17,7 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const storedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+// We'll use localStorage in the component instead of at the module level
 
 // Define interfaces for type safety
 interface Booking {
@@ -43,11 +43,12 @@ interface User {
   user_id: string;
   username: string;
   email: string;
+
   profile_image_url?: string;
   latitude?: number;
   longitude?: number;
   description?: string;
-  is_petsitter?: number;
+  is_petsitter?: number; // 0: false, 1: true
   created_at: string;
   last_updated: string;
   location?: string; // We'll derive this from latitude/longitude or use a placeholder
@@ -338,10 +339,11 @@ function Profile() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Member since {formatMemberSince(userData.created_at)}
                   </p>
-                  
-                  {userData.is_petsitter === 1 && (
-                    <Badge className="mt-2" variant="secondary">Pet Sitter</Badge>
-                  )}
+                  <div className="mt-2">
+                    <Badge variant="default">
+                      {userData.is_petsitter === 1 ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                    </Badge>
+                  </div>
 
                   <Button
                     variant="outline"
