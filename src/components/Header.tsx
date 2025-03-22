@@ -103,10 +103,17 @@ export default function Header() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
+<DropdownMenuItem
+  className="cursor-pointer"
+  onClick={() => {
+    google.accounts.id.disableAutoSelect();
+    document.cookie = "auth_token=; path=/; max-age=0";
+    window.location.href = "/login";
+  }}
+>
+  <LogOut className="mr-2 h-4 w-4" />
+  <span>Log out</span>
+</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
