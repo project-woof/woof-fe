@@ -254,6 +254,11 @@ function Profile() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Member since {userData.memberSince}
                   </p>
+                  <div className="mt-2">
+                    <Badge variant="default">
+                      {storedProfile.userType === 'both' ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                    </Badge>
+                  </div>
 
                   <Button
                     variant="outline"
