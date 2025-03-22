@@ -75,7 +75,8 @@ function Login() {
           // User exists, update localStorage with user type
           const updatedProfile = {
             ...JSON.parse(localStorage.getItem('userProfile') || '{}'),
-            userType: userData.userType
+            userType: userData.userType,
+            is_petsitter: userData.userType === 'both' ? 1 : 0
           };
           localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
           

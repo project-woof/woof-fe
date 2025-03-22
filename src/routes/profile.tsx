@@ -49,6 +49,7 @@ interface User {
   avatar: string;
   pets: Pet[];
   bookings: Booking[];
+  is_petsitter?: number; // 0: false, 1: true
 }
 
 // Updated Review interface to match API response format with joined user data
@@ -255,9 +256,15 @@ function Profile() {
                     Member since {userData.memberSince}
                   </p>
                   <div className="mt-2">
-                    <Badge variant="default">
-                      {storedProfile.userType === 'both' ? 'Pet Owner & Sitter' : 'Pet Owner'}
-                    </Badge>
+                    {storedProfile.userType && (
+                      <Badge variant="default">
+                        {storedProfile.userType === 'both' ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                      </Badge>
+                    )}
+                    
+                    {userData.is_petsitter === 1 && !storedProfile.userType && (
+                      <Badge variant="secondary">Pet Sitter</Badge>
+                    )}
                   </div>
 
                   <Button

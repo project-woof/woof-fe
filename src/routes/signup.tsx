@@ -145,7 +145,8 @@ function Signup() {
           name: decodedProfile.name,
           email: decodedProfile.email,
           picture: decodedProfile.picture,
-          userType: userData.userType
+          userType: userData.userType,
+          is_petsitter: userData.userType === 'both' ? 1 : 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
         
@@ -163,9 +164,9 @@ function Signup() {
           },
           body: JSON.stringify({
             email: decodedProfile.email,
-            name: decodedProfile.name,
-            picture: decodedProfile.picture,
-            userType: userType, // petowner or both
+            username: decodedProfile.name,
+            profile_image_url: decodedProfile.picture,
+            is_petsitter: userType === 'both' ? 1 : 0
           }),
         });
 
@@ -179,7 +180,8 @@ function Signup() {
           name: decodedProfile.name,
           email: decodedProfile.email,
           picture: decodedProfile.picture,
-          userType: userType
+          userType: userType,
+          is_petsitter: userType === 'both' ? 1 : 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
 
@@ -264,9 +266,9 @@ function Signup() {
         },
         body: JSON.stringify({
           email: userProfile.email,
-          name: userProfile.name,
-          picture: userProfile.picture,
-          userType: userType, // petowner or both
+          username: userProfile.name,
+          profile_image_url: userProfile.picture,
+          is_petsitter: userType === 'both' ? 1 : 0
         }),
       });
 
@@ -278,7 +280,8 @@ function Signup() {
       // Update localStorage with user type
       const updatedProfile = {
         ...userProfile,
-        userType: userType
+        userType: userType,
+        is_petsitter: userType === 'both' ? 1 : 0
       };
       localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
 
