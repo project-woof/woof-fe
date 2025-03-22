@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-export default function Header() {
+export default function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
@@ -42,8 +42,9 @@ export default function Header() {
           <span className="font-bold text-xl">PetSitter</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+{/* Desktop Navigation */}
+{isAuthenticated && (
+<nav className="hidden md:flex items-center space-x-6">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -58,10 +59,11 @@ export default function Header() {
               <span>{item.name}</span>
             </Link>
           ))}
-        </nav>
+</nav>
+)}
 
-        <div className="flex items-center space-x-4">
-          <DropdownMenu>
+<div className="flex items-center space-x-4">
+          {isAuthenticated && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
                 <Avatar>
@@ -115,7 +117,7 @@ export default function Header() {
   <span>Log out</span>
 </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
 
           {/* Mobile menu button */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
