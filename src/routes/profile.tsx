@@ -17,6 +17,8 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
+const storedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+
 // Define interfaces for type safety
 interface Booking {
   id: number;
@@ -81,12 +83,12 @@ interface HealthResponse {
 
 const userData: User = {
   id: "uuid-user2", // Adding a user ID for API calls
-  name: "John Doe",
-  email: "john.doe@example.com",
+  name: storedProfile.name || "John Doe",
+  email: storedProfile.email || "john.doe@example.com",
   location: "New York, NY",
   bio: "Pet lover and proud owner of Max, a golden retriever. Always looking for reliable pet sitters when I travel for work.",
   memberSince: "January 2023",
-  avatar: "/placeholder.svg?height=150&width=150",
+  avatar: storedProfile.picture || "/placeholder.svg?height=150&width=150",
   pets: [
     {
       id: 1,
@@ -240,7 +242,7 @@ function Profile() {
                     <AvatarFallback>
                       {userData.name
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n: string) => n[0])
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
