@@ -34,7 +34,7 @@ function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [roleFirst, setRoleFirst] = useState(!fromLogin);
+  const [roleFirst] = useState(!fromLogin);
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -162,9 +162,11 @@ function Signup() {
     }
   };
 
-  const handleRoleSelect = () => {
-    setRoleFirst(false);
-  };
+  // This function is no longer needed since we automatically create the profile after Google authentication
+  // Keeping it commented for reference
+  // const handleRoleSelect = () => {
+  //   setRoleFirst(false);
+  // };
 
   const handleSubmit = async () => {
     if (!userProfile) {
