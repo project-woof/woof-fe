@@ -17,7 +17,7 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const storedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+// We'll use localStorage in the component instead of at the module level
 
 // Define interfaces for type safety
 interface Booking {
