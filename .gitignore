@@ -6,6 +6,8 @@ dist-ssr
 .wrangler
 .dev.vars
 .env
+.env.development
+.env.production
 /db
 .vars
 .vscode

@@ -157,8 +157,8 @@ function Profile() {
     setUserError(null);
 
     try {
-      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:61931";
-      const res = await fetch(`http://localhost:61931/get?id=${userId}`);
+      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      const res = await fetch(`${gatewayUrl}/get?id=${userId}`);
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -209,10 +209,10 @@ function Profile() {
     setReviewsError(null);
 
     try {
-      // const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
       
       const res = await fetch(
-        `http://localhost:8787/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
       );
 
       
