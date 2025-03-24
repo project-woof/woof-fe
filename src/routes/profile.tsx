@@ -144,40 +144,69 @@ function Profile() {
   
   const reviewsLimit = 5;
   
-  // Assuming we have a user ID - in a real app, this would come from auth context or similar
-  const userId = "uuid-user3"; // Replace with actual user ID or get from auth context
+  // Get user profile from localStorage (set during Google login)
+  const [googleProfile, setGoogleProfile] = useState<{name: string, email: string, picture: string} | null>(null);
+  
+  // In a real app, we would get the user ID from auth context
+  // For now, we'll just use the Google profile information from localStorage
 
-  // Fetch user data
+  // Get Google profile from localStorage on component mount
+  useEffect(() => {
+    const storedProfile = localStorage.getItem('userProfile');
+    console.log("Raw userProfile from localStorage in profile.tsx:", storedProfile);
+    
+    if (storedProfile) {
+      try {
+        const parsedProfile = JSON.parse(storedProfile);
+        console.log("Parsed userProfile in profile.tsx:", parsedProfile);
+        setGoogleProfile(parsedProfile);
+      } catch (err) {
+        console.error("Error parsing profile from localStorage:", err);
+      }
+    }
+  }, []);
+
+  // Separate useEffect to fetch user data when googleProfile changes
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [googleProfile]); // This will run fetchUserData whenever googleProfile changes
 
   async function fetchUserData() {
     setUserLoading(true);
     setUserError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
-      const res = await fetch(`${gatewayUrl}/get?id=${userId}`);
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      // If we have Google profile information, use it directly
+      if (googleProfile) {
+        // Create a user object using the Google profile information
+        const userData: User = {
+          user_id: googleProfile.email, // Use email as a unique identifier
+          username: googleProfile.name,
+          email: googleProfile.email,
+          profile_image_url: googleProfile.picture,
+          created_at: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          location: "No location set",
+          pets: mockPets,
+          bookings: mockBookings
+        };
+        
+        setUserData(userData);
+      } else {
+        // If we don't have Google profile information, use a default user
+        const userData: User = {
+          user_id: "default-user",
+          username: "Guest User",
+          email: "guest@example.com",
+          created_at: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          location: "No location set",
+          pets: mockPets,
+          bookings: mockBookings
+        };
+        
+        setUserData(userData);
       }
-
-      const data = await res.json() as User;
-      
-      // Enhance the user data with mock data for now
-      // In a real app, you would fetch pets and bookings from their respective endpoints
-      const enhancedUserData: User = {
-        ...data,
-        location: data.latitude && data.longitude 
-          ? `${data.latitude.toFixed(2)}, ${data.longitude.toFixed(2)}` 
-          : "No location set",
-        pets: mockPets, 
-        bookings: mockBookings
-      };
-
-      setUserData(enhancedUserData);
     } catch (err) {
       setUserError("Failed to fetch user data.");
       console.error("Error fetching user data:", err);
@@ -209,7 +238,7 @@ function Profile() {
     setReviewsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
       
       const res = await fetch(
         `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
@@ -249,7 +278,7 @@ function Profile() {
     setError(null);
 
     try {
-      const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8787";
+      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
       const res = await fetch(`${gatewayUrl}/health`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -321,7 +350,7 @@ function Profile() {
                 <div className="flex flex-col items-center">
                   <Avatar className="h-24 w-24 mb-4">
                     <AvatarImage 
-                      src={userData.profile_image_url || "/placeholder.svg?height=150&width=150"} 
+                      src={googleProfile?.picture || userData.profile_image_url || "/placeholder.svg?height=150&width=150"} 
                       alt={userData.username} 
                     />
                     <AvatarFallback>
@@ -331,7 +360,8 @@ function Profile() {
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <h2 className="text-xl font-bold">{userData.username}</h2>
+                  <h2 className="text-xl font-bold">{googleProfile?.name || userData.username}</h2>
+                  <p className="text-sm text-muted-foreground">{googleProfile?.email || userData.email}</p>
                   <div className="flex items-center mt-1 text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{userData.location}</span>

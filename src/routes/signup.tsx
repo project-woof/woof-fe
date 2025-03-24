@@ -117,8 +117,8 @@ function Signup() {
       });
       setIsAuthenticated(true);
       
-      // Get the profile service URL from environment variables or use default
-      const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
+      // Use the production profile service URL directly
+      const profileServiceUrl = 'https://petsitter-profile-worker.limqijie53.workers.dev';
       
       // First check if user already exists
       const checkUserResponse = await fetch(`${profileServiceUrl}/check`, {
@@ -155,22 +155,39 @@ function Signup() {
       // If user doesn't exist and we're on the signup page with role selection, create the profile
       else if (roleFirst) {
         // Create user profile in database
+        // Try using the old format that the backend expects
+        const requestData = {
+          email: decodedProfile.email,
+          name: decodedProfile.name,
+          picture: decodedProfile.picture,
+          userType: isPetsitter ? 'both' : 'petowner'
+        };
+        
+        console.log('Creating profile with data:', requestData);
+        console.log('Profile service URL:', profileServiceUrl);
+        
         const createResponse = await fetch(`${profileServiceUrl}/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${credential.credential}`
           },
-          body: JSON.stringify({
-            email: decodedProfile.email,
-            username: decodedProfile.name,
-            profile_image_url: decodedProfile.picture,
-            is_petsitter: isPetsitter ? 1 : 0
-          }),
+          body: JSON.stringify(requestData),
         });
+        
+        console.log('Create profile response status:', createResponse.status);
 
         if (!createResponse.ok) {
-          const errorData = await createResponse.json() as { error?: string };
+          const errorText = await createResponse.text();
+          console.error('Error response text:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            errorData = { error: errorText || "Failed to create profile" };
+          }
+          
           throw new Error(errorData.error || "Failed to create profile");
         }
 
@@ -220,8 +237,8 @@ function Signup() {
         throw new Error("Authentication token not found");
       }
 
-      // Get the profile service URL from environment variables or use default
-      const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
+      // Use the production profile service URL directly
+      const profileServiceUrl = 'https://petsitter-profile-worker.limqijie53.workers.dev';
 
       // First check if user already exists
       const checkUserResponse = await fetch(`${profileServiceUrl}/check`, {
@@ -256,22 +273,41 @@ function Signup() {
       }
 
       // If user doesn't exist, create the profile
+      // Try using the old format that the backend expects
+      // Add a random suffix to the username to avoid unique constraint violations
+      const randomSuffix = Math.floor(Math.random() * 10000);
+      const requestData = {
+        email: userProfile.email,
+        name: `${userProfile.name}_${randomSuffix}`, // Make username unique
+        picture: userProfile.picture,
+        userType: isPetsitter ? 'both' : 'petowner'
+      };
+      
+      console.log('Creating profile with data:', requestData);
+      console.log('Profile service URL:', profileServiceUrl);
+      
       const response = await fetch(`${profileServiceUrl}/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify({
-          email: userProfile.email,
-          username: userProfile.name,
-          profile_image_url: userProfile.picture,
-          is_petsitter: isPetsitter ? 1 : 0
-        }),
+        body: JSON.stringify(requestData),
       });
-
+      
+      console.log('Create profile response status:', response.status);
+      
       if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
+        const errorText = await response.text();
+        console.error('Error response text:', errorText);
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          errorData = { error: errorText || "Failed to create profile" };
+        }
+        
         throw new Error(errorData.error || "Failed to create profile");
       }
 

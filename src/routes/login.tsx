@@ -49,8 +49,9 @@ function Login() {
       document.cookie = `auth_token=${response.credential}; path=/; max-age=86400`;
       
       try {
-        // Get the profile service URL from environment variables or use default
-        const profileServiceUrl = import.meta.env.VITE_PROFILE_SERVICE_URL || 'http://localhost:8787';
+        // Use the production profile service URL directly
+        const profileServiceUrl = 'https://petsitter-profile-worker.limqijie53.workers.dev';
+        console.log('Profile service URL:', profileServiceUrl);
         
         // Check if user exists in database
         const checkUserResponse = await fetch(`${profileServiceUrl}/check`, {
@@ -64,8 +65,19 @@ function Login() {
           }),
         });
         
+        console.log('Check user response status:', checkUserResponse.status);
+        
         if (!checkUserResponse.ok) {
-          const errorData = await checkUserResponse.json() as { message?: string };
+          const errorText = await checkUserResponse.text();
+          console.error('Error response text:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            errorData = { message: errorText || "Failed to check user profile" };
+          }
+          
           throw new Error(errorData.message || "Failed to check user profile");
         }
         

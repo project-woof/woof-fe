@@ -23,7 +23,11 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const storedProfile = localStorage.getItem('userProfile');
+  console.log("Raw userProfile from localStorage:", storedProfile);
+  
+  const userProfile = JSON.parse(storedProfile || '{}');
+  console.log("Parsed userProfile:", userProfile);
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
@@ -82,10 +86,10 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
               <div className="flex items-center justify-start gap-2 p-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="User"
+                    src={userProfile.picture || "/placeholder.svg?height=32&width=32"}
+                    alt={userProfile.name || "User"}
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{userProfile.name ? userProfile.name[0] : "U"}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-0.5">
 <p className="text-sm font-medium">{userProfile.name || "User"}</p>

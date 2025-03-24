@@ -14,8 +14,11 @@ export const Route = createFileRoute("/settings")({
 });
 
 function Settings() {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
+  // Get user profile from localStorage
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  
+  const [name, setName] = useState(userProfile.name || "John Doe");
+  const [email, setEmail] = useState(userProfile.email || "john.doe@example.com");
   const [bio, setBio] = useState(
     "Pet lover and proud owner of Max, a golden retriever. Always looking for reliable pet sitters when I travel for work."
   );
@@ -48,11 +51,11 @@ function Settings() {
                   <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
                     <Avatar className="h-24 w-24 bg-beige">
                       <AvatarImage
-                        src="/placeholder.svg?height=150&width=150"
-                        alt="Profile"
+                        src={userProfile.picture || "/placeholder.svg?height=150&width=150"}
+                        alt={name}
                       />
                       <AvatarFallback className="text-navy text-xl">
-                        JD
+                        {name ? name[0] : "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
