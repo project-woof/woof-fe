@@ -88,8 +88,8 @@ async function createBooking() {
     const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
     
     const bookingData: BookingData = {
-      petsitter_id: "uuid-user3",
-      petowner_id: "f79a5f0e390bfb69beb17a67a100952f",
+      petsitter_id: "uuid-user2",
+      petowner_id: "bbf7fc583d4cd42846ae8bddd0a97759",
       start_date: "2025-05-10 12:00:00",
       end_date: "2025-05-15 13:00:00"
     };

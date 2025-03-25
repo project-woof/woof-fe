@@ -195,10 +195,10 @@ function Profile() {
     setBookingsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-booking-worker.limqijie53.workers.dev";
+      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
       
       const res = await fetch(
-        `${gatewayUrl}/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
+        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
       );
 
       if (!res.ok) {
