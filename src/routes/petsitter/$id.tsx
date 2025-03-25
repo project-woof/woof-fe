@@ -99,38 +99,38 @@ function Petsitter() {
     "4:00 PM",
     "5:00 PM",
   ];
-  async function createBooking() {
-    try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
+  // async function createBooking() {
+  //   try {
+  //     const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
       
-      const mockBookingData = {
-        petsitter_id: "uuid-user3",
-        petowner_id: "f79a5f0e390bfb69beb17a67a100952f",
-        start_date: "2025-05-10 12:00:00",
-        end_date: "2025-05-15 13:00:00"
-      };
+  //     const mockBookingData = {
+  //       petsitter_id: "uuid-user3",
+  //       petowner_id: "f79a5f0e390bfb69beb17a67a100952f",
+  //       start_date: "2025-05-10 12:00:00",
+  //       end_date: "2025-05-15 13:00:00"
+  //     };
 
-      const res = await fetch(
-        `${gatewayUrl}/booking/create`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(mockBookingData)
-        }
-      );
+  //     const res = await fetch(
+  //       `${gatewayUrl}/booking/create`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json"
+  //         },
+  //         body: JSON.stringify(mockBookingData)
+  //       }
+  //     );
 
-      const responseData = await res.json();
-      console.log("Booking created:", responseData);
+  //     const responseData = await res.json();
+  //     console.log("Booking created:", responseData);
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+  //     if (!res.ok) {
+  //       throw new Error(`HTTP error! status: ${res.status}`);
+  //     }
 
-    } catch (err) {
+  //   } catch (err) {
       
-    }
-  }
+  //   }
+  // }
 
   const updateTotalPrice = (newHours: number) => {
     setHours(newHours);
