@@ -101,9 +101,9 @@ function Signup() {
     try {
       // Store basic profile info in localStorage
       localStorage.setItem('userProfile', JSON.stringify({
-        name: decodedProfile.name,
+        username: decodedProfile.name,
         email: decodedProfile.email,
-        picture: decodedProfile.picture,
+        profile_image_url: decodedProfile.picture,
       }));
 
       // Set auth token cookie
@@ -111,9 +111,9 @@ function Signup() {
       
       // Update state
       setUserProfile({
-        name: decodedProfile.name,
+        username: decodedProfile.name,
         email: decodedProfile.email,
-        picture: decodedProfile.picture,
+        profile_image_url: decodedProfile.picture,
       });
       setIsAuthenticated(true);
       
@@ -142,9 +142,9 @@ function Signup() {
       if (userData.exists) {
         // User already exists, update localStorage with petsitter status and redirect to dashboard
         const updatedProfile = {
-          name: decodedProfile.name,
+          username: decodedProfile.name,
           email: decodedProfile.email,
-          picture: decodedProfile.picture,
+          profile_image_url: decodedProfile.picture,
           is_petsitter: userData.is_petsitter || 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
@@ -158,9 +158,9 @@ function Signup() {
         // Try using the old format that the backend expects
         const requestData = {
           email: decodedProfile.email,
-          name: decodedProfile.name,
-          picture: decodedProfile.picture,
-          userType: isPetsitter ? 'both' : 'petowner'
+          username: decodedProfile.name,
+          profile_image_url: decodedProfile.picture,
+          is_petsitter: isPetsitter ? 'both' : 'petowner'
         };
         
         console.log('Creating profile with data:', requestData);
@@ -193,9 +193,9 @@ function Signup() {
 
         // Update localStorage with user type
         const updatedProfile = {
-          name: decodedProfile.name,
+          username: decodedProfile.name,
           email: decodedProfile.email,
-          picture: decodedProfile.picture,
+          profile_image_url: decodedProfile.picture,
           is_petsitter: isPetsitter ? 1 : 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
@@ -278,9 +278,9 @@ function Signup() {
       const randomSuffix = Math.floor(Math.random() * 10000);
       const requestData = {
         email: userProfile.email,
-        name: `${userProfile.name}_${randomSuffix}`, // Make username unique
-        picture: userProfile.picture,
-        userType: isPetsitter ? 'both' : 'petowner'
+        username: `${userProfile.name}_${randomSuffix}`, // Make username unique
+        profile_image_url: userProfile.picture,
+        is_petsitter: isPetsitter ? 'both' : 'petowner'
       };
       
       console.log('Creating profile with data:', requestData);
