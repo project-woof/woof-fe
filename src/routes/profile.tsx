@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -108,6 +108,8 @@ function Profile() {
   const [hasMoreBookings, setHasMoreBookings] = useState(false);
   
   const reviewsLimit = 5;
+
+  const navigate = useNavigate();
   
   // Get user profile from localStorage (set during Google login)
   const [googleProfile, setGoogleProfile] = useState<{name: string, email: string, picture: string} | null>(null);
@@ -557,7 +559,12 @@ function Profile() {
                         <p className="text-muted-foreground mb-4">
                           Book a petsitter to see your bookings here
                         </p>
-                        <Button>Find a Petsitter</Button>
+
+                        <Button 
+                          onClick={() => navigate({ to: `/` })}
+                        >
+                          Find a Petsitter
+                        </Button>
                       </div>
                     )}
                   </CardContent>
