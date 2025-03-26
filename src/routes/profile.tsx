@@ -10,24 +10,22 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Edit, Loader2 } from "lucide-react";
+import { MapPin, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { type User } from "@/components/user/types";
-import {
-  type Review,
-  type ReviewsApiResponse,
-} from "@/components/review/types";
 import {
   type Booking,
   type BookingApiResponse,
 } from "@/components/booking/types";
-import { BookingsContent } from "@/components/booking";
 import {
-  ReviewLoadingState,
-  ReviewErrorState,
-  ReviewsList,
-  ReviewEmptyState,
-} from "@/components/review";
+  type Review,
+  type ReviewsApiResponse,
+} from "@/components/review/types";
+import { BookingsContent } from "@/components/booking/bookings-content";
+import { ReviewLoadingState } from "@/components/review/loading-state";
+import { ReviewErrorState } from "@/components/review/error-state";
+import { ReviewsList } from "@/components/review/review-list";
+import { ReviewEmptyState } from "@/components/review/empty-state";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
