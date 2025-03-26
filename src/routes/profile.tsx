@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -19,25 +19,6 @@ export const Route = createFileRoute("/profile")({
 
 // We'll use localStorage in the component instead of at the module level
 
-// Define interfaces for type safety
-interface Booking {
-  id: number;
-  petsitter: string;
-  avatar: string;
-  service: string;
-  date: string;
-  status: string;
-  rating: number | null;
-}
-
-interface Pet {
-  id: number;
-  name: string;
-  type: string;
-  breed: string;
-  age: number;
-  image: string;
-}
 
 interface User {
   user_id: string;
@@ -52,8 +33,6 @@ interface User {
   created_at: string;
   last_updated: string;
   location?: string; // We'll derive this from latitude/longitude or use a placeholder
-  pets?: Pet[]; // For now we'll leave this empty or add mock data
-  bookings?: Booking[]; // For now we'll leave this empty or add mock data
 }
 
 // Updated Review interface to match API response format with joined user data
@@ -81,52 +60,32 @@ interface ReviewsApiResponse {
   };
 }
 
+interface Bookings {
+  booking_id: string;
+  petowner_id: string;
+  petsitter_id: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  last_updated: string;
+  profile_image_url: string;
+  username: string;
+}
+
+interface BookingApiResponse {
+  bookings: Bookings[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
 interface HealthResponse {
   status: string;
   timestamp: string;
 }
-
-// Mock data for bookings and pets
-const mockBookings: Booking[] = [
-  {
-    id: 1,
-    petsitter: "Sarah Johnson",
-    avatar: "/placeholder.svg?height=40&width=40",
-    service: "Pet Sitting",
-    date: "May 15, 2023",
-    status: "Completed",
-    rating: 5,
-  },
-  {
-    id: 2,
-    petsitter: "Michael Chen",
-    avatar: "/placeholder.svg?height=40&width=40",
-    service: "Dog Walking",
-    date: "June 10, 2023",
-    status: "Completed",
-    rating: 4,
-  },
-  {
-    id: 3,
-    petsitter: "Emily Rodriguez",
-    avatar: "/placeholder.svg?height=40&width=40",
-    service: "Pet Sitting",
-    date: "July 5, 2023",
-    status: "Upcoming",
-    rating: null,
-  },
-];
-
-const mockPets: Pet[] = [
-  {
-    id: 1,
-    name: "Max",
-    type: "Dog",
-    breed: "Golden Retriever",
-    age: 3,
-    image: "/placeholder.svg?height=100&width=100",
-  },
-];
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
@@ -141,8 +100,16 @@ function Profile() {
   const [userData, setUserData] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
+
+  const [bookings, setBookings] = useState<Bookings[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [bookingsError, setBookingsError] = useState<string | null>(null);
+  const [bookingsPage, setBookingsPage] = useState(0);
+  const [hasMoreBookings, setHasMoreBookings] = useState(false);
   
   const reviewsLimit = 5;
+
+  const navigate = useNavigate();
   
   // Get user profile from localStorage (set during Google login)
   const [googleProfile, setGoogleProfile] = useState<{name: string, email: string, picture: string} | null>(null);
@@ -187,8 +154,8 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          pets: mockPets,
-          bookings: mockBookings
+          // pets: mockPets,
+          // bookings: mockBookings
         };
         
         setUserData(userData);
@@ -201,8 +168,8 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          pets: mockPets,
-          bookings: mockBookings
+          // pets: mockPets,
+          // bookings: mockBookings
         };
         
         setUserData(userData);
@@ -215,6 +182,62 @@ function Profile() {
     }
   }
 
+  useEffect(() => {
+    if (activeTab === "bookings" && userData) {
+      fetchBookings();
+    }
+  }, [activeTab, bookingsPage, userData]);
+
+  async function fetchBookings() {
+    if (!userData) return;
+    
+    setBookingsLoading(true);
+    setBookingsError(null);
+
+    try {
+      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
+      
+      const res = await fetch(
+        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = (await res.json()) as BookingApiResponse;
+
+      console.log("Fetched bookings:", data);
+
+      setBookings((prevBookings) =>
+        bookingsPage === 0
+          ? data.bookings
+          : [...prevBookings, ...data.bookings]
+      );
+
+      setHasMoreBookings(data.pagination.hasMore);
+    } catch (err) {
+      setBookingsError("Failed to fetch bookings.");
+      console.error("Error fetching bookings:", err);
+    } finally {
+      setBookingsLoading(false);
+    }
+  }
+
+  function getBookingStatus(start_date: string, end_date: string): string {
+    const currentTime = new Date(); // Get current time
+    const startTime = new Date(start_date); // Convert start_date to Date object
+    const endTime = new Date(end_date); // Convert end_date to Date object
+  
+    if (currentTime < startTime) {
+      return "Upcoming"; // If current time is before start_date
+    } else if (currentTime >= startTime && currentTime < endTime) {
+      return "Ongoing"; // If current time is between start_date and end_date
+    } else {
+      return "Completed"; // If current time is after or equals end_date
+    }
+  }
+  
   // Helper function to process the reviews from API response
   function processFetchedReviews(reviews: Review[]): Review[] {
     return reviews.map((review) => ({
@@ -272,6 +295,15 @@ function Profile() {
       setReviewsLoading(false);
     }
   }
+  
+  const loadMoreBookings = () => {
+    setBookingsPage((prevPage) => prevPage + 1);
+  };
+
+  // Function to load more reviews
+  const loadMoreReviews = () => {
+    setReviewsPage((prevPage) => prevPage + 1);
+  };
 
   async function handleHealthCheck() {
     setLoading(true);
@@ -292,17 +324,22 @@ function Profile() {
       setLoading(false);
     }
   }
-
-  // Function to load more reviews
-  const loadMoreReviews = () => {
-    setReviewsPage((prevPage) => prevPage + 1);
-  };
-
+  
   // Format date from ISO string
   const formatMemberSince = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
   };
+
+  function formatBookingDate(dateString: string): string {
+    const date = new Date(dateString.replace(" ", "T")); // Convert to Date object
+  
+    return date.toLocaleDateString("en-US", { 
+      year: "numeric", 
+      month: "long", 
+      day: "numeric" 
+    });
+  }
 
   // Loading state UI
   if (userLoading) {
@@ -418,64 +455,100 @@ function Profile() {
                       View your past and upcoming bookings
                     </CardDescription>
                   </CardHeader>
+                  
                   <CardContent>
-                    {userData.bookings && userData.bookings.length > 0 ? (
+                    {bookingsLoading && bookings.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                        <p>Loading bookings...</p>
+                      </div>
+                    ) : bookingsError ? (
+                      <div className="text-center py-8">
+                        <p className="text-red-500">{bookingsError}</p>
+                        <Button
+                          onClick={fetchBookings}
+                          variant="outline"
+                          className="mt-2"
+                        >
+                          Try Again
+                        </Button>
+                      </div>
+                    ) : bookings.length > 0 ? (
                       <div className="space-y-4">
-                        {userData.bookings.map((booking) => (
+                        {bookings.map((booking) => (
                           <div
-                            key={booking.id}
-                            className="flex items-start p-4 border rounded-lg"
-                          >
-                            <Avatar className="h-10 w-10 mr-3">
-                              <AvatarImage
-                                src={booking.avatar}
-                                alt={booking.petsitter}
-                              />
-                              <AvatarFallback>
-                                {booking.petsitter.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium">
-                                    {booking.petsitter}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    {booking.service}
-                                  </p>
-                                </div>
-                                <Badge
-                                  variant={
-                                    booking.status === "Upcoming"
-                                      ? "outline"
-                                      : "secondary"
-                                  }
-                                >
-                                  {booking.status}
-                                </Badge>
+                          key={booking.booking_id}
+                          className="flex items-start p-4 border rounded-lg"
+                        >
+                          <Avatar className="h-10 w-10 mr-3">
+                            <AvatarImage
+                              src={booking.profile_image_url}
+                              alt={booking.username}
+                            />
+                            <AvatarFallback>
+                              {booking.petsitter_id.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="font-medium">
+                                  {booking.username}
+                                </h3>
+                                {/* <p className="text-sm text-muted-foreground">
+                                  {booking.service}
+                                </p> */}
                               </div>
-                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                <span>{booking.date}</span>
-                              </div>
-                              {booking.rating !== null && (
-                                <div className="flex items-center mt-2">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`h-4 w-4 ${
-                                        i < booking.rating!
-                                          ? "fill-yellow-400 text-yellow-400"
-                                          : "text-gray-300"
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                              )}
+                              <Badge
+                                variant={
+                                  getBookingStatus(booking.start_date, booking.end_date) === "Upcoming"
+                                    ? "outline"
+                                    : "secondary"
+                                }
+                              >
+                                {getBookingStatus(booking.start_date, booking.end_date)}
+                              </Badge>
                             </div>
+                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              <span>{formatBookingDate(booking.start_date)}</span>
+                            </div>
+                            {/* {booking.rating !== null && (
+                              <div className="flex items-center mt-2">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < booking.rating!
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            )} */}
                           </div>
+                        </div>
                         ))}
+
+                        {hasMoreBookings && (
+                          <div className="flex justify-center mt-4">
+                            <Button
+                              variant="outline"
+                              onClick={loadMoreBookings}
+                              disabled={bookingsLoading}
+                            >
+                              {bookingsLoading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Loading...
+                                </>
+                              ) : (
+                                "Load More Bookings"
+                              )}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center py-8">
@@ -486,7 +559,12 @@ function Profile() {
                         <p className="text-muted-foreground mb-4">
                           Book a petsitter to see your bookings here
                         </p>
-                        <Button>Find a Petsitter</Button>
+
+                        <Button 
+                          onClick={() => navigate({ to: `/` })}
+                        >
+                          Find a Petsitter
+                        </Button>
                       </div>
                     )}
                   </CardContent>

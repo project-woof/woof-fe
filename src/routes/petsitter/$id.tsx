@@ -76,6 +76,46 @@ const petsitterData = {
   ],
 };
 
+interface BookingData {
+  petsitter_id: string;
+  petowner_id: string;
+  start_date: string;
+  end_date: string;
+}
+
+async function createBooking() {
+  try {
+    const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
+    
+    const bookingData: BookingData = {
+      petsitter_id: "uuid-user2",
+      petowner_id: "bbf7fc583d4cd42846ae8bddd0a97759",
+      start_date: "2025-05-10 12:00:00",
+      end_date: "2025-05-15 13:00:00"
+    };
+
+    const res = await fetch(
+      `${gatewayUrl}/booking/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bookingData)
+      }
+    );
+
+    const responseData = await res.json();
+    console.log("Booking created:", responseData);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+  } catch (err) {
+    
+  }
+}
+
 function Petsitter() {
   // const { id } = useParams({ from: "/petsitter/$id" });
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -400,7 +440,10 @@ function Petsitter() {
                   </div>
                 </div>
 
-                <Button className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream">
+                <Button 
+                  className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream"
+                  onClick={() => createBooking()}
+                >
                   Book Now
                 </Button>
                 <Button
