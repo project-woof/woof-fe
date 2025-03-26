@@ -10,9 +10,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ReviewsTab } from "@/components/review/review-tab";
-import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
+import { MapPin, Calendar, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LoadingState } from "@/components/review/loading-state";
+import { ErrorState } from "@/components/review/error-state";
+import { ReviewsList } from "@/components/review/review-list";
+import { EmptyState } from "@/components/review/empty-state";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -265,7 +268,7 @@ function Profile() {
         "https://petsitter-gateway-worker.limqijie53.workers.dev";
 
       const res = await fetch(
-        `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `${gatewayUrl}/review/reviewee?revieweeId=bbf7fc583d4cd42846ae8bddd0a97759&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
       );
 
       if (!res.ok) {
@@ -552,119 +555,23 @@ function Profile() {
                       Reviews others have left about you
                     </CardDescription>
                   </CardHeader>
-                  {/* <CardContent>
-                    {reviewsLoading && reviews.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                        <p>Loading reviews...</p>
-                      </div>
-                    ) : reviewsError ? (
-                      <div className="text-center py-8">
-                        <p className="text-red-500">{reviewsError}</p>
-                        <Button
-                          onClick={fetchReviews}
-                          variant="outline"
-                          className="mt-2"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
-                    ) : reviews.length > 0 ? (
-                      <div className="space-y-4">
-                        {reviews.map((review) => (
-                          <div
-                            key={review.review_id}
-                            className="p-4 border rounded-lg"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <Avatar className="h-10 w-10 mr-3">
-                                  <AvatarImage
-                                    src={
-                                      review.profile_image_url ||
-                                      "/placeholder.svg?height=40&width=40"
-                                    }
-                                    alt={review.username || "Reviewer"}
-                                  />
-                                  <AvatarFallback>
-                                    {review.username?.charAt(0) || "?"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <h3 className="font-medium">
-                                    {review.username || "Anonymous"}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    {new Date(
-                                      review.created_at
-                                    ).toLocaleDateString()}{" "}
-                                    at{" "}
-                                    {new Date(
-                                      review.created_at
-                                    ).toLocaleTimeString("en-US", {
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < review.rating
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="mt-2">{review.comment}</p>
-                          </div>
-                        ))}
 
-                        {hasMoreReviews && (
-                          <div className="flex justify-center mt-4">
-                            <Button
-                              variant="outline"
-                              onClick={loadMoreReviews}
-                              disabled={reviewsLoading}
-                            >
-                              {reviewsLoading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Loading...
-                                </>
-                              ) : (
-                                "Load More Reviews"
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                  <CardContent>
+                    {reviewsLoading && reviews.length === 0 ? (
+                      <LoadingState />
+                    ) : reviewsError ? (
+                      <ErrorState error={reviewsError} onRetry={fetchReviews} />
+                    ) : reviews.length > 0 ? (
+                      <ReviewsList
+                        reviews={reviews}
+                        hasMoreReviews={hasMoreReviews}
+                        isLoading={reviewsLoading}
+                        onLoadMore={loadMoreReviews}
+                      />
                     ) : (
-                      <div className="text-center py-8">
-                        <Star className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                        <h3 className="font-medium text-lg mb-1">
-                          No reviews yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          There are no reviews for you yet
-                        </p>
-                      </div>
+                      <EmptyState />
                     )}
-                  </CardContent> */}
-                  <ReviewsTab
-                    reviews={reviews}
-                    reviewsLoading={reviewsLoading}
-                    reviewsError={reviewsError}
-                    hasMoreReviews={hasMoreReviews}
-                    fetchReviews={fetchReviews}
-                    loadMoreReviews={loadMoreReviews}
-                  />
+                  </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>
