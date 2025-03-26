@@ -12,13 +12,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { type User } from "@/components/user/types";
 import {
   type Review,
-  type User,
   type ReviewsApiResponse,
+} from "@/components/review/types";
+import {
   type Bookings,
   type BookingApiResponse,
-} from "@/components/review/types";
+} from "@/components/booking/types";
 import { LoadingState } from "@/components/review/loading-state";
 import { ErrorState } from "@/components/review/error-state";
 import { ReviewsList } from "@/components/review/review-list";
@@ -213,7 +215,7 @@ function Profile() {
         "https://petsitter-gateway-worker.limqijie53.workers.dev";
 
       const res = await fetch(
-        `${gatewayUrl}/review/reviewee?revieweeId=bbf7fc583d4cd42846ae8bddd0a97759&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `${gatewayUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
       );
 
       if (!res.ok) {
