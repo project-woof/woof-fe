@@ -18,19 +18,20 @@ import {
   type ReviewsApiResponse,
 } from "@/components/review/types";
 import {
-  type Bookings,
+  type Booking,
   type BookingApiResponse,
 } from "@/components/booking/types";
-import { LoadingState } from "@/components/review/loading-state";
-import { ErrorState } from "@/components/review/error-state";
-import { ReviewsList } from "@/components/review/review-list";
-import { EmptyState } from "@/components/review/empty-state";
+import { BookingsContent } from "@/components/booking";
+import {
+  ReviewLoadingState,
+  ReviewErrorState,
+  ReviewsList,
+  ReviewEmptyState,
+} from "@/components/review";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
-
-// We'll use localStorage in the component instead of at the module level
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
@@ -43,13 +44,13 @@ function Profile() {
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
 
-  const [bookings, setBookings] = useState<Bookings[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingsPage, setBookingsPage] = useState(0);
   const [hasMoreBookings, setHasMoreBookings] = useState(false);
 
-  const reviewsLimit = 5;
+  const viewLimit = 5;
 
   const navigate = useNavigate();
 
@@ -103,8 +104,6 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          // pets: mockPets,
-          // bookings: mockBookings
         };
 
         setUserData(userData);
@@ -117,8 +116,6 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          // pets: mockPets,
-          // bookings: mockBookings
         };
 
         setUserData(userData);
@@ -149,7 +146,7 @@ function Profile() {
         "https://petsitter-gateway-worker.limqijie53.workers.dev";
 
       const res = await fetch(
-        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
+        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${viewLimit}&offset=${bookingsPage * viewLimit}`
       );
 
       if (!res.ok) {
@@ -215,7 +212,7 @@ function Profile() {
         "https://petsitter-gateway-worker.limqijie53.workers.dev";
 
       const res = await fetch(
-        `${gatewayUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `${gatewayUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${viewLimit}&offset=${reviewsPage * viewLimit}`
       );
 
       if (!res.ok) {
@@ -387,110 +384,17 @@ function Profile() {
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent>
-                    {bookingsLoading && bookings.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                        <p>Loading bookings...</p>
-                      </div>
-                    ) : bookingsError ? (
-                      <div className="text-center py-8">
-                        <p className="text-red-500">{bookingsError}</p>
-                        <Button
-                          onClick={fetchBookings}
-                          variant="outline"
-                          className="mt-2"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
-                    ) : bookings.length > 0 ? (
-                      <div className="space-y-4">
-                        {bookings.map((booking) => (
-                          <div
-                            key={booking.booking_id}
-                            className="flex items-start p-4 border rounded-lg"
-                          >
-                            <Avatar className="h-10 w-10 mr-3">
-                              <AvatarImage
-                                src={booking.profile_image_url}
-                                alt={booking.username}
-                              />
-                              <AvatarFallback>
-                                {booking.petsitter_id.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-medium">
-                                    {booking.username}
-                                  </h3>
-                                  {/* <p className="text-sm text-muted-foreground">
-                                  {booking.service}
-                                </p> */}
-                                </div>
-                                <Badge
-                                  variant={
-                                    getBookingStatus(
-                                      booking.start_date,
-                                      booking.end_date
-                                    ) === "Upcoming"
-                                      ? "outline"
-                                      : "secondary"
-                                  }
-                                >
-                                  {getBookingStatus(
-                                    booking.start_date,
-                                    booking.end_date
-                                  )}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                <span>
-                                  {formatBookingDate(booking.start_date)}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-
-                        {hasMoreBookings && (
-                          <div className="flex justify-center mt-4">
-                            <Button
-                              variant="outline"
-                              onClick={loadMoreBookings}
-                              disabled={bookingsLoading}
-                            >
-                              {bookingsLoading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Loading...
-                                </>
-                              ) : (
-                                "Load More Bookings"
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                        <h3 className="font-medium text-lg mb-1">
-                          No bookings yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          Book a petsitter to see your bookings here
-                        </p>
-
-                        <Button onClick={() => navigate({ to: `/` })}>
-                          Find a Petsitter
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
+                  <BookingsContent
+                    bookings={bookings}
+                    bookingsLoading={bookingsLoading}
+                    bookingsError={bookingsError}
+                    hasMoreBookings={hasMoreBookings}
+                    fetchBookings={fetchBookings}
+                    loadMoreBookings={loadMoreBookings}
+                    getBookingStatus={getBookingStatus}
+                    formatBookingDate={formatBookingDate}
+                    onFindPetsitter={() => navigate({ to: "/" })}
+                  />
                 </Card>
               </TabsContent>
 
@@ -505,9 +409,12 @@ function Profile() {
 
                   <CardContent>
                     {reviewsLoading && reviews.length === 0 ? (
-                      <LoadingState />
+                      <ReviewLoadingState />
                     ) : reviewsError ? (
-                      <ErrorState error={reviewsError} onRetry={fetchReviews} />
+                      <ReviewErrorState
+                        error={reviewsError}
+                        onRetry={fetchReviews}
+                      />
                     ) : reviews.length > 0 ? (
                       <ReviewsList
                         reviews={reviews}
@@ -516,7 +423,7 @@ function Profile() {
                         onLoadMore={loadMoreReviews}
                       />
                     ) : (
-                      <EmptyState />
+                      <ReviewEmptyState />
                     )}
                   </CardContent>
                 </Card>

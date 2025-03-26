@@ -1,4 +1,4 @@
-export interface Bookings {
+export interface Booking {
   booking_id: string;
   petowner_id: string;
   petsitter_id: string;
@@ -11,7 +11,7 @@ export interface Bookings {
 }
 
 export interface BookingApiResponse {
-  bookings: Bookings[];
+  bookings: Booking[];
   pagination: {
     total: number;
     limit: number;

@@ -1,11 +1,13 @@
-import { Button } from "@/components/ui/button";
+"use client"
+
+import { Button } from "@/components/ui/button"
 
 interface ErrorStateProps {
-  error: string;
-  onRetry: () => void;
+  error: string
+  onRetry: () => void
 }
 
-export function ReviewErrorState({ error, onRetry }: ErrorStateProps) {
+export function BookingErrorState({ error, onRetry }: ErrorStateProps) {
   return (
     <div className="text-center py-8">
       <p className="text-red-500">{error}</p>
@@ -13,5 +15,5 @@ export function ReviewErrorState({ error, onRetry }: ErrorStateProps) {
         Try Again
       </Button>
     </div>
-  );
+  )
 }

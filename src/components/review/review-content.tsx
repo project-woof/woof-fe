@@ -1,17 +1,23 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { type Review } from "@/components/review/types"
-import { ReviewsList } from "@/components/review/review-list"
-import { EmptyState } from "./empty-state"
-import { ErrorState } from "./error-state"
-import { LoadingState } from "./loading-state"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { type Review } from "@/components/review/types";
+import { ReviewsList } from "@/components/review/review-list";
+import { ReviewEmptyState } from "./empty-state";
+import { ReviewErrorState } from "./error-state";
+import { ReviewLoadingState } from "./loading-state";
 
 interface ReviewsContentProps {
-  reviews: Review[]
-  reviewsLoading: boolean
-  reviewsError: string | null
-  hasMoreReviews: boolean
-  fetchReviews: () => void
-  loadMoreReviews: () => void
+  reviews: Review[];
+  reviewsLoading: boolean;
+  reviewsError: string | null;
+  hasMoreReviews: boolean;
+  fetchReviews: () => void;
+  loadMoreReviews: () => void;
 }
 
 export function ReviewsContent({
@@ -22,7 +28,6 @@ export function ReviewsContent({
   fetchReviews,
   loadMoreReviews,
 }: ReviewsContentProps) {
-  
   return (
     <Card>
       <CardHeader>
@@ -31,9 +36,9 @@ export function ReviewsContent({
       </CardHeader>
       <CardContent>
         {reviewsLoading && reviews.length === 0 ? (
-          <LoadingState />
+          <ReviewLoadingState />
         ) : reviewsError ? (
-          <ErrorState error={reviewsError} onRetry={fetchReviews} />
+          <ReviewErrorState error={reviewsError} onRetry={fetchReviews} />
         ) : reviews.length > 0 ? (
           <ReviewsList
             reviews={reviews}
@@ -42,9 +47,9 @@ export function ReviewsContent({
             onLoadMore={loadMoreReviews}
           />
         ) : (
-          <EmptyState />
+          <ReviewEmptyState />
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
