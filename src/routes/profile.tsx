@@ -19,7 +19,6 @@ export const Route = createFileRoute("/profile")({
 
 // We'll use localStorage in the component instead of at the module level
 
-
 interface User {
   user_id: string;
   username: string;
@@ -82,16 +81,8 @@ interface BookingApiResponse {
   };
 }
 
-interface HealthResponse {
-  status: string;
-  timestamp: string;
-}
-
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [health, setHealth] = useState<HealthResponse | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
@@ -106,22 +97,29 @@ function Profile() {
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingsPage, setBookingsPage] = useState(0);
   const [hasMoreBookings, setHasMoreBookings] = useState(false);
-  
+
   const reviewsLimit = 5;
 
   const navigate = useNavigate();
-  
+
   // Get user profile from localStorage (set during Google login)
-  const [googleProfile, setGoogleProfile] = useState<{name: string, email: string, picture: string} | null>(null);
-  
+  const [googleProfile, setGoogleProfile] = useState<{
+    name: string;
+    email: string;
+    picture: string;
+  } | null>(null);
+
   // In a real app, we would get the user ID from auth context
   // For now, we'll just use the Google profile information from localStorage
 
   // Get Google profile from localStorage on component mount
   useEffect(() => {
-    const storedProfile = localStorage.getItem('userProfile');
-    console.log("Raw userProfile from localStorage in profile.tsx:", storedProfile);
-    
+    const storedProfile = localStorage.getItem("userProfile");
+    console.log(
+      "Raw userProfile from localStorage in profile.tsx:",
+      storedProfile
+    );
+
     if (storedProfile) {
       try {
         const parsedProfile = JSON.parse(storedProfile);
@@ -157,7 +155,7 @@ function Profile() {
           // pets: mockPets,
           // bookings: mockBookings
         };
-        
+
         setUserData(userData);
       } else {
         // If we don't have Google profile information, use a default user
@@ -171,7 +169,7 @@ function Profile() {
           // pets: mockPets,
           // bookings: mockBookings
         };
-        
+
         setUserData(userData);
       }
     } catch (err) {
@@ -190,13 +188,15 @@ function Profile() {
 
   async function fetchBookings() {
     if (!userData) return;
-    
+
     setBookingsLoading(true);
     setBookingsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
-      
+      const gatewayUrl =
+        import.meta.env.GATEWAY_URL ||
+        "https://petsitter-gateway-worker.limqijie53.workers.dev";
+
       const res = await fetch(
         `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
       );
@@ -210,9 +210,7 @@ function Profile() {
       console.log("Fetched bookings:", data);
 
       setBookings((prevBookings) =>
-        bookingsPage === 0
-          ? data.bookings
-          : [...prevBookings, ...data.bookings]
+        bookingsPage === 0 ? data.bookings : [...prevBookings, ...data.bookings]
       );
 
       setHasMoreBookings(data.pagination.hasMore);
@@ -228,7 +226,7 @@ function Profile() {
     const currentTime = new Date(); // Get current time
     const startTime = new Date(start_date); // Convert start_date to Date object
     const endTime = new Date(end_date); // Convert end_date to Date object
-  
+
     if (currentTime < startTime) {
       return "Upcoming"; // If current time is before start_date
     } else if (currentTime >= startTime && currentTime < endTime) {
@@ -237,7 +235,7 @@ function Profile() {
       return "Completed"; // If current time is after or equals end_date
     }
   }
-  
+
   // Helper function to process the reviews from API response
   function processFetchedReviews(reviews: Review[]): Review[] {
     return reviews.map((review) => ({
@@ -256,18 +254,19 @@ function Profile() {
 
   async function fetchReviews() {
     if (!userData) return;
-    
+
     setReviewsLoading(true);
     setReviewsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
-      
+      const gatewayUrl =
+        import.meta.env.GATEWAY_URL ||
+        "https://petsitter-profile-worker.limqijie53.workers.dev";
+
       const res = await fetch(
         `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
       );
 
-      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -295,7 +294,7 @@ function Profile() {
       setReviewsLoading(false);
     }
   }
-  
+
   const loadMoreBookings = () => {
     setBookingsPage((prevPage) => prevPage + 1);
   };
@@ -305,39 +304,19 @@ function Profile() {
     setReviewsPage((prevPage) => prevPage + 1);
   };
 
-  async function handleHealthCheck() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
-      const res = await fetch(`${gatewayUrl}/health`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = (await res.json()) as HealthResponse;
-      setHealth(data);
-    } catch (err) {
-      setError("Failed to fetch health data.");
-      console.error("Error fetching health data:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-  
   // Format date from ISO string
   const formatMemberSince = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
   };
 
   function formatBookingDate(dateString: string): string {
     const date = new Date(dateString.replace(" ", "T")); // Convert to Date object
-  
-    return date.toLocaleDateString("en-US", { 
-      year: "numeric", 
-      month: "long", 
-      day: "numeric" 
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   }
 
@@ -359,15 +338,13 @@ function Profile() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-500">Error Loading Profile</CardTitle>
+            <CardTitle className="text-red-500">
+              Error Loading Profile
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p>{userError || "Failed to load user data."}</p>
-            <Button 
-              variant="outline" 
-              onClick={fetchUserData} 
-              className="mt-4"
-            >
+            <Button variant="outline" onClick={fetchUserData} className="mt-4">
               Try Again
             </Button>
           </CardContent>
@@ -386,9 +363,13 @@ function Profile() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center">
                   <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage 
-                      src={googleProfile?.picture || userData.profile_image_url || "/placeholder.svg?height=150&width=150"} 
-                      alt={userData.username} 
+                    <AvatarImage
+                      src={
+                        googleProfile?.picture ||
+                        userData.profile_image_url ||
+                        "/placeholder.svg?height=150&width=150"
+                      }
+                      alt={userData.username}
                     />
                     <AvatarFallback>
                       {userData.username
@@ -397,8 +378,12 @@ function Profile() {
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <h2 className="text-xl font-bold">{googleProfile?.name || userData.username}</h2>
-                  <p className="text-sm text-muted-foreground">{googleProfile?.email || userData.email}</p>
+                  <h2 className="text-xl font-bold">
+                    {googleProfile?.name || userData.username}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {googleProfile?.email || userData.email}
+                  </p>
                   <div className="flex items-center mt-1 text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{userData.location}</span>
@@ -408,25 +393,22 @@ function Profile() {
                   </p>
                   <div className="mt-2">
                     <Badge variant="default">
-                      {userData.is_petsitter === 1 ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                      {userData.is_petsitter === 1
+                        ? "Pet Owner & Sitter"
+                        : "Pet Owner"}
                     </Badge>
                   </div>
 
                   <Button
                     variant="outline"
                     className="mt-4 w-full flex items-center justify-center"
-                    onClick={handleHealthCheck}
+                    // TODO: edit profile
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    {loading ? "Loading..." : "Edit Profile"}
+                    EDIT PROFILE
                   </Button>
-                  {error && <p className="text-red-500 mt-2">{error}</p>}
-                  {health && (
-                    <div className="mt-2 text-sm">
-                      <p>Status: {health.status}</p>
-                      <p>Timestamp: {health.timestamp}</p>
-                    </div>
-                  )}
+                  
+                  
                 </div>
 
                 <div className="mt-6">
@@ -455,7 +437,7 @@ function Profile() {
                       View your past and upcoming bookings
                     </CardDescription>
                   </CardHeader>
-                  
+
                   <CardContent>
                     {bookingsLoading && bookings.length === 0 ? (
                       <div className="text-center py-8">
@@ -477,58 +459,52 @@ function Profile() {
                       <div className="space-y-4">
                         {bookings.map((booking) => (
                           <div
-                          key={booking.booking_id}
-                          className="flex items-start p-4 border rounded-lg"
-                        >
-                          <Avatar className="h-10 w-10 mr-3">
-                            <AvatarImage
-                              src={booking.profile_image_url}
-                              alt={booking.username}
-                            />
-                            <AvatarFallback>
-                              {booking.petsitter_id.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-medium">
-                                  {booking.username}
-                                </h3>
-                                {/* <p className="text-sm text-muted-foreground">
+                            key={booking.booking_id}
+                            className="flex items-start p-4 border rounded-lg"
+                          >
+                            <Avatar className="h-10 w-10 mr-3">
+                              <AvatarImage
+                                src={booking.profile_image_url}
+                                alt={booking.username}
+                              />
+                              <AvatarFallback>
+                                {booking.petsitter_id.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium">
+                                    {booking.username}
+                                  </h3>
+                                  {/* <p className="text-sm text-muted-foreground">
                                   {booking.service}
                                 </p> */}
+                                </div>
+                                <Badge
+                                  variant={
+                                    getBookingStatus(
+                                      booking.start_date,
+                                      booking.end_date
+                                    ) === "Upcoming"
+                                      ? "outline"
+                                      : "secondary"
+                                  }
+                                >
+                                  {getBookingStatus(
+                                    booking.start_date,
+                                    booking.end_date
+                                  )}
+                                </Badge>
                               </div>
-                              <Badge
-                                variant={
-                                  getBookingStatus(booking.start_date, booking.end_date) === "Upcoming"
-                                    ? "outline"
-                                    : "secondary"
-                                }
-                              >
-                                {getBookingStatus(booking.start_date, booking.end_date)}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              <span>{formatBookingDate(booking.start_date)}</span>
-                            </div>
-                            {/* {booking.rating !== null && (
-                              <div className="flex items-center mt-2">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < booking.rating!
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
+                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                <span>
+                                  {formatBookingDate(booking.start_date)}
+                                </span>
                               </div>
-                            )} */}
+                            </div>
                           </div>
-                        </div>
                         ))}
 
                         {hasMoreBookings && (
@@ -560,9 +536,7 @@ function Profile() {
                           Book a petsitter to see your bookings here
                         </p>
 
-                        <Button 
-                          onClick={() => navigate({ to: `/` })}
-                        >
+                        <Button onClick={() => navigate({ to: `/` })}>
                           Find a Petsitter
                         </Button>
                       </div>
