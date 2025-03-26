@@ -12,6 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  type Review,
+  type User,
+  type ReviewsApiResponse,
+  type Bookings,
+  type BookingApiResponse,
+} from "@/components/review/types";
 import { LoadingState } from "@/components/review/loading-state";
 import { ErrorState } from "@/components/review/error-state";
 import { ReviewsList } from "@/components/review/review-list";
@@ -22,68 +29,6 @@ export const Route = createFileRoute("/profile")({
 });
 
 // We'll use localStorage in the component instead of at the module level
-
-interface User {
-  user_id: string;
-  username: string;
-  email: string;
-
-  profile_image_url?: string;
-  latitude?: number;
-  longitude?: number;
-  description?: string;
-  is_petsitter?: number; // 0: false, 1: true
-  created_at: string;
-  last_updated: string;
-  location?: string; // We'll derive this from latitude/longitude or use a placeholder
-}
-
-// Updated Review interface to match API response format with joined user data
-interface Review {
-  review_id: string;
-  reviewer_id: string;
-  reviewee_id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  last_updated: string;
-  // User fields from the join
-  username: string;
-  profile_image_url: string;
-}
-
-// Updated API response interface to match the structure
-interface ReviewsApiResponse {
-  reviews: Review[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
-
-interface Bookings {
-  booking_id: string;
-  petowner_id: string;
-  petsitter_id: string;
-  start_date: string;
-  end_date: string;
-  created_at: string;
-  last_updated: string;
-  profile_image_url: string;
-  username: string;
-}
-
-interface BookingApiResponse {
-  bookings: Bookings[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
