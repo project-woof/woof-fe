@@ -10,6 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ReviewsTab } from "@/components/review/review-tab";
 import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
@@ -202,7 +203,7 @@ function Profile() {
       );
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        throw new Error(`HTTP error! status: ${res}`);
       }
 
       const data = (await res.json()) as BookingApiResponse;
@@ -261,7 +262,7 @@ function Profile() {
     try {
       const gatewayUrl =
         import.meta.env.GATEWAY_URL ||
-        "https://petsitter-profile-worker.limqijie53.workers.dev";
+        "https://petsitter-gateway-worker.limqijie53.workers.dev";
 
       const res = await fetch(
         `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
@@ -407,8 +408,6 @@ function Profile() {
                     <Edit className="h-4 w-4 mr-2" />
                     EDIT PROFILE
                   </Button>
-                  
-                  
                 </div>
 
                 <div className="mt-6">
@@ -553,7 +552,7 @@ function Profile() {
                       Reviews others have left about you
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  {/* <CardContent>
                     {reviewsLoading && reviews.length === 0 ? (
                       <div className="text-center py-8">
                         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
@@ -657,7 +656,15 @@ function Profile() {
                         </p>
                       </div>
                     )}
-                  </CardContent>
+                  </CardContent> */}
+                  <ReviewsTab
+                    reviews={reviews}
+                    reviewsLoading={reviewsLoading}
+                    reviewsError={reviewsError}
+                    hasMoreReviews={hasMoreReviews}
+                    fetchReviews={fetchReviews}
+                    loadMoreReviews={loadMoreReviews}
+                  />
                 </Card>
               </TabsContent>
             </Tabs>

@@ -1,0 +1,50 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { type Review } from "@/components/review/types"
+import { ReviewsList } from "@/components/review/review-list"
+import { EmptyState } from "./empty-state"
+import { ErrorState } from "./error-state"
+import { LoadingState } from "./loading-state"
+
+interface ReviewsContentProps {
+  reviews: Review[]
+  reviewsLoading: boolean
+  reviewsError: string | null
+  hasMoreReviews: boolean
+  fetchReviews: () => void
+  loadMoreReviews: () => void
+}
+
+export function ReviewsContent({
+  reviews,
+  reviewsLoading,
+  reviewsError,
+  hasMoreReviews,
+  fetchReviews,
+  loadMoreReviews,
+}: ReviewsContentProps) {
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Reviews</CardTitle>
+        <CardDescription>Reviews others have left about you</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {reviewsLoading && reviews.length === 0 ? (
+          <LoadingState />
+        ) : reviewsError ? (
+          <ErrorState error={reviewsError} onRetry={fetchReviews} />
+        ) : reviews.length > 0 ? (
+          <ReviewsList
+            reviews={reviews}
+            hasMoreReviews={hasMoreReviews}
+            isLoading={reviewsLoading}
+            onLoadMore={loadMoreReviews}
+          />
+        ) : (
+          <EmptyState />
+        )}
+      </CardContent>
+    </Card>
+  )
+}
