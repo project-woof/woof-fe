@@ -139,12 +139,10 @@ function Profile() {
     setBookingsError(null);
 
     try {
-      const gatewayUrl =
-        import.meta.env.GATEWAY_URL ||
-        "https://petsitter-gateway-worker.limqijie53.workers.dev";
+      const apiUrl = import.meta.env.VITE_API_URL;
 
       const res = await fetch(
-        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${viewLimit}&offset=${bookingsPage * viewLimit}`
+        `${apiUrl}/booking/get?userId=${userData.user_id}&limit=${viewLimit}&offset=${bookingsPage * viewLimit}`
       );
 
       if (!res.ok) {
@@ -205,12 +203,10 @@ function Profile() {
     setReviewsError(null);
 
     try {
-      const gatewayUrl =
-        import.meta.env.GATEWAY_URL ||
-        "https://petsitter-gateway-worker.limqijie53.workers.dev";
+      const apiUrl = import.meta.env.VITE_API_URL;
 
       const res = await fetch(
-        `${gatewayUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${viewLimit}&offset=${reviewsPage * viewLimit}`
+        `${apiUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${viewLimit}&offset=${reviewsPage * viewLimit}`
       );
 
       if (!res.ok) {
