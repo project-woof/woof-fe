@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-declare const google: any;
 import { Link, useRouter } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,13 +20,9 @@ import {
   LogOut,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { authClient } from "@/lib/auth";
 
-export default function Header({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const storedProfile = localStorage.getItem('userProfile');
-  console.log("Raw userProfile from localStorage:", storedProfile);
-  
-  const userProfile = JSON.parse(storedProfile || '{}');
-  console.log("Parsed userProfile:", userProfile);
+export default function Header() {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
@@ -40,6 +35,7 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
   ];
 
   const isActive = (path: string) => pathname === path;
+  const { data: session } = authClient.useSession();
 
   return (
     <header className="bg-white border-b sticky top-0 z-10">
@@ -49,82 +45,94 @@ export default function Header({ isAuthenticated }: { isAuthenticated: boolean }
           <span className="font-bold text-xl">PetSitter</span>
         </Link>
 
-{/* Desktop Navigation */}
-{isAuthenticated && (
-<nav className="hidden md:flex items-center space-x-6">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`flex items-center space-x-1 ${
-                isActive(item.href)
-                  ? "text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.name}</span>
-            </Link>
-          ))}
-</nav>
-)}
+        {/* Desktop Navigation */}
+        {session && (
+          <nav className="hidden md:flex items-center space-x-6">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`flex items-center space-x-1 ${
+                  isActive(item.href)
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+        )}
 
-<div className="flex items-center space-x-4">
-          {isAuthenticated && <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
-                <Avatar>
-<AvatarImage
-  src={userProfile.picture || "/placeholder.svg?height=32&width=32"}
-  alt={userProfile.name || "User"}
-/>
-<AvatarFallback>{userProfile.name ? userProfile.name[0] : "U"}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="flex items-center justify-start gap-2 p-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={userProfile.picture || "/placeholder.svg?height=32&width=32"}
-                    alt={userProfile.name || "User"}
-                  />
-                  <AvatarFallback>{userProfile.name ? userProfile.name[0] : "U"}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col space-y-0.5">
-<p className="text-sm font-medium">{userProfile.name || "User"}</p>
-<p className="text-xs text-muted-foreground">
-  {userProfile.email || "user@example.com"}
-</p>
+        <div className="flex items-center space-x-4">
+          {session && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
+                  <Avatar>
+                    <AvatarImage
+                      src={
+                        session.user.image ||
+                        "/placeholder.svg?height=32&width=32"
+                      }
+                      alt={session.user.name || "User"}
+                    />
+                    <AvatarFallback>
+                      {session.user.name ? session.user.name[0] : "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="flex items-center justify-start gap-2 p-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={
+                        session.user.image ||
+                        "/placeholder.svg?height=32&width=32"
+                      }
+                      alt={session.user.name || "User"}
+                    />
+                    <AvatarFallback>
+                      {session.user.name ? session.user.name[0] : "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {session.user.name || "User"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.user.email || "user@example.com"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/settings" className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-<DropdownMenuItem
-  className="cursor-pointer"
-  onClick={() => {
-    google.accounts.id.disableAutoSelect();
-    document.cookie = "auth_token=; path=/; max-age=0";
-    window.location.href = "/login";
-  }}
->
-  <LogOut className="mr-2 h-4 w-4" />
-  <span>Log out</span>
-</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    authClient.signOut();
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Mobile menu button */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
