@@ -10,88 +10,29 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Calendar, Edit, Loader2 } from "lucide-react";
+import { MapPin, Edit, Loader2 } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { type User } from "@/components/user/types";
+import {
+  type Booking,
+  type BookingApiResponse,
+} from "@/components/booking/types";
+import {
+  type Review,
+  type ReviewsApiResponse,
+} from "@/components/review/types";
+import { BookingsContent } from "@/components/booking/bookings-content";
+import { ReviewLoadingState } from "@/components/review/loading-state";
+import { ReviewErrorState } from "@/components/review/error-state";
+import { ReviewsList } from "@/components/review/review-list";
+import { ReviewEmptyState } from "@/components/review/empty-state";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-// We'll use localStorage in the component instead of at the module level
-
-
-interface User {
-  user_id: string;
-  username: string;
-  email: string;
-
-  profile_image_url?: string;
-  latitude?: number;
-  longitude?: number;
-  description?: string;
-  is_petsitter?: number; // 0: false, 1: true
-  created_at: string;
-  last_updated: string;
-  location?: string; // We'll derive this from latitude/longitude or use a placeholder
-}
-
-// Updated Review interface to match API response format with joined user data
-interface Review {
-  review_id: string;
-  reviewer_id: string;
-  reviewee_id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  last_updated: string;
-  // User fields from the join
-  username: string;
-  profile_image_url: string;
-}
-
-// Updated API response interface to match the structure
-interface ReviewsApiResponse {
-  reviews: Review[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
-
-interface Bookings {
-  booking_id: string;
-  petowner_id: string;
-  petsitter_id: string;
-  start_date: string;
-  end_date: string;
-  created_at: string;
-  last_updated: string;
-  profile_image_url: string;
-  username: string;
-}
-
-interface BookingApiResponse {
-  bookings: Bookings[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
-
-interface HealthResponse {
-  status: string;
-  timestamp: string;
-}
-
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [health, setHealth] = useState<HealthResponse | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
@@ -101,27 +42,34 @@ function Profile() {
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
 
-  const [bookings, setBookings] = useState<Bookings[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingsPage, setBookingsPage] = useState(0);
   const [hasMoreBookings, setHasMoreBookings] = useState(false);
-  
-  const reviewsLimit = 5;
+
+  const viewLimit = 5;
 
   const navigate = useNavigate();
-  
+
   // Get user profile from localStorage (set during Google login)
-  const [googleProfile, setGoogleProfile] = useState<{name: string, email: string, picture: string} | null>(null);
-  
+  const [googleProfile, setGoogleProfile] = useState<{
+    name: string;
+    email: string;
+    picture: string;
+  } | null>(null);
+
   // In a real app, we would get the user ID from auth context
   // For now, we'll just use the Google profile information from localStorage
 
   // Get Google profile from localStorage on component mount
   useEffect(() => {
-    const storedProfile = localStorage.getItem('userProfile');
-    console.log("Raw userProfile from localStorage in profile.tsx:", storedProfile);
-    
+    const storedProfile = localStorage.getItem("userProfile");
+    console.log(
+      "Raw userProfile from localStorage in profile.tsx:",
+      storedProfile
+    );
+
     if (storedProfile) {
       try {
         const parsedProfile = JSON.parse(storedProfile);
@@ -154,10 +102,8 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          // pets: mockPets,
-          // bookings: mockBookings
         };
-        
+
         setUserData(userData);
       } else {
         // If we don't have Google profile information, use a default user
@@ -168,10 +114,8 @@ function Profile() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
           location: "No location set",
-          // pets: mockPets,
-          // bookings: mockBookings
         };
-        
+
         setUserData(userData);
       }
     } catch (err) {
@@ -190,19 +134,19 @@ function Profile() {
 
   async function fetchBookings() {
     if (!userData) return;
-    
+
     setBookingsLoading(true);
     setBookingsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
-      
+      const apiUrl = import.meta.env.VITE_API_URL;
+
       const res = await fetch(
-        `${gatewayUrl}/booking/get?userId=${userData.user_id}&limit=${reviewsLimit}&offset=${bookingsPage * reviewsLimit}`
+        `${apiUrl}/booking/get?userId=${userData.user_id}&limit=${viewLimit}&offset=${bookingsPage * viewLimit}`
       );
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        throw new Error(`HTTP error! status: ${res}`);
       }
 
       const data = (await res.json()) as BookingApiResponse;
@@ -210,9 +154,7 @@ function Profile() {
       console.log("Fetched bookings:", data);
 
       setBookings((prevBookings) =>
-        bookingsPage === 0
-          ? data.bookings
-          : [...prevBookings, ...data.bookings]
+        bookingsPage === 0 ? data.bookings : [...prevBookings, ...data.bookings]
       );
 
       setHasMoreBookings(data.pagination.hasMore);
@@ -228,7 +170,7 @@ function Profile() {
     const currentTime = new Date(); // Get current time
     const startTime = new Date(start_date); // Convert start_date to Date object
     const endTime = new Date(end_date); // Convert end_date to Date object
-  
+
     if (currentTime < startTime) {
       return "Upcoming"; // If current time is before start_date
     } else if (currentTime >= startTime && currentTime < endTime) {
@@ -237,7 +179,7 @@ function Profile() {
       return "Completed"; // If current time is after or equals end_date
     }
   }
-  
+
   // Helper function to process the reviews from API response
   function processFetchedReviews(reviews: Review[]): Review[] {
     return reviews.map((review) => ({
@@ -256,18 +198,17 @@ function Profile() {
 
   async function fetchReviews() {
     if (!userData) return;
-    
+
     setReviewsLoading(true);
     setReviewsError(null);
 
     try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
-      
+      const apiUrl = import.meta.env.VITE_API_URL;
+
       const res = await fetch(
-        `${gatewayUrl}/reviewee?revieweeId=${userData.user_id}&limit=${reviewsLimit}&offset=${reviewsPage * reviewsLimit}`
+        `${apiUrl}/review/reviewee?revieweeId=${userData.user_id}&limit=${viewLimit}&offset=${reviewsPage * viewLimit}`
       );
 
-      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -295,7 +236,7 @@ function Profile() {
       setReviewsLoading(false);
     }
   }
-  
+
   const loadMoreBookings = () => {
     setBookingsPage((prevPage) => prevPage + 1);
   };
@@ -305,39 +246,19 @@ function Profile() {
     setReviewsPage((prevPage) => prevPage + 1);
   };
 
-  async function handleHealthCheck() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-profile-worker.limqijie53.workers.dev";
-      const res = await fetch(`${gatewayUrl}/health`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = (await res.json()) as HealthResponse;
-      setHealth(data);
-    } catch (err) {
-      setError("Failed to fetch health data.");
-      console.error("Error fetching health data:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-  
   // Format date from ISO string
   const formatMemberSince = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
   };
 
   function formatBookingDate(dateString: string): string {
     const date = new Date(dateString.replace(" ", "T")); // Convert to Date object
-  
-    return date.toLocaleDateString("en-US", { 
-      year: "numeric", 
-      month: "long", 
-      day: "numeric" 
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   }
 
@@ -359,15 +280,13 @@ function Profile() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-500">Error Loading Profile</CardTitle>
+            <CardTitle className="text-red-500">
+              Error Loading Profile
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p>{userError || "Failed to load user data."}</p>
-            <Button 
-              variant="outline" 
-              onClick={fetchUserData} 
-              className="mt-4"
-            >
+            <Button variant="outline" onClick={fetchUserData} className="mt-4">
               Try Again
             </Button>
           </CardContent>
@@ -386,9 +305,13 @@ function Profile() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center">
                   <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage 
-                      src={googleProfile?.picture || userData.profile_image_url || "/placeholder.svg?height=150&width=150"} 
-                      alt={userData.username} 
+                    <AvatarImage
+                      src={
+                        googleProfile?.picture ||
+                        userData.profile_image_url ||
+                        "/placeholder.svg?height=150&width=150"
+                      }
+                      alt={userData.username}
                     />
                     <AvatarFallback>
                       {userData.username
@@ -397,8 +320,12 @@ function Profile() {
                         .join("")}
                     </AvatarFallback>
                   </Avatar>
-                  <h2 className="text-xl font-bold">{googleProfile?.name || userData.username}</h2>
-                  <p className="text-sm text-muted-foreground">{googleProfile?.email || userData.email}</p>
+                  <h2 className="text-xl font-bold">
+                    {googleProfile?.name || userData.username}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {googleProfile?.email || userData.email}
+                  </p>
                   <div className="flex items-center mt-1 text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{userData.location}</span>
@@ -408,25 +335,20 @@ function Profile() {
                   </p>
                   <div className="mt-2">
                     <Badge variant="default">
-                      {userData.is_petsitter === 1 ? 'Pet Owner & Sitter' : 'Pet Owner'}
+                      {userData.is_petsitter === 1
+                        ? "Pet Owner & Sitter"
+                        : "Pet Owner"}
                     </Badge>
                   </div>
 
                   <Button
                     variant="outline"
                     className="mt-4 w-full flex items-center justify-center"
-                    onClick={handleHealthCheck}
+                    // TODO: edit profile
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    {loading ? "Loading..." : "Edit Profile"}
+                    EDIT PROFILE
                   </Button>
-                  {error && <p className="text-red-500 mt-2">{error}</p>}
-                  {health && (
-                    <div className="mt-2 text-sm">
-                      <p>Status: {health.status}</p>
-                      <p>Timestamp: {health.timestamp}</p>
-                    </div>
-                  )}
                 </div>
 
                 <div className="mt-6">
@@ -455,119 +377,18 @@ function Profile() {
                       View your past and upcoming bookings
                     </CardDescription>
                   </CardHeader>
-                  
-                  <CardContent>
-                    {bookingsLoading && bookings.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                        <p>Loading bookings...</p>
-                      </div>
-                    ) : bookingsError ? (
-                      <div className="text-center py-8">
-                        <p className="text-red-500">{bookingsError}</p>
-                        <Button
-                          onClick={fetchBookings}
-                          variant="outline"
-                          className="mt-2"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
-                    ) : bookings.length > 0 ? (
-                      <div className="space-y-4">
-                        {bookings.map((booking) => (
-                          <div
-                          key={booking.booking_id}
-                          className="flex items-start p-4 border rounded-lg"
-                        >
-                          <Avatar className="h-10 w-10 mr-3">
-                            <AvatarImage
-                              src={booking.profile_image_url}
-                              alt={booking.username}
-                            />
-                            <AvatarFallback>
-                              {booking.petsitter_id.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-medium">
-                                  {booking.username}
-                                </h3>
-                                {/* <p className="text-sm text-muted-foreground">
-                                  {booking.service}
-                                </p> */}
-                              </div>
-                              <Badge
-                                variant={
-                                  getBookingStatus(booking.start_date, booking.end_date) === "Upcoming"
-                                    ? "outline"
-                                    : "secondary"
-                                }
-                              >
-                                {getBookingStatus(booking.start_date, booking.end_date)}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              <span>{formatBookingDate(booking.start_date)}</span>
-                            </div>
-                            {/* {booking.rating !== null && (
-                              <div className="flex items-center mt-2">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < booking.rating!
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            )} */}
-                          </div>
-                        </div>
-                        ))}
 
-                        {hasMoreBookings && (
-                          <div className="flex justify-center mt-4">
-                            <Button
-                              variant="outline"
-                              onClick={loadMoreBookings}
-                              disabled={bookingsLoading}
-                            >
-                              {bookingsLoading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Loading...
-                                </>
-                              ) : (
-                                "Load More Bookings"
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                        <h3 className="font-medium text-lg mb-1">
-                          No bookings yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          Book a petsitter to see your bookings here
-                        </p>
-
-                        <Button 
-                          onClick={() => navigate({ to: `/` })}
-                        >
-                          Find a Petsitter
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
+                  <BookingsContent
+                    bookings={bookings}
+                    bookingsLoading={bookingsLoading}
+                    bookingsError={bookingsError}
+                    hasMoreBookings={hasMoreBookings}
+                    fetchBookings={fetchBookings}
+                    loadMoreBookings={loadMoreBookings}
+                    getBookingStatus={getBookingStatus}
+                    formatBookingDate={formatBookingDate}
+                    onFindPetsitter={() => navigate({ to: "/" })}
+                  />
                 </Card>
               </TabsContent>
 
@@ -579,109 +400,24 @@ function Profile() {
                       Reviews others have left about you
                     </CardDescription>
                   </CardHeader>
+
                   <CardContent>
                     {reviewsLoading && reviews.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                        <p>Loading reviews...</p>
-                      </div>
+                      <ReviewLoadingState />
                     ) : reviewsError ? (
-                      <div className="text-center py-8">
-                        <p className="text-red-500">{reviewsError}</p>
-                        <Button
-                          onClick={fetchReviews}
-                          variant="outline"
-                          className="mt-2"
-                        >
-                          Try Again
-                        </Button>
-                      </div>
+                      <ReviewErrorState
+                        error={reviewsError}
+                        onRetry={fetchReviews}
+                      />
                     ) : reviews.length > 0 ? (
-                      <div className="space-y-4">
-                        {reviews.map((review) => (
-                          <div
-                            key={review.review_id}
-                            className="p-4 border rounded-lg"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <Avatar className="h-10 w-10 mr-3">
-                                  <AvatarImage
-                                    src={
-                                      review.profile_image_url ||
-                                      "/placeholder.svg?height=40&width=40"
-                                    }
-                                    alt={review.username || "Reviewer"}
-                                  />
-                                  <AvatarFallback>
-                                    {review.username?.charAt(0) || "?"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <h3 className="font-medium">
-                                    {review.username || "Anonymous"}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground">
-                                    {new Date(
-                                      review.created_at
-                                    ).toLocaleDateString()}{" "}
-                                    at{" "}
-                                    {new Date(
-                                      review.created_at
-                                    ).toLocaleTimeString("en-US", {
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${
-                                      i < review.rating
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="mt-2">{review.comment}</p>
-                          </div>
-                        ))}
-
-                        {hasMoreReviews && (
-                          <div className="flex justify-center mt-4">
-                            <Button
-                              variant="outline"
-                              onClick={loadMoreReviews}
-                              disabled={reviewsLoading}
-                            >
-                              {reviewsLoading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Loading...
-                                </>
-                              ) : (
-                                "Load More Reviews"
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                      <ReviewsList
+                        reviews={reviews}
+                        hasMoreReviews={hasMoreReviews}
+                        isLoading={reviewsLoading}
+                        onLoadMore={loadMoreReviews}
+                      />
                     ) : (
-                      <div className="text-center py-8">
-                        <Star className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                        <h3 className="font-medium text-lg mb-1">
-                          No reviews yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          There are no reviews for you yet
-                        </p>
-                      </div>
+                      <ReviewEmptyState />
                     )}
                   </CardContent>
                 </Card>

@@ -23,6 +23,7 @@
     "@tanstack/react-router": "^1.114.3",
     "@tanstack/react-router-devtools": "^1.114.3",
     "@tanstack/router-plugin": "^1.114.3",
+    "better-auth": "^1.2.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.476.0",
@@ -32,7 +33,8 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
     "tailwindcss-animate": "^1.0.7",
-    "unenv": "^1.10.0"
+    "unenv": "^1.10.0",
+    "woof": "file:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250319.0",

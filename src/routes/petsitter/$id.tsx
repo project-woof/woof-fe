@@ -85,24 +85,22 @@ interface BookingData {
 
 async function createBooking() {
   try {
-    const gatewayUrl = import.meta.env.GATEWAY_URL || "https://petsitter-gateway-worker.limqijie53.workers.dev";
-    
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const bookingData: BookingData = {
       petsitter_id: "uuid-user2",
       petowner_id: "bbf7fc583d4cd42846ae8bddd0a97759",
       start_date: "2025-05-10 12:00:00",
-      end_date: "2025-05-15 13:00:00"
+      end_date: "2025-05-15 13:00:00",
     };
 
-    const res = await fetch(
-      `${gatewayUrl}/booking/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(bookingData)
-      }
-    );
+    const res = await fetch(`${apiUrl}/booking/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bookingData),
+    });
 
     const responseData = await res.json();
     console.log("Booking created:", responseData);
@@ -110,10 +108,7 @@ async function createBooking() {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-
-  } catch (err) {
-    
-  }
+  } catch (err) {}
 }
 
 function Petsitter() {
@@ -405,7 +400,6 @@ function Petsitter() {
                         onChange={(e) =>
                           updateTotalPrice(Number.parseInt(e.target.value) || 1)
                         }
-                        
                         className="h-8 w-16 rounded-none text-center border-x-0 border-beige"
                       />
                       <Button
@@ -413,9 +407,7 @@ function Petsitter() {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8 rounded-l-none border-beige text-navy"
-                        onClick={() =>
-                          updateTotalPrice(hours + 1)
-                        }
+                        onClick={() => updateTotalPrice(hours + 1)}
                       >
                         <span>+</span>
                       </Button>
@@ -440,7 +432,7 @@ function Petsitter() {
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream"
                   onClick={() => createBooking()}
                 >
