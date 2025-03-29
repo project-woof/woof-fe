@@ -19,8 +19,7 @@ function Login() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "https://woof-fe.pages.dev",
-        newUserCallbackURL: "https://woof-fe.pages.dev/signup",
+        newUserCallbackURL: "/signup",
       });
     } catch (error) {
       console.error("Error during Google SSO sign in:", error);
