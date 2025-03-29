@@ -28,7 +28,7 @@ function Signup() {
   const search = useSearch({ from: "/signup" });
   const fromLogin = search.fromLogin === "true";
   
-  const [isPetsitter, setIsPetsitter] = useState<boolean>(false);
+  const [isPetsitter, setIsPetsitter] = useState<boolean>(false); // Controls if user is a petsitter (maps to is_petsitter: 1) or just a pet owner (maps to is_petsitter: 0)
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,9 +101,9 @@ function Signup() {
     try {
       // Store basic profile info in localStorage
       localStorage.setItem('userProfile', JSON.stringify({
-        name: decodedProfile.name,
+        username: decodedProfile.name,
         email: decodedProfile.email,
-        picture: decodedProfile.picture,
+        profile_image_url: decodedProfile.picture,
       }));
 
       // Set auth token cookie
@@ -111,9 +111,9 @@ function Signup() {
       
       // Update state
       setUserProfile({
-        name: decodedProfile.name,
+        username: decodedProfile.name,
         email: decodedProfile.email,
-        picture: decodedProfile.picture,
+        profile_image_url: decodedProfile.picture,
       });
       setIsAuthenticated(true);
       
@@ -142,9 +142,9 @@ function Signup() {
       if (userData.exists) {
         // User already exists, update localStorage with petsitter status and redirect to dashboard
         const updatedProfile = {
-          name: decodedProfile.name,
+          username: decodedProfile.name,
           email: decodedProfile.email,
-          picture: decodedProfile.picture,
+          profile_image_url: decodedProfile.picture,
           is_petsitter: userData.is_petsitter || 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
@@ -155,12 +155,11 @@ function Signup() {
       // If user doesn't exist and we're on the signup page with role selection, create the profile
       else if (roleFirst) {
         // Create user profile in database
-        // Try using the old format that the backend expects
         const requestData = {
           email: decodedProfile.email,
-          name: decodedProfile.name,
-          picture: decodedProfile.picture,
-          userType: isPetsitter ? 'both' : 'petowner'
+          username: decodedProfile.name,
+          profile_image_url: decodedProfile.picture,
+          is_petsitter: isPetsitter ? 1 : 0
         };
         
         console.log('Creating profile with data:', requestData);
@@ -193,9 +192,9 @@ function Signup() {
 
         // Update localStorage with user type
         const updatedProfile = {
-          name: decodedProfile.name,
+          username: decodedProfile.name,
           email: decodedProfile.email,
-          picture: decodedProfile.picture,
+          profile_image_url: decodedProfile.picture,
           is_petsitter: isPetsitter ? 1 : 0
         };
         localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
@@ -210,12 +209,6 @@ function Signup() {
       setIsLoading(false);
     }
   };
-
-  // This function is no longer needed since we automatically create the profile after Google authentication
-  // Keeping it commented for reference
-  // const handleRoleSelect = () => {
-  //   setRoleFirst(false);
-  // };
 
   const handleSubmit = async () => {
     if (!userProfile) {
@@ -273,14 +266,13 @@ function Signup() {
       }
 
       // If user doesn't exist, create the profile
-      // Try using the old format that the backend expects
       // Add a random suffix to the username to avoid unique constraint violations
       const randomSuffix = Math.floor(Math.random() * 10000);
       const requestData = {
         email: userProfile.email,
-        name: `${userProfile.name}_${randomSuffix}`, // Make username unique
-        picture: userProfile.picture,
-        userType: isPetsitter ? 'both' : 'petowner'
+        username: `${userProfile.name}_${randomSuffix}`, // Make username unique
+        profile_image_url: userProfile.picture,
+        is_petsitter: isPetsitter ? 1 : 0
       };
       
       console.log('Creating profile with data:', requestData);
