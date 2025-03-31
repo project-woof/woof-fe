@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async function fetchUserProfile() {
       if (session && session.user && session.user.id) {
         try {
-          const response = await fetcher(`profile/getProfile/uuid-user1`, {
+          const response = await fetcher(`/profile/getProfile/uuid-user1`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const response = await fetcher(`profile/getProfile/uuid-user1`, {
+        const response = await fetcher(`/profile/getProfile/uuid-user1`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
