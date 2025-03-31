@@ -9,17 +9,22 @@ import {
 import { BookingsTab } from "@/components/profile/booking/BookingsTab";
 // import { ReviewsTab } from "@/components/profile/review/ReviewsTab";
 import { useBookingQuery } from "@/composables/queries/booking";
+import type { User } from "@/types/profile";
 
 interface ProfileTabsProps {
-  userData: any;
+  userData: User;
   activeTab: string;
   setActiveTab: (val: string) => void;
 }
 
-export const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {
+export const ProfileTabs = ({
+  userData,
+  activeTab,
+  setActiveTab,
+}: ProfileTabsProps) => {
   const { getBookingsByPetowner } = useBookingQuery();
   const { data: bookingData, isFetched: bookingFetched } =
-    getBookingsByPetowner("uuid-user1", 5, 0);
+    getBookingsByPetowner(userData.id, 5, 0);
   // const { data: reviewData, isFetched: reviewFetched } = getReviewsByReviewer(
   //   "uuid-user1",
   //   5,

@@ -1,9 +1,10 @@
 // AuthContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, use, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth";
+import type { User } from "@/types/profile";
 
 interface Session {
-  user: UserProfile;
+  user: User;
   session: {
     id: string;
     createdAt: Date;
@@ -16,19 +17,9 @@ interface Session {
   };
 }
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  image?: string | null | undefined;
-}
-
 interface AuthContextType {
   session: Session | null;
-  userProfile: UserProfile | null;
+  userProfile: User | null;
   isPending: boolean;
   refreshSession: () => void;
 }
@@ -54,7 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isPending: boolean;
     refetch: () => void;
   };
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
   const [userProfilePending, setUserProfilePending] = useState(true);
 
   useEffect(() => {
@@ -65,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             credentials: "include",
           });
           if (response.ok) {
-            const data = await response.json<UserProfile>();
+            const data = await response.json<User>();
             setUserProfile(data);
           } else {
             console.error("Failed to fetch user profile:", response.statusText);
@@ -79,6 +70,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     fetchUserProfile();
   }, [session]);
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (session && session.user && session.user.id) {
+        try {
+          const response = await fetch(`/profile/getProfile/uuid-user1`, {
+            credentials: "include",
+          });
+          if (response.ok) {
+            const data = await response.json<User>();
+            setUserProfile(data);
+          } else {
+            console.error("Failed to fetch user profile:", response.statusText);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+      setUserProfilePending(false);
+    }
+
+    fetchUserProfile();
+  }, []);
 
   const isPending = sessionPending || userProfilePending;
 
