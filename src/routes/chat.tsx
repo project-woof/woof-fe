@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import ConversationList from "@/components/chat/ConversationList";
-import ChatArea from "@/components/chat/ChatArea";
+import { ConversationList } from "@/components/chat/ConversationList";
+import { ChatArea } from "@/components/chat/ChatArea";
 
 export const Route = createFileRoute("/chat")({
   component: Chat,
@@ -116,7 +116,6 @@ function Chat() {
       <main className="container mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
           <div className="grid grid-cols-1 md:grid-cols-3 h-full">
-            
             {/* Conversation List */}
             <ConversationList
               conversations={conversations}

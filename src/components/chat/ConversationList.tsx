@@ -1,4 +1,3 @@
-import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -22,13 +21,13 @@ interface ConversationListProps {
   setSearchQuery: (query: string) => void;
 }
 
-const ConversationList: React.FC<ConversationListProps> = ({
+export function ConversationList({
   conversations,
   selectedConversation,
   setSelectedConversation,
   searchQuery,
   setSearchQuery,
-}) => {
+}: ConversationListProps) {
   const filteredConversations = conversations.filter((convo) =>
     convo.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -58,7 +57,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
             <div className="flex items-start">
               <div className="relative mr-3">
                 <Avatar>
-                  <AvatarImage src={conversation.avatar} alt={conversation.name} />
+                  <AvatarImage
+                    src={conversation.avatar}
+                    alt={conversation.name}
+                  />
                   <AvatarFallback>{conversation.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 {conversation.online && (
@@ -67,10 +69,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline">
-                  <h3 className="text-sm font-medium truncate">{conversation.name}</h3>
-                  <span className="text-xs text-muted-foreground">{conversation.time}</span>
+                  <h3 className="text-sm font-medium truncate">
+                    {conversation.name}
+                  </h3>
+                  <span className="text-xs text-muted-foreground">
+                    {conversation.time}
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {conversation.lastMessage}
+                </p>
               </div>
               {conversation.unread > 0 && (
                 <span className="ml-2 bg-primary text-primary-foreground text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center">
@@ -83,6 +91,4 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </ScrollArea>
     </div>
   );
-};
-
-export default ConversationList;
+}

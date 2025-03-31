@@ -14,33 +14,31 @@ interface ChatAreaProps {
   newMessage: string;
   setNewMessage: (message: string) => void;
 }
-
-const ChatArea: React.FC<ChatAreaProps> = ({
+export function ChatArea({
   messages,
   setMessages,
   selectedConversation,
   newMessage,
   setNewMessage,
-}) => {
-
+}: ChatAreaProps) {
   const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newMessage.trim()) return
+    e.preventDefault();
+    if (!newMessage.trim()) return;
 
     const message = {
-        id: messages.length + 1,
-        sender: "Me",
-        content: newMessage,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        isMe: true,
-      };
+      id: messages.length + 1,
+      sender: "Me",
+      content: newMessage,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      isMe: true,
+    };
 
     setMessages([...messages, message]);
-    setNewMessage("")
-  }
+    setNewMessage("");
+  };
 
   return (
     <div className="col-span-2 flex flex-col h-full">
@@ -68,7 +66,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 
       {/* Message Input */}
       <div className="p-4 border-t mt-auto">
-        <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-center space-x-2"
+        >
           <Input
             placeholder="Type a message..."
             value={newMessage}
@@ -82,6 +83,4 @@ const ChatArea: React.FC<ChatAreaProps> = ({
       </div>
     </div>
   );
-};
-
-export default ChatArea;
+}
