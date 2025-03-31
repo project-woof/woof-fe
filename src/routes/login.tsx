@@ -19,7 +19,6 @@ function Login() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
         newUserCallbackURL: "/signup",
       });
     } catch (error) {
