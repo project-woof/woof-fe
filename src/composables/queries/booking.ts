@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Booking } from "@/types/booking";
 import { useBookingAPI } from "@/composables/api/booking";
 
-const { get, getAll } = useBookingAPI();
+const { get, getAllByPetowner, getAllByPetsitter } = useBookingAPI();
 
 export const useBookingQuery = () => {
   function getBookingById(bookingId: string) {
@@ -13,13 +13,29 @@ export const useBookingQuery = () => {
     return { data, isFetched };
   }
 
-  function getBookings(userId: string, limit: number, offset: number) {
+  function getBookingsByPetowner(
+    userId: string,
+    limit: number,
+    offset: number
+  ) {
     const { data, isFetched } = useQuery<Booking[]>({
       queryKey: ["bookings", userId, limit, offset],
-      queryFn: () => getAll(userId, limit, offset),
+      queryFn: () => getAllByPetowner(userId, limit, offset),
     });
     return { data, isFetched };
   }
 
-  return { getBookingById, getBookings };
+  function getBookingsByPetsitter(
+    userId: string,
+    limit: number,
+    offset: number
+  ) {
+    const { data, isFetched } = useQuery<Booking[]>({
+      queryKey: ["bookings", userId, limit, offset],
+      queryFn: () => getAllByPetsitter(userId, limit, offset),
+    });
+    return { data, isFetched };
+  }
+
+  return { getBookingById, getBookingsByPetowner, getBookingsByPetsitter };
 };

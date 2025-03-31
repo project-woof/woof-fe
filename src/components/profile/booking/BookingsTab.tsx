@@ -4,7 +4,7 @@ import { Calendar } from "lucide-react";
 import type { Booking } from "@/types/booking";
 
 interface BookingsTabProps {
-  bookings: Booking[];
+  bookings: Booking[] | undefined;
   isFetched: boolean;
 }
 

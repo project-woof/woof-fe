@@ -15,9 +15,34 @@ export function useBookingAPI() {
     return response.json<Booking>();
   };
 
-  const getAll = async (userId: string, limit: number, offset: number) => {
+  const getAllByPetowner = async (
+    userId: string,
+    limit: number,
+    offset: number
+  ) => {
     const response = await fetcher(
-      `/booking/getBookings?user-id=${encodeURIComponent(userId)}&limit=${limit}&offset=${offset}`,
+      `/booking/getBookings/petowner?id=${encodeURIComponent(userId)}&limit=${limit}&offset=${offset}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const bookingRes = await response.json<Booking[]>();
+    return bookingRes;
+  };
+
+  const getAllByPetsitter = async (
+    userId: string,
+    limit: number,
+    offset: number
+  ) => {
+    const response = await fetcher(
+      `/booking/getBookings/petowner?id=${encodeURIComponent(userId)}&limit=${limit}&offset=${offset}`,
       {
         method: "GET",
         headers: {
@@ -58,5 +83,5 @@ export function useBookingAPI() {
     }
   };
 
-  return { get, getAll, create, remove };
+  return { get, getAllByPetowner, getAllByPetsitter, create, remove };
 }

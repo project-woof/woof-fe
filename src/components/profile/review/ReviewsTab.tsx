@@ -11,7 +11,8 @@ interface Review {
 }
 
 interface ReviewsTabProps {
-  reviews: Review[];
+  reviews: Review[] | undefined;
+  isFetched: boolean;
 }
 
 export const ReviewsTab = ({ reviews }: ReviewsTabProps) => {
