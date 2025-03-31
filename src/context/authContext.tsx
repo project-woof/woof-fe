@@ -61,12 +61,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async function fetchUserProfile() {
       if (session && session.user && session.user.id) {
         try {
-          const response = await fetch(
-            `/profile/getProfile/${session.user.id}`,
-            {
-              credentials: "include",
-            }
-          );
+          const response = await fetch(`/profile/getProfile/uuid-user1`, {
+            credentials: "include",
+          });
           if (response.ok) {
             const data = await response.json<UserProfile>();
             setUserProfile(data);
