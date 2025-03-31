@@ -52,12 +52,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async function fetchUserProfile() {
       if (session && session.user && session.user.id) {
         try {
-          const response = await fetcher(`/profile/getProfile/uuid-user1`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          const response = await fetcher(
+            `/profile/getProfile/${session.user.id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
           if (response.ok) {
             const data = await response.json<User>();
             console.log(data);
@@ -75,31 +78,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     fetchUserProfile();
   }, [session]);
-
-  useEffect(() => {
-    async function fetchUserProfile() {
-      try {
-        const response = await fetcher(`/profile/getProfile/uuid-user1`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.ok) {
-          const data = await response.json<User>();
-          console.log(data);
-          setUserProfile(data);
-          console.log(userProfile);
-        } else {
-          console.error("Failed to fetch user profile:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    }
-
-    fetchUserProfile();
-  }, []);
 
   const isPending = sessionPending || userProfilePending;
 
