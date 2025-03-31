@@ -49,7 +49,7 @@ const petsitterData = {
   reviewsList: [
     {
       id: 1,
-      user: "John D.",
+      petsitter: "John D.",
       avatar: "/placeholder.svg?height=40&width=40",
       rating: 5,
       date: "2 weeks ago",
@@ -58,7 +58,7 @@ const petsitterData = {
     },
     {
       id: 2,
-      user: "Emma S.",
+      petsitter: "Emma S.",
       avatar: "/placeholder.svg?height=40&width=40",
       rating: 4,
       date: "1 month ago",
@@ -67,7 +67,7 @@ const petsitterData = {
     },
     {
       id: 3,
-      user: "Michael T.",
+      petsitter: "Michael T.",
       avatar: "/placeholder.svg?height=40&width=40",
       rating: 5,
       date: "2 months ago",

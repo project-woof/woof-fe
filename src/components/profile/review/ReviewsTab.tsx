@@ -1,14 +1,6 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { Review } from "@/types/review";
 import { Star } from "lucide-react";
-
-interface Review {
-  id: number;
-  petsitter: string;
-  avatar: string;
-  rating: number;
-  date: string;
-  comment: string;
-}
 
 interface ReviewsTabProps {
   reviews: Review[] | undefined;

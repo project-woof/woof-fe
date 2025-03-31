@@ -1,15 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Review } from "@/types/review";
 import { Star } from "lucide-react";
-
-interface Review {
-  id: number;
-  user: string;
-  avatar: string;
-  date: string;
-  rating: number;
-  comment: string;
-}
 
 interface PetsitterData {
   rating: number;
@@ -42,11 +34,11 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
               <div className="flex justify-between items-start">
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={review.avatar} alt={review.user} />
-                    <AvatarFallback>{review.user.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={review.avatar} alt={review.petsitter} />
+                    <AvatarFallback>{review.petsitter.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h4 className="font-medium">{review.user}</h4>
+                    <h4 className="font-medium">{review.petsitter}</h4>
                     <p className="text-sm text-muted-foreground">
                       {review.date}
                     </p>
