@@ -56,7 +56,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           });
           if (response.ok) {
             const data = await response.json<User>();
+            console.log(data);
             setUserProfile(data);
+            console.log(userProfile);
           } else {
             console.error("Failed to fetch user profile:", response.statusText);
           }
@@ -72,20 +74,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     async function fetchUserProfile() {
-      if (session && session.user && session.user.id) {
-        try {
-          const response = await fetch(`/profile/getProfile/uuid-user1`, {
-            credentials: "include",
-          });
-          if (response.ok) {
-            const data = await response.json<User>();
-            setUserProfile(data);
-          } else {
-            console.error("Failed to fetch user profile:", response.statusText);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
+      try {
+        const response = await fetch(`/profile/getProfile/uuid-user1`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const data = await response.json<User>();
+          console.log(data);
+          setUserProfile(data);
+          console.log(userProfile);
+        } else {
+          console.error("Failed to fetch user profile:", response.statusText);
         }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
       }
       setUserProfilePending(false);
     }
