@@ -1,4 +1,4 @@
-import type { Booking, BookingApiResponse } from "@/types/booking";
+import type { Booking } from "@/types/booking";
 import { fetcher } from "@/util/fetcher";
 
 export function useBookingAPI() {
@@ -28,8 +28,8 @@ export function useBookingAPI() {
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    const bookingRes = await response.json<BookingApiResponse>();
-    return bookingRes.bookings;
+    const bookingRes = await response.json<Booking[]>();
+    return bookingRes;
   };
 
   const create = async (booking: Booking) => {
