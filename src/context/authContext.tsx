@@ -1,5 +1,4 @@
-// AuthContext.jsx
-import { createContext, use, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth";
 import type { User } from "@/types/profile";
 
