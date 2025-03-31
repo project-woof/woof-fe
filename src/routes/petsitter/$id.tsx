@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,8 +14,10 @@ import {
   MessageSquare,
   Heart,
   Share2,
-  PawPrint,
 } from "lucide-react";
+import { ServicesTab } from "@/components/petsitter/ServiceTab";
+import { AboutTab } from "@/components/petsitter/AboutTab";
+import { ReviewsTab } from "@/components/petsitter/ReviewsTab";
 
 export const Route = createFileRoute("/petsitter/$id")({
   component: Petsitter,
@@ -211,117 +212,15 @@ function Petsitter() {
               </TabsList>
 
               <TabsContent value="about" className="mt-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold mb-2">
-                      About {petsitterData.name}
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      {petsitterData.bio}
-                    </p>
-
-                    <h3 className="text-lg font-semibold mb-2">Availability</h3>
-                    <div className="flex items-start mb-4">
-                      <Clock className="h-5 w-5 mr-2 mt-0.5 text-muted-foreground" />
-                      <span>{petsitterData.availability}</span>
-                    </div>
-
-                    <h3 className="text-lg font-semibold mb-2">Location</h3>
-                    <div className="flex items-start">
-                      <MapPin className="h-5 w-5 mr-2 mt-0.5 text-muted-foreground" />
-                      <span>{petsitterData.location}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AboutTab petsitterData={petsitterData} />
               </TabsContent>
 
               <TabsContent value="services" className="mt-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h3 className="text-lg font-semibold mb-4">
-                      Services Offered
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {petsitterData.services.map((service, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center p-3 border rounded-lg"
-                        >
-                          <div className="bg-primary/10 p-2 rounded-full mr-3">
-                            <PawPrint className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{service}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Starting at ${petsitterData.hourlyRate}/hour
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <ServicesTab petsitterData={petsitterData} />
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">Reviews</h3>
-                      <div className="flex items-center">
-                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 mr-1" />
-                        <span className="font-medium">
-                          {petsitterData.rating}
-                        </span>
-                        <span className="text-muted-foreground ml-1">
-                          ({petsitterData.reviews} reviews)
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {petsitterData.reviewsList.map((review) => (
-                        <div
-                          key={review.id}
-                          className="border-b pb-4 last:border-0"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center">
-                              <Avatar className="h-10 w-10 mr-3">
-                                <AvatarImage
-                                  src={review.avatar}
-                                  alt={review.user}
-                                />
-                                <AvatarFallback>
-                                  {review.user.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <h4 className="font-medium">{review.user}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {review.date}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < review.rating
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          <p className="mt-2">{review.comment}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <ReviewsTab petsitterData={petsitterData} />
               </TabsContent>
             </Tabs>
           </div>
