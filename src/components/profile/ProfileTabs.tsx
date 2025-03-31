@@ -7,7 +7,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { BookingsTab } from "@/components/profile/booking/BookingsTab";
-import { ReviewsTab } from "@/components/profile/review/ReviewsTab";
+// import { ReviewsTab } from "@/components/profile/review/ReviewsTab";
 import { useBookingQuery } from "@/composables/queries/booking";
 
 interface ProfileTabsProps {
@@ -17,12 +17,14 @@ interface ProfileTabsProps {
 }
 
 export const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {
-  const { getBookings } = useBookingQuery();
-  const { data: bookingData, isFetched: bookingFetched } = getBookings(
-    "uuid-user1",
-    5,
-    0
-  );
+  const { getBookingsByPetowner } = useBookingQuery();
+  const { data: bookingData, isFetched: bookingFetched } =
+    getBookingsByPetowner("uuid-user1", 5, 0);
+  // const { data: reviewData, isFetched: reviewFetched } = getReviewsByReviewer(
+  //   "uuid-user1",
+  //   5,
+  //   0
+  // );
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="grid w-full grid-cols-2">
@@ -39,10 +41,7 @@ export const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <BookingsTab
-              bookings={bookingData}
-              isFetched={bookingFetched}
-            />
+            <BookingsTab bookings={bookingData} isFetched={bookingFetched} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -56,7 +55,7 @@ export const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ReviewsTab />
+            {/* <ReviewsTab reviews={reviewData} isFetched={reviewFetched} /> */}
           </CardContent>
         </Card>
       </TabsContent>
