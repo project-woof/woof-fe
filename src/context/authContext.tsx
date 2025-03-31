@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth";
 import type { User } from "@/types/profile";
+import { fetcher } from "@/util/fetcher";
 
 interface Session {
   user: User;
@@ -52,7 +53,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (session && session.user && session.user.id) {
         try {
           const response = await fetch(`/profile/getProfile/uuid-user1`, {
-            credentials: "include",
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
           });
           if (response.ok) {
             const data = await response.json<User>();
@@ -76,7 +80,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async function fetchUserProfile() {
       try {
         const response = await fetch(`/profile/getProfile/uuid-user1`, {
-          credentials: "include",
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
         if (response.ok) {
           const data = await response.json<User>();
@@ -89,7 +96,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
-      setUserProfilePending(false);
     }
 
     fetchUserProfile();
