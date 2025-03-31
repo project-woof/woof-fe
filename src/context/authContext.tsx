@@ -49,35 +49,60 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userProfilePending, setUserProfilePending] = useState(true);
 
   useEffect(() => {
+    //   async function fetchUserProfile() {
+    //     if (session && session.user && session.user.id) {
+    //       try {
+    //         const response = await fetcher(
+    //           `/profile/getProfile/${session.user.id}`,
+    //           {
+    //             method: "GET",
+    //             headers: {
+    //               "Content-Type": "application/json",
+    //             },
+    //           }
+    //         );
+    //         if (response.ok) {
+    //           const data = await response.json<User>();
+    //           console.log(data);
+    //           setUserProfile(data);
+    //           console.log(userProfile);
+    //         } else {
+    //           console.error("Failed to fetch user profile:", response.statusText);
+    //         }
+    //       } catch (error) {
+    //         console.error("Error fetching user profile:", error);
+    //       }
+    //     }
+    //     setUserProfilePending(false);
+    //   }
+
+    //   fetchUserProfile();
+    // }, [session]);
+
     async function fetchUserProfile() {
-      if (session && session.user && session.user.id) {
-        try {
-          const response = await fetcher(
-            `/profile/getProfile/${session.user.id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json<User>();
-            console.log(data);
-            setUserProfile(data);
-            console.log(userProfile);
-          } else {
-            console.error("Failed to fetch user profile:", response.statusText);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
+      try {
+        const response = await fetcher(`/profile/getProfile/uuid-user1`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json<User>();
+          console.log(data);
+          setUserProfile(data);
+          console.log(userProfile);
+        } else {
+          console.error("Failed to fetch user profile:", response.statusText);
         }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
       }
       setUserProfilePending(false);
     }
 
     fetchUserProfile();
-  }, [session]);
+  }, []);
 
   const isPending = sessionPending || userProfilePending;
 
