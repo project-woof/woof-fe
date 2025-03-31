@@ -3,13 +3,18 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import Header from "../components/Header";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 export const Route = createRootRoute({
   component: () => (
     <>
-      <Header />
-
-      <Outlet />
-      <TanStackRouterDevtools />
+      <QueryClientProvider client={queryClient}>
+        <Header />
+        <Outlet />
+        <TanStackRouterDevtools />
+      </QueryClientProvider>
     </>
   ),
 });
