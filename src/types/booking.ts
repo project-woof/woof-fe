@@ -9,13 +9,3 @@ export interface Booking {
   profile_image_url: string;
   username: string;
 }
-
-export interface BookingApiResponse {
-  bookings: Booking[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
-  };
-}
