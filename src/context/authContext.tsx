@@ -34,6 +34,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async function fetchUser() {
       const token = localStorage.getItem("bearer_token");
       const response = await fetcher(`/api/auth/get-user?token=${token}`);
+      if (!response.ok) {
+        setUserProfile(undefined);
+        localStorage.setItem("bearer_token", "");
+        return;
+      }
       const data = await response.json<User>();
       setUserProfile(data);
     }
