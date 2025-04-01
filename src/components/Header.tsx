@@ -29,7 +29,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { userProfile, setUserProfile } = useAuth();
 
-  if (!userProfile && pathname === "/signup") {
+  if (userProfile && pathname === "/signup") {
     return null;
   }
 
