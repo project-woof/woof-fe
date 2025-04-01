@@ -1,10 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import type { PetsitterData } from "@/types/petsitter";
 import { PawPrint } from "lucide-react";
-
-interface PetsitterData {
-  services: string[];
-  hourlyRate: number;
-}
 
 interface ServicesTabProps {
   petsitterData: PetsitterData;

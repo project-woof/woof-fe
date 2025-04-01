@@ -1,13 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Review } from "@/types/review";
+import type { PetsitterData } from "@/types/petsitter";
 import { Star } from "lucide-react";
-
-interface PetsitterData {
-  rating: number;
-  reviews: number;
-  reviewsList: Review[];
-}
 
 interface ReviewsTabProps {
   petsitterData: PetsitterData;

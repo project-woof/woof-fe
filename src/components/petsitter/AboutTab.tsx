@@ -1,12 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import type { PetsitterData } from "@/types/petsitter";
 import { Clock, MapPin } from "lucide-react";
-
-interface PetsitterData {
-  name: string;
-  bio: string;
-  availability: string;
-  location: string;
-}
 
 interface AboutTabProps {
   petsitterData: PetsitterData;
