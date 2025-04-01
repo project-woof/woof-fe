@@ -18,14 +18,14 @@ import { fetcher } from "@/util/fetcher";
 // }
 
 interface AuthContextType {
-  session: any;
+  data: any;
   userProfile: any;
   isPending: boolean;
   refreshSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  session: null,
+  data: null,
   userProfile: null,
   isPending: true,
   refreshSession: () => {},
@@ -36,25 +36,16 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const {
-    data: session,
-    isPending: sessionPending,
-    refetch,
-  } = authClient.useSession() as {
-    data: any;
-    isPending: boolean;
-    refetch: () => void;
-  };
+  const { data, isPending, refetch } = authClient.useSession();
   const [userProfile, setUserProfile] = useState<User | null>(null);
-  const [userProfilePending, setUserProfilePending] = useState(true);
-  console.log(session);
+  console.log(data);
 
   useEffect(() => {
     async function fetchUserProfile() {
-      if (session && session.user) {
+      if (data && data.user) {
         try {
           const response = await fetcher(
-            `/profile/getProfile/${session.user.id}`,
+            `/profile/getProfile/${data.user.id}`,
             {
               method: "GET",
               headers: {
@@ -74,17 +65,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           console.error("Error fetching user profile:", error);
         }
       }
-      setUserProfilePending(false);
     }
 
     fetchUserProfile();
-  }, [session]);
-
-  const isPending = sessionPending || userProfilePending;
+  }, [data]);
 
   return (
     <AuthContext.Provider
-      value={{ session, userProfile, isPending, refreshSession: refetch }}
+      value={{ data, userProfile, isPending, refreshSession: refetch }}
     >
       {children}
     </AuthContext.Provider>

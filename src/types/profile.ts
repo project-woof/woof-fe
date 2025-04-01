@@ -1,13 +1,13 @@
 export interface User {
   id: string;
-  username: string;
+  name: string; // username
   email: string;
   emailVerified: boolean;
-  profile_image_url?: string;
+  image?: string; // profile_image_url
   latitude?: number;
   longitude?: number;
   description?: string;
   is_petsitter?: number; // 0: false, 1: true
-  created_at: string;
-  last_updated: string;
+  createdAt: string; // created_at
+  updatedAt: string; // last_updated
 }
