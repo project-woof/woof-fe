@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         router.navigate({ to: "/signup", search: { fromLogin: "" } });
       }
     }
-  }, [userProfile, router.state.location.pathname]);
+  }, [userProfile]);
 
   const contextValue: AuthContextType = {
     userProfile,

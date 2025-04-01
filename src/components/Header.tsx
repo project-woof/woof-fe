@@ -29,6 +29,10 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { userProfile, setUserProfile } = useAuth();
 
+  if (!userProfile && pathname === "/signup") {
+    return null;
+  }
+
   const navigation = [
     { name: "Home", href: "/", icon: Home },
     { name: "Messages", href: "/chat", icon: MessageSquare },
