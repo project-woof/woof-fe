@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "@/types/profile";
 import { fetcher } from "@/util/fetcher";
+import { useRouter } from "@tanstack/react-router";
 
 interface AuthContextType {
   userProfile: User | null;
@@ -18,6 +19,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userProfile, setUserProfile] = useState<User | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -60,6 +62,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (userProfile) {
+      if (
+        !userProfile.description &&
+        router.state.location.pathname !== "/signup"
+      ) {
+        router.navigate({ to: "/signup", search: { fromLogin: "" } });
+      }
+    }
+  }, [userProfile]);
 
   const contextValue: AuthContextType = {
     userProfile,

@@ -1,5 +1,6 @@
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { AuthProvider } from "@/context/authContext";
 
 import Header from "../components/Header";
 
@@ -11,8 +12,10 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <QueryClientProvider client={queryClient}>
-        <Header />
-        <Outlet />
+        <AuthProvider>
+          <Header />
+          <Outlet />
+        </AuthProvider>
         <TanStackRouterDevtools />
       </QueryClientProvider>
     </>
