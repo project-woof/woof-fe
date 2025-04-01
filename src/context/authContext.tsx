@@ -3,23 +3,23 @@ import { authClient } from "@/lib/auth";
 import type { User } from "@/types/profile";
 import { fetcher } from "@/util/fetcher";
 
-interface Session {
-  user: User;
-  session: {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    expiresAt: Date;
-    token: string;
-    ipAddress?: string | null | undefined;
-    userAgent?: string | null | undefined;
-  };
-}
+// interface Session {
+//   user: User;
+//   session: {
+//     id: string;
+//     createdAt: Date;
+//     updatedAt: Date;
+//     userId: string;
+//     expiresAt: Date;
+//     token: string;
+//     ipAddress?: string | null | undefined;
+//     userAgent?: string | null | undefined;
+//   };
+// }
 
 interface AuthContextType {
-  session: Session | null;
-  userProfile: User | null;
+  session: any;
+  userProfile: any;
   isPending: boolean;
   refreshSession: () => void;
 }
@@ -41,14 +41,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isPending: sessionPending,
     refetch,
   } = authClient.useSession() as {
-    data: Session | null;
+    data: any;
     isPending: boolean;
     refetch: () => void;
   };
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [userProfilePending, setUserProfilePending] = useState(true);
   console.log(session);
-  console.log(sessionPending);
 
   useEffect(() => {
     async function fetchUserProfile() {
