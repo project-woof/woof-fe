@@ -1,24 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { authClient } from "@/lib/auth";
-
-interface Session {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
-  expiresAt: Date;
-  token: string;
-  ipAddress?: string | null | undefined;
-  userAgent?: string | null | undefined;
-}
+import type { User } from "@/types/profile";
+import { fetcher } from "@/util/fetcher";
 
 interface AuthContextType {
-  session: Session | undefined;
-  userProfile: any | undefined;
+  userProfile: User | undefined;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  session: undefined,
   userProfile: undefined,
 });
 
@@ -27,8 +15,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [session, setSession] = useState<Session | undefined>(undefined);
-  const [userProfile, setUserProfile] = useState<any | undefined>(undefined);
+  const [userProfile, setUserProfile] = useState<User | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -44,22 +31,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   useEffect(() => {
-    async function fetchSession() {
-      const { data, error } = await authClient.getSession();
-      if (error) {
-        console.error(error);
-      }
-      console.log(data);
-      if (data) {
-        setSession(data.session);
-        setUserProfile(data.user);
-      }
+    async function fetchUser() {
+      const token = localStorage.getItem("bearer_token");
+      const response = await fetcher(`/api/auth/get-user?token=${token}`);
+      const data = await response.json<User>();
+      setUserProfile(data);
     }
-    fetchSession();
+    fetchUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, userProfile }}>
+    <AuthContext.Provider value={{ userProfile }}>
       {children}
     </AuthContext.Provider>
   );
