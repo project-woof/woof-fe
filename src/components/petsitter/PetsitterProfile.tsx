@@ -2,9 +2,9 @@ import type { PetsitterData } from "@/types/petsitter";
 import { Heart, MapPin, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ServicesTab } from "@/components/petsitter/ServiceTab";
-import { ReviewsTab } from "@/components/petsitter/ReviewsTab";
-import { AboutTab } from "@/components/petsitter/AboutTab";
+import { ServicesTab } from "@/components/petsitter/profile-tab/ServiceTab";
+import { ReviewsTab } from "@/components/petsitter/profile-tab/ReviewsTab";
+import { AboutTab } from "@/components/petsitter/profile-tab/AboutTab";
 
 interface PetsitterProfileProps {
   petsitterData: PetsitterData;
