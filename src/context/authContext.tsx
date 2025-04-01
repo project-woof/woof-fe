@@ -32,6 +32,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userProfile] = useState<User | undefined>(undefined);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tokenFromUrl = params.get("token");
+      if (tokenFromUrl) {
+        localStorage.setItem("bearer_token", tokenFromUrl);
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchSession() {
       const response = await fetcher("/api/auth/get-session", {
         method: "GET",
