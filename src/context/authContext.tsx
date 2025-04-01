@@ -38,9 +38,9 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { data, isPending, refetch } = authClient.useSession();
   const [userProfile, setUserProfile] = useState<User | null>(null);
-  console.log(data);
 
   useEffect(() => {
+    console.log(data);
     async function fetchUserProfile() {
       if (data && data.user) {
         try {
