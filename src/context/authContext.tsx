@@ -36,9 +36,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await fetcher("/api/auth/get-session", {
         method: "GET",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
       console.log(response);
       if (!response.ok) {
