@@ -80,10 +80,10 @@ export default function Header() {
               <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
                 <Avatar>
                   <AvatarImage
-                    src={userProfile?.image}
-                    alt={userProfile?.name}
+                    src={userProfile?.profile_image_url}
+                    alt={userProfile?.username}
                   />
-                  <AvatarFallback>{userProfile?.name}</AvatarFallback>
+                  <AvatarFallback>{userProfile?.username}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -91,13 +91,13 @@ export default function Header() {
               <div className="flex items-center justify-start gap-2 p-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={userProfile?.image}
-                    alt={userProfile?.name}
+                    src={userProfile?.profile_image_url}
+                    alt={userProfile?.username}
                   />
-                  <AvatarFallback>{userProfile?.name}</AvatarFallback>
+                  <AvatarFallback>{userProfile?.username}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-0.5">
-                  <p className="text-sm font-medium">{userProfile?.name}</p>
+                  <p className="text-sm font-medium">{userProfile?.username}</p>
                   <p className="text-xs text-muted-foreground">
                     {userProfile?.email}
                   </p>
@@ -118,8 +118,14 @@ export default function Header() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
