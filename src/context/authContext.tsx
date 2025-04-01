@@ -28,13 +28,14 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [session, setSession] = useState<Session | undefined>(undefined);
-  const [userProfile, setUserProfile] = useState<User | undefined>(undefined);
+  const [session] = useState<Session | undefined>(undefined);
+  const [userProfile] = useState<User | undefined>(undefined);
 
   useEffect(() => {
     async function fetchSession() {
       const response = await fetcher("/api/auth/get-session", {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -43,10 +44,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      const data = await response.json<any>();
+      const data = await response.json();
       console.log(data);
-      setSession(data.session);
-      setUserProfile(data.profile);
     }
     fetchSession();
   }, []);
