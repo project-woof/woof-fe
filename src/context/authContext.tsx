@@ -36,7 +36,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { data, isPending, refetch } = authClient.useSession();
+  const { data, isPending, error, refetch } = authClient.useSession();
   const [userProfile, setUserProfile] = useState<User | null>(null);
 
   useEffect(() => {
@@ -69,6 +69,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     fetchUserProfile();
   }, [data]);
+
+  useEffect(() => {
+    console.log(error);
+  }, [error]);
 
   return (
     <AuthContext.Provider
