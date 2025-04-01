@@ -42,6 +42,7 @@ export default function Header() {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          localStorage.removeItem("bearer_token");
           router.navigate({ to: "/" });
         },
       },

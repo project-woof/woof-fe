@@ -3,11 +3,11 @@ import type { User } from "@/types/profile";
 import { fetcher } from "@/util/fetcher";
 
 interface AuthContextType {
-  userProfile: User | undefined;
+  userProfile: User | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  userProfile: undefined,
+  userProfile: null,
 });
 
 interface AuthProviderProps {
@@ -15,7 +15,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [userProfile, setUserProfile] = useState<User | undefined>(undefined);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -33,14 +33,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     async function fetchUser() {
       const token = localStorage.getItem("bearer_token");
-      const response = await fetcher(`/api/auth/get-user?token=${token}`);
+      const response = await fetcher(`/api/auth/get-user?token=${token}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (response.status === 401) {
-        setUserProfile(undefined);
+        setUserProfile(null);
         localStorage.removeItem("bearer_token");
-        return;
-      }
-      if (!response.ok) {
-        setUserProfile(undefined);
         return;
       }
       const data = await response.json<User>();
