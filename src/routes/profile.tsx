@@ -11,16 +11,7 @@ export const Route = createFileRoute("/profile")({
 
 function Profile() {
   const [activeTab, setActiveTab] = useState("bookings");
-  const { userProfile: userData, isPending } = useAuth();
-
-  if (isPending) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span>Loading profile...</span>
-      </div>
-    );
-  }
+  const { userProfile: userData } = useAuth();
 
   if (!userData) {
     return (
