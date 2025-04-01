@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "@/types/profile";
-import { fetcher } from "@/util/fetcher";
+import { authClient } from "@/lib/auth";
 
 interface Session {
   id: string;
@@ -15,7 +14,7 @@ interface Session {
 
 interface AuthContextType {
   session: Session | undefined;
-  userProfile: User | undefined;
+  userProfile: any | undefined;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,8 +27,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [session] = useState<Session | undefined>(undefined);
-  const [userProfile] = useState<User | undefined>(undefined);
+  const [session, setSession] = useState<Session | undefined>(undefined);
+  const [userProfile, setUserProfile] = useState<any | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,16 +44,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     async function fetchSession() {
-      const response = await fetcher("/api/auth/get-session", {
-        method: "GET",
-        credentials: "include",
-      });
-      console.log(response);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      const { data, error } = await authClient.getSession();
+      if (error) {
+        console.error(error);
       }
-      const data = await response.json();
       console.log(data);
+      if (data) {
+        setSession(data.session);
+        setUserProfile(data.user);
+      }
     }
     fetchSession();
   }, []);
