@@ -4,10 +4,12 @@ import { fetcher } from "@/util/fetcher";
 
 interface AuthContextType {
   userProfile: User | null;
+  setUserProfile: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   userProfile: null,
+  setUserProfile: () => {},
 });
 
 interface AuthProviderProps {
@@ -33,27 +35,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     async function fetchUser() {
       const token = localStorage.getItem("bearer_token");
-      const response = await fetcher(`/api/auth/get-user?token=${token}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.status === 401) {
-        setUserProfile(null);
-        localStorage.removeItem("bearer_token");
+      if (!token) {
         return;
       }
-      const data = await response.json<User>();
-      setUserProfile(data);
+      try {
+        const response = await fetcher(`/api/auth/get-user?token=${token}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 401) {
+          setUserProfile(null);
+          localStorage.removeItem("bearer_token");
+          return;
+        }
+        const data = await response.json<User>();
+        setUserProfile(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUserProfile(null);
+        localStorage.removeItem("bearer_token");
+      }
     }
     fetchUser();
   }, []);
 
+  const contextValue: AuthContextType = {
+    userProfile,
+    setUserProfile,
+  };
+
   return (
-    <AuthContext.Provider value={{ userProfile }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

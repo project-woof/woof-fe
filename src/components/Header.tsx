@@ -27,7 +27,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
-  const { userProfile } = useAuth();
+  const { userProfile, setUserProfile } = useAuth();
 
   const navigation = [
     { name: "Home", href: "/", icon: Home },
@@ -42,6 +42,7 @@ export default function Header() {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          setUserProfile(null);
           localStorage.removeItem("bearer_token");
           router.navigate({ to: "/" });
         },
