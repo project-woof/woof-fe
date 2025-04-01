@@ -1,34 +1,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth";
-import type { User } from "@/types/profile";
-import { fetcher } from "@/util/fetcher";
 
-// interface Session {
-//   user: User;
-//   session: {
-//     id: string;
-//     createdAt: Date;
-//     updatedAt: Date;
-//     userId: string;
-//     expiresAt: Date;
-//     token: string;
-//     ipAddress?: string | null | undefined;
-//     userAgent?: string | null | undefined;
-//   };
-// }
+interface Session {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  expiresAt: Date;
+  token: string;
+  ipAddress?: string | null | undefined;
+  userAgent?: string | null | undefined;
+}
 
 interface AuthContextType {
-  data: any;
-  userProfile: any;
-  isPending: boolean;
-  refreshSession: () => void;
+  session: Session | undefined;
+  userProfile: any | undefined;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  data: null,
-  userProfile: null,
-  isPending: true,
-  refreshSession: () => {},
+  session: undefined,
+  userProfile: undefined,
 });
 
 interface AuthProviderProps {
@@ -36,48 +27,23 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { data, isPending, error, refetch } = authClient.useSession();
-  const [userProfile, setUserProfile] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | undefined>(undefined);
+  const [userProfile, setUserProfile] = useState<any | undefined>(undefined);
 
   useEffect(() => {
-    console.log(data);
-    async function fetchUserProfile() {
-      if (data && data.user) {
-        try {
-          const response = await fetcher(
-            `/profile/getProfile/${data.user.id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.ok) {
-            const data = await response.json<User>();
-            console.log(data);
-            setUserProfile(data);
-            console.log(userProfile);
-          } else {
-            console.error("Failed to fetch user profile:", response.statusText);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-        }
-      }
+    async function fetchSession() {
+      const { data: session } = await authClient.getSession();
+      const currSession = session?.session;
+      setSession(currSession);
+      const user = session?.user;
+      setUserProfile(user);
+      console.log(session);
     }
-
-    fetchUserProfile();
-  }, [data]);
-
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
+    fetchSession();
+  }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ data, userProfile, isPending, refreshSession: refetch }}
-    >
+    <AuthContext.Provider value={{ session, userProfile }}>
       {children}
     </AuthContext.Provider>
   );
