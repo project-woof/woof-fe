@@ -35,7 +35,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const params = new URLSearchParams(window.location.search);
       const tokenFromUrl = params.get("token");
       if (tokenFromUrl) {
-        localStorage.setItem("bearer_token", tokenFromUrl);
+        const token = decodeURIComponent(tokenFromUrl);
+        localStorage.setItem("bearer_token", token);
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
