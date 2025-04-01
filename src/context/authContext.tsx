@@ -39,10 +39,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           "Content-Type": "application/json",
         },
       });
+      console.log(response);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json<any>();
+      console.log(data);
       setSession(data.session);
       setUserProfile(data.profile);
     }
