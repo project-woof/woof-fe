@@ -17,11 +17,20 @@ export const Route = createFileRoute("/login")({
 function Login() {
   const handleGoogleLogin = async () => {
     try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/api/auth/",
-        newUserCallbackURL: "/api/auth/signup",
-      });
+      await authClient.signIn.social(
+        {
+          provider: "google",
+          callbackURL: "/api/auth/",
+          newUserCallbackURL: "/api/auth/signup",
+        },
+        {
+          onSuccess: (ctx) => {
+            const authToken = ctx.response.headers.get("set-auth-token"); // get the token from the response headers
+            // Store the token securely (e.g., in localStorage)
+            localStorage.setItem("bearer_token", authToken || "");
+          },
+        }
+      );
     } catch (error) {
       console.error("Error during Google SSO sign in:", error);
     }
