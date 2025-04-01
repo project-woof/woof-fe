@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
