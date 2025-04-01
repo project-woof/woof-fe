@@ -47,10 +47,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [userProfilePending, setUserProfilePending] = useState(true);
+  console.log(session);
+  console.log(sessionPending);
 
   useEffect(() => {
     async function fetchUserProfile() {
-      if (session && session.user && session.user.id) {
+      if (session && session.user) {
         try {
           const response = await fetcher(
             `/profile/getProfile/${session.user.id}`,
