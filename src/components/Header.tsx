@@ -20,11 +20,14 @@ import {
   LogOut,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { authClient } from "@/lib/auth";
+import { useAuth } from "@/context/authContext";
 
 export default function Header() {
   const router = useRouter();
   const pathname = router.state.location.pathname;
   const [isOpen, setIsOpen] = useState(false);
+  const { userProfile } = useAuth();
 
   const navigation = [
     { name: "Home", href: "/", icon: Home },
@@ -34,6 +37,16 @@ export default function Header() {
   ];
 
   const isActive = (path: string) => pathname === path;
+
+  async function handleSignOut() {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.navigate({ to: "/" });
+        },
+      },
+    });
+  }
 
   return (
     <header className="bg-white border-b sticky top-0 z-10">
@@ -67,10 +80,10 @@ export default function Header() {
               <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
                 <Avatar>
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="User"
+                    src={userProfile?.image}
+                    alt={userProfile?.name}
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{userProfile?.name}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -78,15 +91,15 @@ export default function Header() {
               <div className="flex items-center justify-start gap-2 p-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="User"
+                    src={userProfile?.image}
+                    alt={userProfile?.name}
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{userProfile?.name}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-0.5">
-                  <p className="text-sm font-medium">John Doe</p>
+                  <p className="text-sm font-medium">{userProfile?.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    john.doe@example.com
+                    {userProfile?.email}
                   </p>
                 </div>
               </div>
@@ -124,7 +137,7 @@ export default function Header() {
                 <div className="py-4">
                   <div className="flex items-center mb-6">
                     <PawPrint className="h-6 w-6 text-primary mr-2" />
-                    <span className="font-bold text-lg">PetSitter</span>
+                    <span className="font-bold text-lg">Woof!</span>
                   </div>
                   <nav className="flex flex-col space-y-4">
                     {navigation.map((item) => (
@@ -148,11 +161,7 @@ export default function Header() {
                   <Button
                     variant="outline"
                     className="w-full flex items-center justify-center"
-                    onClick={() => {
-                      // Clear auth cookie and reload
-                      document.cookie = "auth_token=; path=/; max-age=0";
-                      window.location.href = "/login";
-                    }}
+                    onClick={handleSignOut}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
