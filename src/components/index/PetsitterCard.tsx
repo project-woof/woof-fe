@@ -38,7 +38,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
               </h3>
               <div className="flex items-center mt-1 text-sm text-navy/70">
                 <MapPin className="h-3.5 w-3.5 mr-1" />
-                <span>{petsitter.distance}</span>
+                <span>{petsitter.distance.toFixed(1)} miles away</span>
               </div>
             </div>
             <div className="flex items-center">
