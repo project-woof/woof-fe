@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { PetsitterResponse } from "@/types/petsitter";
 
-
 // // Geolocation
 // const latitude = 40.7128;
 // const longitude = -74.0060;

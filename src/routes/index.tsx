@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PetsitterCard } from "@/components/index/PetsitterCard";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { useIndexQuery } from "@/composables/queries";
+import { PetsitterGallery } from "@/components/index/PetsittersGallery";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -23,30 +23,6 @@ function Home() {
         </div>
       );
     }
-    
-    if (!petsittersData || petsittersData.length === 0) {
-      return (
-        <div className="min-h-screen bg-cream">
-          <main className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-navy">Petsitters Nearby</h1>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 border-navy text-navy hover:bg-navy hover:text-cream"
-              >
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-            
-            <div className="text-center py-12">
-              <p className="text-navy text-lg">No petsitters found nearby.</p>
-            </div>
-          </main>
-        </div>
-      );
-    }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -63,11 +39,7 @@ function Home() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {petsittersData.map((petsitter) => (
-            <PetsitterCard key={petsitter.id} petsitter={petsitter} />
-          ))}
-        </div>
+        <PetsitterGallery petsitters={petsittersData} isFetched={petsittersFetched} />
       </main>
     </div>
   );
