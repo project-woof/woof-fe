@@ -11,21 +11,15 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from './routes/signup'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as ProfileImport } from './routes/profile'
+import { Route as OnboardingImport } from './routes/onboarding'
 import { Route as LoginImport } from './routes/login'
 import { Route as ChatImport } from './routes/chat'
 import { Route as IndexImport } from './routes/index'
 import { Route as PetsitterIdImport } from './routes/petsitter/$id'
 
 // Create/Update Routes
-
-const SignupRoute = SignupImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const SettingsRoute = SettingsImport.update({
   id: '/settings',
@@ -36,6 +30,12 @@ const SettingsRoute = SettingsImport.update({
 const ProfileRoute = ProfileImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OnboardingRoute = OnboardingImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +88,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingImport
+      parentRoute: typeof rootRoute
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -100,13 +107,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsImport
-      parentRoute: typeof rootRoute
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
     }
     '/petsitter/$id': {
@@ -125,9 +125,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
-  '/signup': typeof SignupRoute
   '/petsitter/$id': typeof PetsitterIdRoute
 }
 
@@ -135,9 +135,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
-  '/signup': typeof SignupRoute
   '/petsitter/$id': typeof PetsitterIdRoute
 }
 
@@ -146,9 +146,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
-  '/signup': typeof SignupRoute
   '/petsitter/$id': typeof PetsitterIdRoute
 }
 
@@ -158,27 +158,27 @@ export interface FileRouteTypes {
     | '/'
     | '/chat'
     | '/login'
+    | '/onboarding'
     | '/profile'
     | '/settings'
-    | '/signup'
     | '/petsitter/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/chat'
     | '/login'
+    | '/onboarding'
     | '/profile'
     | '/settings'
-    | '/signup'
     | '/petsitter/$id'
   id:
     | '__root__'
     | '/'
     | '/chat'
     | '/login'
+    | '/onboarding'
     | '/profile'
     | '/settings'
-    | '/signup'
     | '/petsitter/$id'
   fileRoutesById: FileRoutesById
 }
@@ -187,9 +187,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChatRoute: typeof ChatRoute
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
-  SignupRoute: typeof SignupRoute
   PetsitterIdRoute: typeof PetsitterIdRoute
 }
 
@@ -197,9 +197,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
-  SignupRoute: SignupRoute,
   PetsitterIdRoute: PetsitterIdRoute,
 }
 
@@ -216,9 +216,9 @@ export const routeTree = rootRoute
         "/",
         "/chat",
         "/login",
+        "/onboarding",
         "/profile",
         "/settings",
-        "/signup",
         "/petsitter/$id"
       ]
     },
@@ -231,14 +231,14 @@ export const routeTree = rootRoute
     "/login": {
       "filePath": "login.tsx"
     },
+    "/onboarding": {
+      "filePath": "onboarding.tsx"
+    },
     "/profile": {
       "filePath": "profile.tsx"
     },
     "/settings": {
       "filePath": "settings.tsx"
-    },
-    "/signup": {
-      "filePath": "signup.tsx"
     },
     "/petsitter/$id": {
       "filePath": "petsitter/$id.tsx"

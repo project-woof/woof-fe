@@ -67,9 +67,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (userProfile) {
       if (
         !userProfile.description &&
-        router.state.location.pathname !== "/signup"
+        router.state.location.pathname !== "/onboarding"
       ) {
-        router.navigate({ to: "/signup", search: { fromLogin: "" } });
+        router.navigate({ to: "/onboarding", search: { fromLogin: "" } });
       }
     }
   }, [userProfile]);

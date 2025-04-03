@@ -47,18 +47,6 @@ function Login() {
             Sign in with Google
           </button>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link
-              to="/signup"
-              search={{ fromLogin: "false" }}
-              className="text-primary hover:underline"
-            >
-              Sign up
-            </Link>
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );
