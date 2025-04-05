@@ -253,7 +253,7 @@ function Onboarding() {
 	};
 
 	return (
-		<div className="min-h-[93vh] flex items-center justify-center bg-gray-50 px-4">
+		<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 			<Card className="w-full max-w-md">
 				<CardHeader className="space-y-1 text-center">
 					<div className="flex justify-center mb-2">
