@@ -8,8 +8,9 @@ import { convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
 import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
-// import type { ChatMessageSummary } from "@/types/chat";
+import type { CreateChatMessageBody } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
+import { useMutateChat } from "@/composables/mutations/chat";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -26,6 +27,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	}
 
 	const { getMessagesByRoomId } = useChatQuery();
+	const { createMessageMutation } = useMutateChat();
 	const [newMessage, setNewMessage] = useState("");
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,19 +72,22 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		}
 	}, []);
 
-	const handleSendMessage = (e: React.FormEvent) => {
+	const handleSendMessage = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!newMessage.trim()) return;
+		if (!newMessage.trim() || !selectedChatRoom) return;
 
-		// const message: ChatMessageSummary = {
-		// 	message_id: Date.now().toString(),
-		// 	sender_id: userId,
-		// 	text: newMessage,
-		// 	created_at: new Date().toISOString(),
-		// };
+		const messageBody: CreateChatMessageBody = {
+			room_id: selectedChatRoom.room_id,
+			sender_id: userId,
+			text: newMessage,
+		};
 
-		// TODO: Implement Mutation to send the message to the server
-		setNewMessage("");
+		try {
+			setNewMessage("");
+			await createMessageMutation.mutateAsync(messageBody);
+		} catch (error) {
+			console.error("Failed to send message:", error);
+		}
 	};
 
 	const renderedMessages = messages.reduce<React.ReactNode[]>(
