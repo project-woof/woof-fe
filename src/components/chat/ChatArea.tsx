@@ -8,7 +8,7 @@ import { convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
 import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
-import type { ChatMessageSummary } from "@/types/chat";
+// import type { ChatMessageSummary } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
 
 interface ChatAreaProps {
