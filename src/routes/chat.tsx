@@ -8,7 +8,7 @@ import { useChatQuery } from "@/composables/queries/chat";
 import type { ChatRoomSummary } from "@/types/chat";
 
 export const Route = createFileRoute("/chat")({
-  component: Chat,
+	component: Chat,
 });
 
 function Chat() {

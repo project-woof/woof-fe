@@ -1,30 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import { PawPrint } from "lucide-react";
 import { authClient } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
-  component: Login,
+	component: Login,
 });
 
 function Login() {
-  const handleGoogleLogin = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/api/auth/",
-        newUserCallbackURL: "/api/auth/signup",
-      });
-    } catch (error) {
-      console.error("Error during Google SSO sign in:", error);
-    }
-  };
+	const handleGoogleLogin = async () => {
+		try {
+			await authClient.signIn.social({
+				provider: "google",
+				callbackURL: "/api/auth/",
+				newUserCallbackURL: "/api/auth/signup",
+			});
+		} catch (error) {
+			console.error("Error during Google SSO sign in:", error);
+		}
+	};
 
   return (
     <div className="min-h-[93vh] flex items-center justify-center bg-gray-50">

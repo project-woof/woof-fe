@@ -5,7 +5,7 @@ import { useIndexQuery } from "@/composables/queries";
 import { PetsitterGallery } from "@/components/index/PetsittersGallery";
 
 export const Route = createFileRoute("/")({
-  component: Home,
+	component: Home,
 });
 
 function Home() {
