@@ -17,7 +17,7 @@ interface ChatAreaProps {
 }
 
 export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
-  if (!selectedChatRoom) {
+	if (!selectedChatRoom) {
 		return (
 			<div className="col-span-2 flex items-center justify-center h-full">
 				<p className="text-gray-500">Select a conversation to start chatting</p>
@@ -74,12 +74,12 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		e.preventDefault();
 		if (!newMessage.trim()) return;
 
-		const message: ChatMessageSummary = {
-			message_id: Date.now().toString(),
-			sender_id: userId,
-			text: newMessage,
-			created_at: new Date().toISOString(),
-		};
+		// const message: ChatMessageSummary = {
+		// 	message_id: Date.now().toString(),
+		// 	sender_id: userId,
+		// 	text: newMessage,
+		// 	created_at: new Date().toISOString(),
+		// };
 
 		// TODO: Implement Mutation to send the message to the server
 		setNewMessage("");
