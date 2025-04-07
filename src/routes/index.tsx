@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { useIndexQuery } from "@/composables/queries";
-import { PetsitterGallery } from "@/components/index/PetsittersGallery";
+import { PetsitterGallery } from "@/components/homepage/PetsittersGallery";
 
 export const Route = createFileRoute("/")({
 	component: Home,

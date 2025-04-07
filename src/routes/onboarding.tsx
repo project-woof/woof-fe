@@ -21,7 +21,7 @@ export const Route = createFileRoute("/onboarding")({
 	component: Onboarding,
 });
 
-declare const google: any;
+// declare const google: any;
 
 function Onboarding() {
 	const router = useRouter();
