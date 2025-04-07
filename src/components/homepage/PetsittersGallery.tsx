@@ -1,5 +1,5 @@
 import type { PetsitterResponse } from "@/types/petsitter";
-import { PetsitterCard } from "@/components/index/PetsitterCard";
+import { PetsitterCard } from "@/components/homepage/PetsitterCard";
 
 interface PetsitterGalleryProps {
   petsitters: PetsitterResponse[] | undefined;
