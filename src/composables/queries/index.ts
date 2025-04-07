@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useIndexAPI } from "@/composables/api/index";
-import type { PetsitterResponse } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/petsitter";
 
 const { getAllPetsitters } = useIndexAPI();
 
 export const useIndexQuery = () => {
   function getPetsitterList() {
-    const { data, isFetched } = useQuery<PetsitterResponse[]>({
+    const { data, isFetched } = useQuery<PetsitterProfile[]>({
       queryKey: ["petsitters"],
       queryFn: () => getAllPetsitters(),
     });

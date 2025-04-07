@@ -44,7 +44,7 @@ export function useChatAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		return await await response.json<ChatRoomSummary>();
+		return await response.json<ChatRoomSummary>();
 	};
 
 	const createMessage = async (body: CreateChatMessageBody) => {

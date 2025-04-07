@@ -1,4 +1,4 @@
-import type { PetsitterResponse } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/petsitter";
 import { fetcher } from "@/util/fetcher";
 
 export function useIndexAPI() {
@@ -12,7 +12,7 @@ export function useIndexAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		const petsittersRes = await response.json<PetsitterResponse[]>();
+		const petsittersRes = await response.json<PetsitterProfile[]>();
 		return petsittersRes;
 	};
 
