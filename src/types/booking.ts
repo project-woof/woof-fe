@@ -1,4 +1,11 @@
 export interface Booking {
+  petowner_id: string;
+  petsitter_id: string;
+  start_date: string;
+  end_date: string;
+}
+
+export interface BookingResponse extends Booking {
   booking_id: string;
   petowner_id: string;
   petsitter_id: string;
@@ -6,6 +13,6 @@ export interface Booking {
   end_date: string;
   created_at: string;
   last_updated: string;
-  profile_image_url: string;
+  profile_image_url?: string;
   username: string;
 }

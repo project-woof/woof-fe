@@ -6,48 +6,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { useAuth } from "@/context/authContext";
-import { useMutateChat } from "@/composables/mutations/chat";
 import { useRouter } from "@tanstack/react-router";
+import { useAuth } from "@/context/authContext";
+import type { Booking } from "@/types/booking";
+import { addHoursToDateTime, convertDateTimeToISO } from "@/util/format";
+import { useMutateBooking } from "@/composables/mutations/booking";
+import { useMutateChat } from "@/composables/mutations/chat";
 
 interface BookingCardProps {
 	petsitterData: PetsitterProfile;
 }
 
 // TODO: update to use Mutations
-interface BookingData {
-	petsitter_id: string;
-	petowner_id: string;
-	start_date: string;
-	end_date: string;
-}
-async function createBooking() {
-	try {
-		const apiUrl = import.meta.env.VITE_API_URL;
-
-		const bookingData: BookingData = {
-			petsitter_id: "uuid-user2",
-			petowner_id: "bbf7fc583d4cd42846ae8bddd0a97759",
-			start_date: "2025-05-10 12:00:00",
-			end_date: "2025-05-15 13:00:00",
-		};
-
-		const res = await fetch(`${apiUrl}/booking/create`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(bookingData),
-		});
-
-		const responseData = await res.json();
-		console.log("Booking created:", responseData);
-
-		if (!res.ok) {
-			throw new Error(`HTTP error! status: ${res.status}`);
-		}
-	} catch (err) {}
-}
+// interface BookingData {
+// 	petsitter_id: string;
+// 	petowner_id: string;
+// 	start_date: string;
+// 	end_date: string;
+// }
 
 export function BookingCard({ petsitterData }: BookingCardProps) {
 	const router = useRouter();
@@ -57,6 +33,12 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 	const [hours, setHours] = useState<number>(2);
 	const [totalPrice, setTotalPrice] = useState<number>(petsitterData.price * 2);
+	// const { getBookingsByPetowner } = useBookingQuery();
+	const { createBooking } = useMutateBooking();
+	
+	// if (userProfile){
+	// 	const { data: messages = [] } = getBookingsByPetowner(userProfile?.id,5,0)
+	// }
 
 	// Mock time slots TODO: fetch from db
 	const timeSlots = [
@@ -71,6 +53,34 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 		"4:00 PM",
 		"5:00 PM",
 	];
+
+
+	const handleSendBooking = async () => {
+		if (!userProfile) {
+			router.navigate({ to: "/login" });
+			return;
+		}
+
+		// TODO: alert user misising fields
+		if (!date || !selectedTimeSlot) {
+			console.error("Missing fields");
+			return;
+		}
+
+		let bookingDate = convertDateTimeToISO(date, selectedTimeSlot);
+		const bookingBody: Booking = {
+			petsitter_id: petsitterData.id,
+			petowner_id: userProfile.id,
+			start_date: convertDateTimeToISO(date, selectedTimeSlot),
+			end_date: addHoursToDateTime(bookingDate, hours),
+		};
+
+		try {
+			await createBooking.mutateAsync(bookingBody)
+		} catch (error) {
+			console.error("Failed to send message:", error);
+		}
+	};
 
 	const updateTotalPrice = (newHours: number) => {
 		setHours(newHours);
@@ -204,7 +214,7 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 
 					<Button
 						className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream"
-						onClick={() => createBooking()}
+						onClick={() => handleSendBooking()}
 					>
 						Book Now
 					</Button>

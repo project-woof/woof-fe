@@ -10,6 +10,8 @@ export const Route = createFileRoute("/petsitter/$id")({
 
 function Petsitter() {
 	const { id } = useParams({ from: "/petsitter/$id" });
+	const [activeTab, setActiveTab] = useState("about");
+
 	const { getPetsitterProfileById } = useProfileQuery();
 	const {
 		data: profileData,
@@ -19,8 +21,6 @@ function Petsitter() {
 	} = getPetsitterProfileById(id);
 	// TODO: remove hardcoded info
 	// hard coded image reviews location distance and availability for now
-
-	const [activeTab, setActiveTab] = useState("about");
 
 	if (!profileFetched) {
 		return (
