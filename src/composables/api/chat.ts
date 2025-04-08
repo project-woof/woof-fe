@@ -35,7 +35,7 @@ export function useChatAPI() {
 
 	const createChatRoom = async (body: CreateChatRoomBody) => {
 		const response = await fetcher(`/chat/createChatRoom`, {
-			method: "GET",
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},

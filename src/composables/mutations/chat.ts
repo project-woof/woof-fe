@@ -14,6 +14,26 @@ export const useMutateChat = () => {
 	const createChatRoomMutation = useMutation({
 		mutationFn: (body: CreateChatRoomBody) => createChatRoom(body),
 		onSuccess: (data, variables) => {
+			const { participant1_id, participant2_id } = variables;
+			const existingRoomsPart1 =
+				queryClient.getQueryData<ChatRoomSummary[]>([
+					"getChatRoomsByUserId",
+					participant1_id,
+				]) || [];
+			const existingRoomsPart2 =
+				queryClient.getQueryData<ChatRoomSummary[]>([
+					"getChatRoomsByUserId",
+					participant2_id,
+				]) || [];
+			const roomExistsForParticipant1 = existingRoomsPart1.some(
+				(room) => room.room_id === data.room_id,
+			);
+			const roomExistsForParticipant2 = existingRoomsPart2.some(
+				(room) => room.room_id === data.room_id,
+			);
+			if (roomExistsForParticipant1 && roomExistsForParticipant2) {
+				return;
+			}
 			const newChatRoom: ChatRoomSummary = {
 				room_id: data.room_id,
 				username: data.username,
@@ -21,11 +41,21 @@ export const useMutateChat = () => {
 				last_message: data.last_message,
 				last_updated: data.last_updated,
 			};
-			queryClient.setQueryData(
-				["getChatRoomsByUserId", variables.participant1_id],
-				(oldData: ChatRoomSummary[] = []) => [newChatRoom, ...oldData],
-			);
-			queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
+			if (!roomExistsForParticipant1) {
+				queryClient.setQueryData<ChatRoomSummary[]>(
+					["getChatRoomsByUserId", participant1_id],
+					(oldData: ChatRoomSummary[] = []) => [newChatRoom, ...oldData],
+				);
+			}
+			if (!roomExistsForParticipant2) {
+				queryClient.setQueryData<ChatRoomSummary[]>(
+					["getChatRoomsByUserId", participant2_id],
+					(oldData: ChatRoomSummary[] = []) => [newChatRoom, ...oldData],
+				);
+			}
+			queryClient.invalidateQueries({
+				queryKey: ["getChatRoomsByUserId"],
+			});
 		},
 	});
 

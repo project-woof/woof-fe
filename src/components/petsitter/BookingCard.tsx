@@ -6,6 +6,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useAuth } from "@/context/authContext";
+import { useMutateChat } from "@/composables/mutations/chat";
+import { useRouter } from "@tanstack/react-router";
 
 interface BookingCardProps {
 	petsitterData: PetsitterProfile;
@@ -47,6 +50,9 @@ async function createBooking() {
 }
 
 export function BookingCard({ petsitterData }: BookingCardProps) {
+	const router = useRouter();
+	const { userProfile } = useAuth();
+	const { createChatRoomMutation } = useMutateChat();
 	const [date, setDate] = useState<Date | undefined>(new Date());
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 	const [hours, setHours] = useState<number>(2);
@@ -69,6 +75,27 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 	const updateTotalPrice = (newHours: number) => {
 		setHours(newHours);
 		setTotalPrice(petsitterData.price * newHours);
+	};
+
+	const createChatRoom = async () => {
+		if (!userProfile) {
+			router.navigate({ to: "/login" });
+			return;
+		}
+
+		const chatRoomData = {
+			participant1_id: userProfile.id,
+			participant2_id: petsitterData.id,
+		};
+
+		try {
+			await createChatRoomMutation.mutateAsync(chatRoomData);
+			router.navigate({
+				to: "/chat",
+			});
+		} catch (error) {
+			console.error("Error creating chat room:", error);
+		}
 	};
 
 	return (
@@ -184,8 +211,8 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 					<Button
 						variant="outline"
 						className="w-full flex items-center justify-center"
+						onClick={() => createChatRoom()}
 					>
-						{/* TODO: redirect */}
 						<MessageSquare className="h-4 w-4 mr-2" />
 						Message
 					</Button>

@@ -85,38 +85,24 @@ export default function Header() {
 						<div className="flex items-center space-x-4">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										className="rounded-full h-8 w-8 p-0"
-									>
+									<Button variant="ghost" className="rounded-full h-8 w-8 p-0">
 										<Avatar>
 											<AvatarImage
-												src={
-													userProfile?.profile_image_url
-												}
+												src={userProfile?.profile_image_url}
 												alt={userProfile?.username}
 											/>
-											<AvatarFallback>
-												{userProfile?.username}
-											</AvatarFallback>
+											<AvatarFallback>{userProfile?.username}</AvatarFallback>
 										</Avatar>
 									</Button>
 								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="end"
-									className="w-56"
-								>
+								<DropdownMenuContent align="end" className="w-56">
 									<div className="flex items-center justify-start gap-2 p-2">
 										<Avatar className="h-8 w-8">
 											<AvatarImage
-												src={
-													userProfile?.profile_image_url
-												}
+												src={userProfile?.profile_image_url}
 												alt={userProfile?.username}
 											/>
-											<AvatarFallback>
-												{userProfile?.username}
-											</AvatarFallback>
+											<AvatarFallback>{userProfile?.username}</AvatarFallback>
 										</Avatar>
 										<div className="flex flex-col space-y-0.5">
 											<p className="text-sm font-medium">
@@ -129,33 +115,24 @@ export default function Header() {
 									</div>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem asChild>
-										<Link
-											to="/profile"
-											className="cursor-pointer"
-										>
+										<Link to="/profile" className="cursor-pointer">
 											<User className="mr-2 h-4 w-4" />
 											<span>Profile</span>
 										</Link>
 									</DropdownMenuItem>
 									<DropdownMenuItem asChild>
-										<Link
-											to="/settings"
-											className="cursor-pointer"
-										>
+										<Link to="/settings" className="cursor-pointer">
 											<Settings className="mr-2 h-4 w-4" />
 											<span>Settings</span>
 										</Link>
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
-									<DropdownMenuItem className="cursor-pointer">
-										<Button
-											variant="outline"
-											className="w-full flex items-center justify-center"
-											onClick={handleSignOut}
-										>
-											<LogOut className="mr-2 h-4 w-4" />
-											<span>Log out</span>
-										</Button>
+									<DropdownMenuItem
+										className="cursor-pointer"
+										onClick={handleSignOut}
+									>
+										<LogOut className="mr-2 h-4 w-4" />
+										<span>Log out</span>
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
@@ -163,37 +140,24 @@ export default function Header() {
 							{/* Mobile menu button */}
 							<Sheet open={isOpen} onOpenChange={setIsOpen}>
 								<SheetTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon"
-										className="md:hidden"
-									>
+									<Button variant="ghost" size="icon" className="md:hidden">
 										<Menu className="h-6 w-6" />
-										<span className="sr-only">
-											Toggle menu
-										</span>
+										<span className="sr-only">Toggle menu</span>
 									</Button>
 								</SheetTrigger>
-								<SheetContent
-									side="right"
-									className="w-[250px] sm:w-[300px]"
-								>
+								<SheetContent side="right" className="w-[250px] sm:w-[300px]">
 									<div className="flex flex-col h-full">
 										<div className="py-4">
 											<div className="flex items-center mb-6">
 												<PawPrint className="h-6 w-6 text-primary mr-2" />
-												<span className="font-bold text-lg">
-													Woof!
-												</span>
+												<span className="font-bold text-lg">Woof!</span>
 											</div>
 											<nav className="flex flex-col space-y-4">
 												{navigation.map((item) => (
 													<Link
 														key={item.name}
 														to={item.href}
-														onClick={() =>
-															setIsOpen(false)
-														}
+														onClick={() => setIsOpen(false)}
 														className={`flex items-center space-x-3 px-2 py-2 rounded-md ${
 															isActive(item.href)
 																? "bg-primary/10 text-primary font-medium"
