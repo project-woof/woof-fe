@@ -35,7 +35,7 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 	const [totalPrice, setTotalPrice] = useState<number>(petsitterData.price * 2);
 	// const { getBookingsByPetowner } = useBookingQuery();
 	const { createBooking } = useMutateBooking();
-	
+
 	// if (userProfile){
 	// 	const { data: messages = [] } = getBookingsByPetowner(userProfile?.id,5,0)
 	// }
@@ -53,7 +53,6 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 		"4:00 PM",
 		"5:00 PM",
 	];
-
 
 	const handleSendBooking = async () => {
 		if (!userProfile) {
@@ -76,7 +75,7 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 		};
 
 		try {
-			await createBooking.mutateAsync(bookingBody)
+			await createBooking.mutateAsync(bookingBody);
 		} catch (error) {
 			console.error("Failed to send message:", error);
 		}
