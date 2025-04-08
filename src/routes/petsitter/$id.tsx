@@ -1,4 +1,4 @@
-import { createFileRoute, useParams, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { PetsitterProfile } from "@/components/petsitter/PetsitterProfile";
 import { BookingCard } from "@/components/petsitter/BookingCard";

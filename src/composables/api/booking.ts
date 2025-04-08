@@ -1,4 +1,4 @@
-import type { Booking } from "@/types/booking";
+import type { Booking, BookingResponse } from "@/types/booking";
 import { fetcher } from "@/util/fetcher";
 
 export function useBookingAPI() {
@@ -12,7 +12,7 @@ export function useBookingAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		return response.json<Booking>();
+		return response.json<BookingResponse>();
 	};
 
 	const getAllByPetowner = async (
@@ -32,7 +32,7 @@ export function useBookingAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		const bookingRes = await response.json<Booking[]>();
+		const bookingRes = await response.json<BookingResponse[]>();
 		return bookingRes;
 	};
 
@@ -53,7 +53,7 @@ export function useBookingAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		const bookingRes = await response.json<Booking[]>();
+		const bookingRes = await response.json<BookingResponse[]>();
 		return bookingRes;
 	};
 
@@ -68,7 +68,7 @@ export function useBookingAPI() {
 		if (!response.ok) {
 			throw new Error("Network response was not ok");
 		}
-		return response.json<Booking>();
+		return response.json<BookingResponse>();
 	};
 
 	const remove = async (bookingId: string) => {
