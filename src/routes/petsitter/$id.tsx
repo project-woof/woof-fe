@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { PetsitterProfile } from "@/components/petsitter/PetsitterProfile";
 import { BookingCard } from "@/components/petsitter/BookingCard";
@@ -10,6 +10,8 @@ export const Route = createFileRoute("/petsitter/$id")({
 
 function Petsitter() {
 	const { id } = useParams({ from: "/petsitter/$id" });
+	const [activeTab, setActiveTab] = useState("about");
+
 	const { getPetsitterProfileById } = useProfileQuery();
 	const {
 		data: profileData,
@@ -19,8 +21,6 @@ function Petsitter() {
 	} = getPetsitterProfileById(id);
 	// TODO: remove hardcoded info
 	// hard coded image reviews location distance and availability for now
-
-	const [activeTab, setActiveTab] = useState("about");
 
 	if (!profileFetched) {
 		return (

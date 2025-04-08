@@ -6,6 +6,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useRouter } from "@tanstack/react-router";
+import { useAuth } from "@/context/authContext";
 
 interface BookingCardProps {
 	petsitterData: PetsitterProfile;
@@ -65,6 +67,12 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 		"4:00 PM",
 		"5:00 PM",
 	];
+	
+	// const router = useRouter();
+	// const { userProfile } = useAuth();
+	// if (!userProfile) {
+	// 	router.navigate({ to: "/login" });
+	// }
 
 	const updateTotalPrice = (newHours: number) => {
 		setHours(newHours);
