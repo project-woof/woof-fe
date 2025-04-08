@@ -5,6 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/context/authContext";
@@ -76,8 +88,9 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 
 		try {
 			await createBooking.mutateAsync(bookingBody);
+			toast("Booking has been requested.");
 		} catch (error) {
-			console.error("Failed to send message:", error);
+			toast(`Failed to send message: ${error}`);
 		}
 	};
 
@@ -210,13 +223,35 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 							</div>
 						</div>
 					</div>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button
+								className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream"
+								disabled={selectedTimeSlot === null}
+							>
+								Book Now
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Confirm booking?</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure you want to book {petsitterData.username} for{" "}
+									{hours} hour{hours !== 1 ? "s" : ""} on{" "}
+									{date?.toLocaleDateString()} at {selectedTimeSlot}?
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction asChild>
+									<Button type="submit" onClick={() => handleSendBooking()}>
+										Book
+									</Button>
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 
-					<Button
-						className="w-full mt-4 mb-3 bg-navy hover:bg-navy-light text-cream"
-						onClick={() => handleSendBooking()}
-					>
-						Book Now
-					</Button>
 					<Button
 						variant="outline"
 						className="w-full flex items-center justify-center"
