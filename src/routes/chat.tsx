@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatArea } from "@/components/chat/ChatArea";
 import { useAuth } from "@/context/authContext";
@@ -12,14 +12,8 @@ export const Route = createFileRoute("/chat")({
 });
 
 function Chat() {
-	// Retrieve the state passed via navigation
-	const location = useLocation();
-	const initialSelectedChatRoom =
-		(location.state as { selectedChatRoom?: ChatRoomSummary })
-			?.selectedChatRoom || null;
-
 	const [selectedChatRoom, setSelectedChatRoom] =
-		useState<ChatRoomSummary | null>(initialSelectedChatRoom);
+		useState<ChatRoomSummary | null>(null);
 
 	const router = useRouter();
 	const { userProfile } = useAuth();
