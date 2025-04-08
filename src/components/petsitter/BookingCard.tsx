@@ -68,8 +68,8 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 
 		let bookingDate = convertDateTimeToISO(date, selectedTimeSlot);
 		const bookingBody: Booking = {
-			petsitter_id: userProfile.id,
-			petowner_id: petsitterData.id,
+			petsitter_id: petsitterData.id,
+			petowner_id: userProfile.id,
 			start_date: convertDateTimeToISO(date, selectedTimeSlot),
 			end_date: addHoursToDateTime(bookingDate, hours),
 		};
