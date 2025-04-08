@@ -2,7 +2,7 @@ import type { PetsitterProfile } from "@/types/petsitter";
 import { fetcher } from "@/util/fetcher";
 
 export function useProfileAPI() {
-    const getAllPetsitters = async () => {
+    const getPetsitters = async () => {
         const response = await fetcher(`/profile/getPetsitterList`, {
             method: "GET",
             headers: {
@@ -16,7 +16,7 @@ export function useProfileAPI() {
         return petsittersRes;
     };
 
-    const getPetsitterProfileById = async (userId: string) => {
+    const getPetsitterProfile = async (userId: string) => {
         const response = await fetcher(`/profile/getPetsitterProfile/${userId}`, {
             method: "GET",
             headers: {
@@ -30,5 +30,5 @@ export function useProfileAPI() {
         return petsittersRes;
     };
 
-    return { getAllPetsitters };
+    return { getPetsitters, getPetsitterProfile };
 }

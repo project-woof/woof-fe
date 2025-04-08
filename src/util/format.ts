@@ -27,3 +27,16 @@ export function convertDateLocal(timeStr: string): string {
     year: "numeric",
   });
 }
+
+export function calculateCompositeScore(
+  sumOfRating: number,
+  totalReviews: number,
+  defaultScore = 0,
+  decimalPlaces = 1,
+): number {
+  if (totalReviews <= 0) return defaultScore
+
+  const score = sumOfRating / totalReviews
+  const multiplier = Math.pow(10, decimalPlaces)
+  return Math.round(score * multiplier) / multiplier
+}

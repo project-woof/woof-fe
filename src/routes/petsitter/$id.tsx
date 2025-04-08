@@ -1,83 +1,66 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { PetsitterProfile } from "@/components/petsitter/PetsitterProfile";
 import { BookingCard } from "@/components/petsitter/BookingCard";
+import { useProfileQuery } from "@/composables/queries/profile";
 
 export const Route = createFileRoute("/petsitter/$id")({
-  component: Petsitter,
+	component: Petsitter,
 });
 
-const petsitterData = {
-  id: 1,
-  name: "Sarah Johnson",
-  rating: 4.8,
-  reviews: 124,
-  location: "Brooklyn, NY",
-  distance: "0.8 miles away",
-  price: "$45",
-  hourlyRate: 45,
-  bio: "Professional dog walker and pet sitter with over 5 years of experience. I love animals and will treat your pets like my own. Certified in pet first aid and CPR.",
-  services: [
-    "Dog Walking",
-    "Pet Sitting",
-    "Overnight Care",
-    "Medication Administration",
-  ],
-  availability: "Mon-Fri: 8am-6pm, Weekends: 10am-4pm",
-  images: [
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-  ],
-  reviewsList: [
-    {
-      id: 1,
-      petsitter: "John D.",
-      avatar: "/placeholder.svg?height=40&width=40",
-      rating: 5,
-      date: "2 weeks ago",
-      comment:
-        "Sarah was amazing with my dog Max! She sent photos throughout the day and was very responsive. Will definitely book again.",
-    },
-    {
-      id: 2,
-      petsitter: "Emma S.",
-      avatar: "/placeholder.svg?height=40&width=40",
-      rating: 4,
-      date: "1 month ago",
-      comment:
-        "Very professional and caring. My cat was well taken care of while I was away.",
-    },
-    {
-      id: 3,
-      petsitter: "Michael T.",
-      avatar: "/placeholder.svg?height=40&width=40",
-      rating: 5,
-      date: "2 months ago",
-      comment:
-        "Sarah is the best! My dogs love her and are always excited when she comes over. Highly recommend!",
-    },
-  ],
-};
-
 function Petsitter() {
-  // const { id } = useParams({ from: "/petsitter/$id" });
-  const [activeTab, setActiveTab] = useState("about");
+	const { id } = useParams({ from: "/petsitter/$id" });
+	const { getPetsitterProfileById } = useProfileQuery();
+	const {
+		data: profileData,
+		isFetched: profileFetched,
+		isError: isProfileError,
+		error: profileError,
+	} = getPetsitterProfileById(id);
+	// TODO: remove hardcoded info
+	// hard coded image reviews location distance and availability for now
 
-  return (
-    <main className="container mx-auto px-4 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Petsitter Profile */}
-        <PetsitterProfile
-          petsitterData={petsitterData}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
+	const [activeTab, setActiveTab] = useState("about");
 
-        {/* Right: Booking Card */}
-        <BookingCard petsitterData={petsitterData} />
-      </div>
-    </main>
-  );
+	if (!profileFetched) {
+		return (
+			<div className="min-h-screen bg-cream flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin h-8 w-8 border-4 border-navy border-t-transparent rounded-full mx-auto mb-4"></div>
+					<p className="text-navy">Loading profile...</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (isProfileError || !profileData) {
+		return (
+			<div className="min-h-screen bg-cream flex items-center justify-center">
+				<div className="text-center p-6 max-w-md">
+					<p className="text-red-600 font-medium text-lg mb-2">
+						Error loading profile
+					</p>
+					<p className="text-navy">
+						{profileError?.message || "Failed to load petsitter profile"}
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<main className="container mx-auto px-4 py-6">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left: Petsitter Profile */}
+				<PetsitterProfile
+					petsitterData={profileData}
+					activeTab={activeTab}
+					setActiveTab={setActiveTab}
+				/>
+
+				{/* Right: Booking Card */}
+				<BookingCard petsitterData={profileData} />
+			</div>
+		</main>
+	);
 }
