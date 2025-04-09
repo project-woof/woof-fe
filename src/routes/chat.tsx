@@ -15,7 +15,6 @@ function Chat() {
 		useState<ChatRoomSummary | null>(null);
 	const { userProfile } = useAuth();
 
-	// Wait for userProfile to be loaded
 	if (!userProfile) {
 		return (
 			<main className="container mx-auto px-4 py-6">
@@ -31,6 +30,18 @@ function Chat() {
 	const { getChatRoomsByUserId } = useChatQuery();
 	const { data: chatRoomData, isFetched: chatRoomsFetched } =
 		getChatRoomsByUserId(userProfile.id);
+
+	if (chatRoomData === undefined) {
+		return (
+			<main className="container mx-auto px-4 py-6">
+				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
+					<div className="flex items-center justify-center h-full">
+						<p>Chat Room Fetch Error</p>
+					</div>
+				</div>
+			</main>
+		);
+	}
 
 	if (!chatRoomsFetched) {
 		return (
@@ -50,7 +61,7 @@ function Chat() {
 				<div className="grid grid-cols-1 md:grid-cols-3 h-full">
 					{/* Conversation List */}
 					<ConversationList
-						chatRooms={chatRoomData!}
+						chatRooms={chatRoomData}
 						selectedChatRoom={selectedChatRoom}
 						setSelectedChatRoom={setSelectedChatRoom}
 					/>
