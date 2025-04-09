@@ -48,6 +48,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			try {
 				const data = JSON.parse(event.data);
 				if (data.type === "message") {
+					if (selectedChatRoom.room_id !== data.room_id) return; // Ignore messages not for the current room
 					const newMessage = {
 						message_id: data.message_id,
 						sender_id: data.sender_id,
