@@ -112,14 +112,16 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 		try {
 			setNewMessage("");
-			const newMessage = await createMessageMutation.mutateAsync(messageBody);
+			const createdMessage =
+				await createMessageMutation.mutateAsync(messageBody);
 			if (!ws || ws.readyState !== WebSocket.OPEN) return;
 			const outgoingMessage = {
 				action: "send_message",
-				message_id: newMessage.message_id,
+				message_id: createdMessage.message_id,
+				sender_id: createdMessage.sender_id,
 				room_id: selectedChatRoom.room_id,
-				message: newMessage.text,
-				created_at: newMessage.created_at,
+				message: createdMessage.text,
+				created_at: createdMessage.created_at,
 			};
 			ws.send(JSON.stringify(outgoingMessage));
 		} catch (error) {
