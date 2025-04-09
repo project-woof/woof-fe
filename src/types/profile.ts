@@ -12,15 +12,15 @@ export interface User {
   last_updated: string;
 }
 
-export interface Petsitter {
+export interface Petsitter extends User {
 	total_reviews: number;
 	sum_of_rating: number;
 	price: number;
 	petsitter_description: string;
-	service_tags: string[];
+	service_tags: string;
 }
 
-export interface PetsitterProfile extends User, Petsitter {
+export interface PetsitterProfile extends Petsitter {
 	first_image?: string;
 	distance: number;
 	avg_rating?: number;

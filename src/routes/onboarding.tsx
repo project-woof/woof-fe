@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
 	Card,
 	CardContent,
@@ -16,15 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ServiceTag, SERVICE_TAG_OPTIONS } from "@/types/service_tags";
-import type { User as UserProfile } from "@/types/profile";
+import type { Petsitter } from "@/types/profile";
 import { useMutateProfile } from "@/composables/mutations/profile";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding")({
 	component: Onboarding,
 });
-
-// declare const google: any;
 
 function Onboarding() {
 	const router = useRouter();
@@ -61,7 +59,7 @@ function Onboarding() {
 			return;
 		}
 
-		const newProfileDetails: Partial<UserProfile> = {
+		const newProfileDetails: Partial<Petsitter> = {
 			id: userProfile.id,
 			is_petsitter: isPetsitter ? 1 : 0,
 		};
@@ -74,7 +72,14 @@ function Onboarding() {
 		if (description.trim()) {
 			newProfileDetails.description = description.trim();
 		}
-		
+		if (isPetsitter) {
+			newProfileDetails.price = price ? Number.parseFloat(price) : undefined;
+			newProfileDetails.petsitter_description =
+				sitterDescription.trim() || undefined;
+			newProfileDetails.service_tags =
+				selectedTags.length > 0 ? JSON.stringify(selectedTags) : undefined;
+		}
+
 		try {
 			await updateUserProfile.mutateAsync(newProfileDetails);
 			toast("Update has been requested.");
@@ -120,10 +125,6 @@ function Onboarding() {
 		}
 	};
 
-	useEffect(() => {
-		console.log(isPetsitter);
-	}, [isPetsitter]);
-
 	const renderContent = () => {
 		// If coming from login (already authenticated) or if authenticated after selecting role
 		// if (userProfile) {
@@ -166,15 +167,15 @@ function Onboarding() {
 						</p>
 
 						{/* Pet Sitter specific fields */}
-						<div className="space-y-4 border rounded-md p-4 bg-slate-50 mt-4">
-							<h4 className="font-medium">Sitter Information</h4>
+						<div className="space-y-4 border rounded-md p-4 mt-4">
+							<h4 className="font-medium">Petitter Information</h4>
 
 							<div className="space-y-2">
 								<Label htmlFor="price">Hourly Rate ($)</Label>
 								<Input
 									id="price"
 									type="number"
-									placeholder="25"
+									placeholder="E.g. 25 for $25"
 									value={price}
 									onChange={(e) => setPrice(e.target.value)}
 								/>
@@ -272,7 +273,18 @@ function Onboarding() {
 					</div>
 				</div>
 
-				<Button className="w-full" onClick={handleSubmit}>
+				{/* Validation message */}
+				{isPetsitter && price === "" && (
+					<div className="text-sm text-amber-600 text-center">
+						Please set your hourly rate before continuing
+					</div>
+				)}
+
+				<Button
+					className="w-full"
+					onClick={handleSubmit}
+					disabled={isPetsitter && price === ""}
+				>
 					Continue
 				</Button>
 			</div>
