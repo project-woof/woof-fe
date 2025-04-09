@@ -48,7 +48,14 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			try {
 				const data = JSON.parse(event.data);
 				if (data.type === "message") {
-					setLiveMessages((prevMessages) => [...prevMessages, data]);
+					const newMessage = {
+						message_id: data.message_id,
+						sender_id: data.sender_id,
+						room_id: data.room_id,
+						text: data.message,
+						created_at: data.created_at,
+					};
+					setLiveMessages((prevMessages) => [...prevMessages, newMessage]);
 				}
 				// You might also handle "subscribed", "info", and "error" messages here.
 			} catch (err) {

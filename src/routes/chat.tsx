@@ -14,20 +14,36 @@ function Chat() {
 	const [selectedChatRoom, setSelectedChatRoom] =
 		useState<ChatRoomSummary | null>(null);
 	const { userProfile } = useAuth();
-	const { getChatRoomsByUserId } = useChatQuery();
-	const { data: chatRoomData, isFetched: chatRoomsFetched } =
-		getChatRoomsByUserId(userProfile!.id);
-	if (!chatRoomsFetched) {
+
+	// Wait for userProfile to be loaded
+	if (!userProfile) {
 		return (
 			<main className="container mx-auto px-4 py-6">
 				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
 					<div className="flex items-center justify-center h-full">
-						<p>Loading...</p>
+						<p>Loading user profile...</p>
 					</div>
 				</div>
 			</main>
 		);
 	}
+
+	const { getChatRoomsByUserId } = useChatQuery();
+	const { data: chatRoomData, isFetched: chatRoomsFetched } =
+		getChatRoomsByUserId(userProfile.id);
+
+	if (!chatRoomsFetched) {
+		return (
+			<main className="container mx-auto px-4 py-6">
+				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
+					<div className="flex items-center justify-center h-full">
+						<p>Loading chat rooms...</p>
+					</div>
+				</div>
+			</main>
+		);
+	}
+
 	return (
 		<main className="container mx-auto px-4 py-6">
 			<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
