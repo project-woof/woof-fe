@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
 	Card,
@@ -35,6 +36,10 @@ export const ProfileTabs = ({
 	//   5,
 	//   0
 	// );
+
+	useEffect(() => {
+		setBookingPagination(1);
+	}, [setBookingPagination]);
 
 	function handlePrevPage() {
 		if (bookingPagination > 1) {
