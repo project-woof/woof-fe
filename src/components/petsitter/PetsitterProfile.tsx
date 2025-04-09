@@ -1,4 +1,4 @@
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import type { Review } from "@/types/review";
 import { Heart, MapPin, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ const reviewsList: Review[] = [
 	},
 ];
 const images = [
-	"/placeholder.svg?height=600&width=800",
+	"https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxhY2slMjBtYW4lMjBzbWlsZXxlbnwwfHwwfHx8MA%3D%3D",
 	"/placeholder.svg?height=600&width=800",
 	"/placeholder.svg?height=600&width=800",
 	"/placeholder.svg?height=600&width=800",

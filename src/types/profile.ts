@@ -11,3 +11,18 @@ export interface User {
   created_at: string;
   last_updated: string;
 }
+
+export interface Petsitter {
+	total_reviews: number;
+	sum_of_rating: number;
+	price: number;
+	petsitter_description: string;
+	service_tags: string[];
+}
+
+export interface PetsitterProfile extends User, Petsitter {
+	first_image?: string;
+	distance: number;
+	avg_rating?: number;
+	composite_score?: number;
+}
