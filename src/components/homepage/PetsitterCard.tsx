@@ -9,12 +9,16 @@ interface PetsitterCardProps {
 }
 
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
+	const services =
+		typeof petsitter.service_tags === "string"
+			? JSON.parse(petsitter.service_tags)
+			: petsitter.service_tags;
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream">
 				<div className="aspect-square relative overflow-hidden">
 					<img
-						src={petsitter.profile_image_url || "/placeholder.svg"}
+						src={petsitter.first_image || "/placeholder.svg"}
 						alt={petsitter.username}
 						className="object-cover w-full h-full"
 					/>
@@ -41,23 +45,14 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 						</div>
 					</div>
 					<div className="mt-2 flex flex-wrap gap-1">
-						{(() => {
-							try {
-								return Array.isArray(petsitter.service_tags)
-									? petsitter.service_tags.map((service, index) => (
-											<span
-												key={index}
-												className="inline-block bg-beige text-navy text-xs px-2 py-1 rounded-full"
-											>
-												{service}
-											</span>
-										))
-									: null;
-							} catch (error) {
-								console.error("Error parsing service tags:", error);
-								return null;
-							}
-						})()}
+						{services.map((service: string, index: number) => (
+							<span
+								key={index}
+								className="inline-block bg-beige text-navy text-xs px-2 py-1 rounded-full"
+							>
+								{service}
+							</span>
+						))}
 					</div>
 				</CardContent>
 				<CardFooter className="pt-0">
