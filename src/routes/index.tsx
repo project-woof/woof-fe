@@ -1,17 +1,44 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { useProfileQuery } from "@/composables/queries/profile";
 import { PetsitterGallery } from "@/components/homepage/PetsittersGallery";
+import { useAuth } from "@/context/authContext";
+import { usePagination } from "@/context/paginationContext";
 
 export const Route = createFileRoute("/")({
 	component: Home,
 });
 
 function Home() {
+	const { userProfile } = useAuth();
+	const { homePagination, setHomePagination } = usePagination();
+	const limit = 9;
+	const offset = (homePagination - 1) * limit;
+
+	useEffect(() => {
+		setHomePagination(1);
+	}, [setHomePagination]);
+
 	const { getPetsitterList } = useProfileQuery();
 	const { data: petsittersData, isFetched: petsittersFetched } =
-		getPetsitterList();
+		getPetsitterList(
+			userProfile ? userProfile.latitude : undefined,
+			userProfile ? userProfile?.longitude : undefined,
+			limit,
+			offset,
+		);
+
+	function handlePrevPage() {
+		if (homePagination > 1) {
+			setHomePagination((prev) => prev - 1);
+		}
+	}
+
+	function handleNextPage() {
+		setHomePagination((prev) => prev + 1);
+	}
 
 	if (!petsittersFetched) {
 		return (
@@ -42,6 +69,25 @@ function Home() {
 				petsitters={petsittersData}
 				isFetched={petsittersFetched}
 			/>
+
+			{/* Pagination Buttons */}
+			<div className="flex items-center justify-center gap-4 mt-6">
+				<Button
+					variant="outline"
+					onClick={handlePrevPage}
+					disabled={homePagination === 1}
+				>
+					Previous
+				</Button>
+				<span className="text-navy">Page {homePagination}</span>
+				<Button
+					variant="outline"
+					onClick={handleNextPage}
+					disabled={petsittersData?.length !== limit}
+				>
+					Next
+				</Button>
+			</div>
 		</main>
 	);
 }
