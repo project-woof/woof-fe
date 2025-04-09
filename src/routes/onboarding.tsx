@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ServiceTag, SERVICE_TAG_OPTIONS } from "@/types/service_tags";
+import type { User as UserProfile } from "@/types/profile";
+import { useMutateProfile } from "@/composables/mutations/profile";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding")({
 	component: Onboarding,
@@ -33,6 +36,8 @@ function Onboarding() {
 	const [description, setDescription] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [locationError, setLocationError] = useState<string | null>(null);
+
+	const { updateUserProfile } = useMutateProfile();
 
 	// Additional fields for pet sitter
 	const [price, setPrice] = useState<string>("");
@@ -53,6 +58,29 @@ function Onboarding() {
 		if (!userProfile) {
 			setError("No user profile found. Please log in with Google first.");
 			router.navigate({ to: "/login" });
+			return;
+		}
+
+		const newProfileDetails: Partial<UserProfile> = {
+			id: userProfile.id,
+			is_petsitter: isPetsitter ? 1 : 0,
+		};
+
+		if (latitude && longitude) {
+			newProfileDetails.latitude = Number.parseFloat(latitude);
+			newProfileDetails.longitude = Number.parseFloat(longitude);
+		}
+
+		if (description.trim()) {
+			newProfileDetails.description = description.trim();
+		}
+		
+		try {
+			await updateUserProfile.mutateAsync(newProfileDetails);
+			toast("Update has been requested.");
+			router.navigate({ to: "/" });
+		} catch (error) {
+			toast(`Failed to send message: ${error}`);
 		}
 	};
 
