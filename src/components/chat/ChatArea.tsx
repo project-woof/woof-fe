@@ -11,6 +11,7 @@ import { DateBubble } from "./DateBubble";
 import type { CreateChatMessageBody } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
 import { useMutateChat } from "@/composables/mutations/chat";
+import { useChatWebSocket } from "@/hooks/useWebSocket";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -29,12 +30,39 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	const { getMessagesByRoomId } = useChatQuery();
 	const { createMessageMutation } = useMutateChat();
 	const [newMessage, setNewMessage] = useState("");
+	const [liveMessages, setLiveMessages] = useState<any[]>([]); // state for WebSocket messages
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-	// Use the query hook directly in the component
+	// Fetch history messages from the API
 	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
+
+	// Set up WebSocket connection (using your hook)
+	const ws = useChatWebSocket(userId);
+
+	// Listen for new messages coming from WebSocket and append them.
+	useEffect(() => {
+		if (!ws) return;
+		const handleIncomingMessage = (event: MessageEvent) => {
+			try {
+				const data = JSON.parse(event.data);
+				if (data.type === "message") {
+					setLiveMessages((prevMessages) => [...prevMessages, data]);
+				}
+				// You might also handle "subscribed", "info", and "error" messages here.
+			} catch (err) {
+				console.error("Error parsing incoming WS message:", err);
+			}
+		};
+
+		ws.addEventListener("message", handleIncomingMessage);
+		return () => {
+			ws.removeEventListener("message", handleIncomingMessage);
+		};
+	}, [ws]);
+
+	const allMessages = [...messages, ...liveMessages];
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +70,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [messages]);
+	}, [allMessages]);
 
 	const handleScroll = () => {
 		if (!scrollAreaRef.current) return;
@@ -84,21 +112,34 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 		try {
 			setNewMessage("");
-			await createMessageMutation.mutateAsync(messageBody);
+			const newMessage = await createMessageMutation.mutateAsync(messageBody);
+			if (!ws || ws.readyState !== WebSocket.OPEN) return;
+			const outgoingMessage = {
+				action: "send_message",
+				message_id: newMessage.message_id,
+				room_id: selectedChatRoom.room_id,
+				message: newMessage.text,
+				created_at: newMessage.created_at,
+			};
+			ws.send(JSON.stringify(outgoingMessage));
 		} catch (error) {
 			console.error("Failed to send message:", error);
 		}
 	};
 
-	const renderedMessages = messages.reduce<React.ReactNode[]>(
-		(acc, message, idx) => {
+	const renderedMessages = allMessages
+		.sort(
+			(a, b) =>
+				new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+		)
+		.reduce<React.ReactNode[]>((acc, message, idx) => {
 			const messageDate = convertDateLocal(message.created_at);
 			if (idx === 0) {
 				acc.push(
 					<DateBubble key={`date-${message.message_id}`} date={messageDate} />,
 				);
 			} else {
-				const prevDate = convertDateLocal(messages[idx - 1].created_at);
+				const prevDate = convertDateLocal(allMessages[idx - 1].created_at);
 				if (messageDate !== prevDate) {
 					acc.push(
 						<DateBubble
@@ -116,9 +157,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 				/>,
 			);
 			return acc;
-		},
-		[],
-	);
+		}, []);
 
 	return (
 		<div className="col-span-2 flex flex-col h-full relative">
