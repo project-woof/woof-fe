@@ -7,6 +7,7 @@ import { ServicesTab } from "@/components/petsitter/profile-tab/ServiceTab";
 import { ReviewsTab } from "@/components/petsitter/profile-tab/ReviewsTab";
 import { AboutTab } from "@/components/petsitter/profile-tab/AboutTab";
 import { calculateCompositeScore } from "@/util/format";
+import { ImageGallery } from "./ImageGallery";
 
 interface PetsitterProfileProps {
 	petsitterData: PetsitterProfile;
@@ -54,35 +55,17 @@ export function PetsitterProfile({
 }: PetsitterProfileProps) {
 	const images = [
 		`${petsitterData.profile_image_url}`,
-		"/placeholder.svg?height=600&width=800",
-		"/placeholder.svg?height=600&width=800",
-		"/placeholder.svg?height=600&width=800",
+		`${petsitterData.profile_image_url}`,
+		`${petsitterData.profile_image_url}`,
 	];
 	return (
 		<div className="lg:col-span-2">
 			{/* Image Gallery */}
-			<div className="grid grid-cols-2 gap-2 mb-6">
-				<div className="col-span-2">
-					<img
-						src={images[0] || "/placeholder.svg"}
-						alt={petsitterData.username}
-						className="w-full h-80 object-cover rounded-lg"
-					/>
-				</div>
-				<div>
-					<img
-						src={images[1] || "/placeholder.svg"}
-						alt={petsitterData.username}
-						className="w-full h-40 object-cover rounded-lg"
-					/>
-				</div>
-				<div>
-					<img
-						src={images[2] || "/placeholder.svg"}
-						alt={petsitterData.username}
-						className="w-full h-40 object-cover rounded-lg"
-					/>
-				</div>
+			<div className="mb-6">
+				<ImageGallery
+					images={images}
+					username={petsitterData.username}
+				/>
 			</div>
 
 			{/* Petsitter Info */}
