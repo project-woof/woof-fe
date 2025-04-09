@@ -1,4 +1,4 @@
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import { CalendarIcon, Clock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,14 +28,6 @@ import { useMutateChat } from "@/composables/mutations/chat";
 interface BookingCardProps {
 	petsitterData: PetsitterProfile;
 }
-
-// TODO: update to use Mutations
-// interface BookingData {
-// 	petsitter_id: string;
-// 	petowner_id: string;
-// 	start_date: string;
-// 	end_date: string;
-// }
 
 export function BookingCard({ petsitterData }: BookingCardProps) {
 	const router = useRouter();

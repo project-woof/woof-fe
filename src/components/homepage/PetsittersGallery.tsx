@@ -1,4 +1,4 @@
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import { PetsitterCard } from "@/components/homepage/PetsitterCard";
 
 interface PetsitterGalleryProps {

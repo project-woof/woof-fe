@@ -1,4 +1,4 @@
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { Petsitter, PetsitterProfile } from "@/types/profile";
 import { fetcher } from "@/util/fetcher";
 
 export function useProfileAPI() {
@@ -48,5 +48,21 @@ export function useProfileAPI() {
 		return petsittersRes;
 	};
 
-	return { getPetsitters, getPetsitterProfile };
+	const updateProfile = async (booking: Partial<Petsitter>) => {
+		const response = await fetcher("/profile/updateProfile", {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(booking),
+		});
+		if (!response.ok) {
+			const errorData = await response.text()
+			console.error("Profile update failed:", errorData)
+			throw new Error(errorData || "Network response was not ok")
+		}
+		return response.body;
+	};
+
+	return { getPetsitters, getPetsitterProfile, updateProfile };
 }
