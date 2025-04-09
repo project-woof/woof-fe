@@ -10,6 +10,7 @@ import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
 import type { CreateChatMessageBody } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMutateChat } from "@/composables/mutations/chat";
 import { useChatWebSocket } from "@/hooks/useWebSocket";
 
@@ -47,6 +48,9 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		const handleIncomingMessage = (event: MessageEvent) => {
 			try {
 				const data = JSON.parse(event.data);
+				useQueryClient().invalidateQueries({
+					queryKey: ["getChatRoomsByUserId"],
+				});
 				if (data.type === "message") {
 					if (selectedChatRoom.room_id !== data.room_id) return; // Ignore messages not for the current room
 					const newMessage = {
@@ -58,6 +62,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 					};
 					setLiveMessages((prevMessages) => [...prevMessages, newMessage]);
 				}
+
 				// You might also handle "subscribed", "info", and "error" messages here.
 			} catch (err) {
 				console.error("Error parsing incoming WS message:", err);
