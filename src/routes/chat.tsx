@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatArea } from "@/components/chat/ChatArea";
 import { useAuth } from "@/context/authContext";
-import { useRouter } from "@tanstack/react-router";
 import { useChatQuery } from "@/composables/queries/chat";
 import type { ChatRoomSummary } from "@/types/chat";
 
@@ -14,12 +13,7 @@ export const Route = createFileRoute("/chat")({
 function Chat() {
 	const [selectedChatRoom, setSelectedChatRoom] =
 		useState<ChatRoomSummary | null>(null);
-
-	const router = useRouter();
 	const { userProfile } = useAuth();
-	if (!userProfile) {
-		router.navigate({ to: "/login" });
-	}
 	const { getChatRoomsByUserId } = useChatQuery();
 	const { data: chatRoomData, isFetched: chatRoomsFetched } =
 		getChatRoomsByUserId(userProfile!.id);
