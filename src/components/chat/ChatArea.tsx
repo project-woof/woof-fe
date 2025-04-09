@@ -80,7 +80,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			) || scrollAreaRef.current;
 		const { scrollTop, scrollHeight, clientHeight } = scrollableElement;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-		const isAtBottom = distanceFromBottom < 500;
+		const isAtBottom = distanceFromBottom < 100;
 		setShowScrollToBottom(!isAtBottom);
 	};
 
