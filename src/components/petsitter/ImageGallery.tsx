@@ -1,3 +1,5 @@
+import { PawPrint } from "lucide-react"
+
 interface ImageGalleryProps {
     images: string[]
     username: string
@@ -13,8 +15,9 @@ interface ImageGalleryProps {
   
     if (imageCount === 0) {
       return (
-        <div className="w-full h-80 bg-gray-100 rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground">No images available</p>
+        <div className="w-full h-80  rounded-lg flex items-center justify-center">
+          <p className="text-muted-foreground"> No images of the petsitter is available</p>
+          <PawPrint />
         </div>
       )
     }
