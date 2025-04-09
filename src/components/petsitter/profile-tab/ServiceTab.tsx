@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import { PawPrint } from "lucide-react";
 
 interface ServicesTabProps {

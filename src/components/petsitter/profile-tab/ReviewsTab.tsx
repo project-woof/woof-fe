@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import type { Review } from "@/types/review";
 import { Star } from "lucide-react";
 

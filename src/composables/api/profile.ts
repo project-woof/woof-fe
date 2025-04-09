@@ -1,4 +1,4 @@
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 import { fetcher } from "@/util/fetcher";
 
 export function useProfileAPI() {

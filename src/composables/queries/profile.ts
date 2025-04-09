@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useProfileAPI } from "@/composables/api/profile";
-import type { PetsitterProfile } from "@/types/petsitter";
+import type { PetsitterProfile } from "@/types/profile";
 
 const { getPetsitters, getPetsitterProfile } = useProfileAPI();
 
