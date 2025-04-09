@@ -1,36 +1,93 @@
-import type React from "react";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useAuth } from "@/context/authContext";
+import { useMutateProfile } from "@/composables/mutations/profile";
+import { toast } from "sonner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import type { User } from "@/types/profile";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
 });
 
 function Settings() {
-	// Get user profile from localStorage
-	const userProfile = JSON.parse(localStorage.getItem("userProfile") || "{}");
-
-	const [name, setName] = useState(userProfile.name || "John Doe");
-	const [email, setEmail] = useState(
-		userProfile.email || "john.doe@example.com",
-	);
-	const [bio, setBio] = useState(
-		"Pet lover and proud owner of Max, a golden retriever. Always looking for reliable pet sitters when I travel for work.",
-	);
-	const [location, setLocation] = useState("New York, NY");
-
-	const handleSaveProfile = (e: React.FormEvent) => {
-		e.preventDefault();
-		// In a real app, you would save the profile data to the server
-		alert("Profile saved successfully!");
+	const router = useRouter();
+	const { userProfile, setUserProfile } = useAuth();
+	const { updateUserProfile } = useMutateProfile();
+	
+	const [username, setUsername] = useState("");
+	const [description, setDescription] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	
+	// Initialize form when userProfile loads
+	useEffect(() => {
+		if (userProfile) {
+			setUsername(userProfile.username || "");
+			setDescription(userProfile.description || "");
+		}
+	}, [userProfile]);
+	
+	const handleSaveProfile = async () => {
+		if (!userProfile) {
+			toast.error("User profile not found. Please login again.");
+			router.navigate({ to: "/login" });
+			return;
+		}
+		
+		setIsLoading(true);
+		
+		try {
+			const updatedProfile: Partial<User> = {
+				id: userProfile.id,
+				username,
+				description
+			};
+			
+			const result = await updateUserProfile.mutateAsync(updatedProfile);
+			
+			if (result) {
+				// Update local state with the new profile data
+				setUserProfile({
+					...userProfile,
+					username,
+					description
+				});
+				toast.success("Profile updated successfully!");
+			}
+		} catch (error) {
+			console.error("Error updating profile:", error);
+			toast.error("Failed to update profile. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
 	};
+
+	if (!userProfile) {
+		return (
+			<main className="container mx-auto px-4 py-6">
+				<div className="max-w-4xl mx-auto text-center">
+					<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
+					<p>Please log in to access your settings.</p>
+				</div>
+			</main>
+		);
+	}
 
 	return (
 		<main className="container mx-auto px-4 py-6">
@@ -48,18 +105,15 @@ function Settings() {
 								Update your personal information
 							</p>
 
-							<form onSubmit={handleSaveProfile} className="space-y-6">
+							<div className="space-y-6">
 								<div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
 									<Avatar className="h-24 w-24 bg-beige">
 										<AvatarImage
-											src={
-												userProfile.picture ||
-												"/placeholder.svg?height=150&width=150"
-											}
-											alt={name}
+											src={userProfile.profile_image_url}
+											alt={username}
 										/>
 										<AvatarFallback className="text-navy text-xl">
-											{name ? name[0] : "U"}
+											{username ? username[0].toUpperCase() : "U"}
 										</AvatarFallback>
 									</Avatar>
 									<div>
@@ -78,13 +132,13 @@ function Settings() {
 
 								<div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
 									<div className="space-y-2">
-										<Label htmlFor="name" className="text-navy">
-											Full Name
+										<Label htmlFor="username" className="text-navy">
+											Username
 										</Label>
 										<Input
-											id="name"
-											value={name}
-											onChange={(e) => setName(e.target.value)}
+											id="username"
+											value={username}
+											onChange={(e) => setUsername(e.target.value)}
 											className="border-beige bg-cream"
 										/>
 									</div>
@@ -95,33 +149,24 @@ function Settings() {
 										<Input
 											id="email"
 											type="email"
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
+											value={userProfile.email || ""}
 											className="border-beige bg-cream"
+											disabled
 										/>
+										<p className="text-xs text-navy/70">
+											Email cannot be changed
+										</p>
 									</div>
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="location" className="text-navy">
-										Location
-									</Label>
-									<Input
-										id="location"
-										value={location}
-										onChange={(e) => setLocation(e.target.value)}
-										className="border-beige bg-cream"
-									/>
-								</div>
-
-								<div className="space-y-2">
-									<Label htmlFor="bio" className="text-navy">
+									<Label htmlFor="description" className="text-navy">
 										Bio
 									</Label>
 									<Textarea
-										id="bio"
-										value={bio}
-										onChange={(e) => setBio(e.target.value)}
+										id="description"
+										value={description}
+										onChange={(e) => setDescription(e.target.value)}
 										rows={4}
 										className="border-beige bg-cream"
 									/>
@@ -131,14 +176,34 @@ function Settings() {
 								</div>
 
 								<div className="flex justify-end">
-									<Button
-										type="submit"
-										className="bg-navy hover:bg-navy-light text-cream"
-									>
-										Save Changes
-									</Button>
+									<AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button
+												className="bg-navy hover:bg-navy-light text-cream"
+												disabled={isLoading}
+											>
+												{isLoading ? "Saving..." : "Save Changes"}
+											</Button>
+										</AlertDialogTrigger>
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>Confirm profile update?</AlertDialogTitle>
+												<AlertDialogDescription>
+													Are you sure you want to save these changes to your profile?
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
+												<AlertDialogAction asChild>
+													<Button onClick={handleSaveProfile}>
+														Save Changes
+													</Button>
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
 								</div>
-							</form>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
