@@ -6,7 +6,7 @@ export function useChatWebSocket(userId: string | null) {
 
 	useEffect(() => {
 		if (!userId) return;
-		const wsUrl = `ws://localhost:8787/ws?user_id=${userId}`;
+		const wsUrl = `${import.meta.env.VITE_WEBSOCKET_URL}/ws?user_id=${userId}`;
 		const ws = new WebSocket(wsUrl);
 		wsRef.current = ws;
 
