@@ -44,12 +44,6 @@ const reviewsList: Review[] = [
 			"Sarah is the best! My dogs love her and are always excited when she comes over. Highly recommend!",
 	},
 ];
-const images = [
-	"https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxhY2slMjBtYW4lMjBzbWlsZXxlbnwwfHwwfHx8MA%3D%3D",
-	"/placeholder.svg?height=600&width=800",
-	"/placeholder.svg?height=600&width=800",
-	"/placeholder.svg?height=600&width=800",
-];
 const location = "Brooklyn, NY";
 const distance = 0.8;
 
@@ -58,6 +52,12 @@ export function PetsitterProfile({
 	activeTab,
 	setActiveTab,
 }: PetsitterProfileProps) {
+	const images = [
+		`${petsitterData.profile_image_url}`,
+		"/placeholder.svg?height=600&width=800",
+		"/placeholder.svg?height=600&width=800",
+		"/placeholder.svg?height=600&width=800",
+	];
 	return (
 		<div className="lg:col-span-2">
 			{/* Image Gallery */}
