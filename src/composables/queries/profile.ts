@@ -11,11 +11,26 @@ export const useProfileQuery = () => {
 		limit: number,
 		offset: number,
 	) {
-		const { data, isFetched } = useQuery<PetsitterProfile[]>({
+		const { data, isFetched, error } = useQuery<PetsitterProfile[]>({
 			queryKey: ["petsitters", userLat, userLon, limit, offset],
 			queryFn: () => getPetsitters(userLat, userLon, limit, offset),
+			// Add specific select to ensure we always return an array even if backend has issues
+			select: (data) => {
+				// Guard against non-array data
+				if (!data || !Array.isArray(data)) {
+					console.error("Received non-array data from petsitters query:", data);
+					return [];
+				}
+				return data;
+			}
 		});
-		return { data, isFetched };
+		
+		// Always return an array even if there's an error or undefined data
+		return { 
+			data: data || [], 
+			isFetched,
+			error 
+		};
 	}
 
 	function getPetsitterProfileById(userId: string) {

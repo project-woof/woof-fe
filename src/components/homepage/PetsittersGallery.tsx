@@ -6,8 +6,11 @@ interface PetsitterGalleryProps {
 	isFetched: boolean;
 }
 
-export function PetsitterGallery({ petsitters }: PetsitterGalleryProps) {
-	if (!petsitters || petsitters.length === 0) {
+export function PetsitterGallery({ petsitters = [] }: PetsitterGalleryProps) {
+	// With the improved query, we should always get an array, but keep a defensive check
+	const petsitterArray = Array.isArray(petsitters) ? petsitters : [];
+	
+	if (petsitterArray.length === 0) {
 		return (
 			<div className="text-center py-12">
 				<p className="text-navy text-lg">No petsitters found nearby.</p>
@@ -17,7 +20,7 @@ export function PetsitterGallery({ petsitters }: PetsitterGalleryProps) {
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{petsitters.map((petsitter) => (
+			{petsitterArray.map((petsitter) => (
 				<PetsitterCard key={petsitter.id} petsitter={petsitter} />
 			))}
 		</div>
