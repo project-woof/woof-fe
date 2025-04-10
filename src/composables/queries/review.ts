@@ -11,7 +11,7 @@ export const useReviewQuery = () => {
 		offset: number,
     ) {
 		const { data, isFetched } = useQuery<Review[]>({
-			queryKey: ["getReviewsByReviewerId", userId],
+			queryKey: ["getReviewsByReviewerId", userId, limit, offset],
 			queryFn: () => getReviews(userId, limit, offset),
 		});
 		return { data, isFetched };

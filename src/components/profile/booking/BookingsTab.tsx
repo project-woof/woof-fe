@@ -65,9 +65,9 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 
 		try {
 			await createReviewMutation.mutateAsync(reviewBody);
-			toast("Booking has been requested.");
+			toast("Review has been submitted.");
 		} catch (error) {
-			toast(`Failed to send message: ${error}`);
+			toast(`Failed to submit review: ${error}`);
 		}
 
 		// Reset form state

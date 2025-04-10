@@ -126,7 +126,7 @@ export const ProfileTabs = ({
 							>
 								Previous
 							</Button>
-							<span className="text-navy">Page {bookingPagination}</span>
+							<span className="text-navy">Page {reviewPagination}</span>
 							<Button
 								variant="outline"
 								onClick={handleNextPage}
