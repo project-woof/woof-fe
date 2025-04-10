@@ -2,7 +2,7 @@ import type { CreateReview, Review } from "@/types/review";
 import { fetcher } from "@/util/fetcher";
 
 export function useReviewAPI() {
-    const getReviews = async (
+    const getReviewsByReviewer = async (
         reviewerId: string,
         limit: number,
         offset: number,
@@ -15,6 +15,33 @@ export function useReviewAPI() {
 
         const response = await fetcher(
             `/review/getReviews/reviewer?${params.toString()}`,
+            {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const reviewRes = await response.json<Review[]>();
+        return reviewRes;
+    };
+
+    const getReviewsByReviewee = async (
+        revieweeId: string,
+        limit: number,
+        offset: number,
+    ) => {
+        const params = new URLSearchParams();
+        
+        params.append("id", revieweeId.toString());
+        params.append("limit", limit.toString());
+        params.append("offset", offset.toString());
+
+        const response = await fetcher(
+            `/review/getReviews/reviewee?${params.toString()}`,
             {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
@@ -43,5 +70,5 @@ export function useReviewAPI() {
         return await response.json<Review>();
     };
 
-    return { getReviews, createReview };
+    return { getReviewsByReviewer, getReviewsByReviewee, createReview };
 }

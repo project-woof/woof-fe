@@ -3,7 +3,7 @@ import type { Review } from "@/types/review";
 import { useReviewAPI } from "@/composables/api/review";
 
 export const useReviewQuery = () => {
-	const { getReviews } = useReviewAPI();
+	const { getReviewsByReviewer, getReviewsByReviewee } = useReviewAPI();
 
 	function getReviewsByReviewerId(
 		userId: string,
@@ -12,11 +12,22 @@ export const useReviewQuery = () => {
     ) {
 		const { data, isFetched } = useQuery<Review[]>({
 			queryKey: ["getReviewsByReviewerId", userId, limit, offset],
-			queryFn: () => getReviews(userId, limit, offset),
+			queryFn: () => getReviewsByReviewer(userId, limit, offset),
 		});
 		return { data, isFetched };
 	}
 
+    function getReviewsByRevieweeId(
+		userId: string,
+		limit: number,
+		offset: number,
+    ) {
+		const { data, isFetched } = useQuery<Review[]>({
+			queryKey: ["getReviewsByRevieweeId", userId, limit, offset],
+			queryFn: () => getReviewsByReviewee(userId, limit, offset),
+		});
+		return { data, isFetched };
+	}
 
-	return { getReviewsByReviewerId };
+	return { getReviewsByReviewerId, getReviewsByRevieweeId };
 };
