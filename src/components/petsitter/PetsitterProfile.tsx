@@ -16,35 +16,7 @@ interface PetsitterProfileProps {
 }
 
 // hard coded image reviews location distance and availability for now
-const reviewsList: Review[] = [
-	{
-		review_id: "1",
-		username: "John D.",
-		profile_image_url: "/placeholder.svg?height=40&width=40",
-		rating: 5,
-		created_at: "2 weeks ago",
-		comment:
-			"Sarah was amazing with my dog Max! She sent photos throughout the day and was very responsive. Will definitely book again.",
-	},
-	{
-		review_id: "2",
-		username: "Emma S.",
-		profile_image_url: "/placeholder.svg?height=40&width=40",
-		rating: 4,
-		created_at: "1 month ago",
-		comment:
-			"Very professional and caring. My cat was well taken care of while I was away.",
-	},
-	{
-		review_id: "3",
-		username: "Michael T.",
-		profile_image_url: "/placeholder.svg?height=40&width=40",
-		rating: 5,
-		created_at: "2 months ago",
-		comment:
-			"Sarah is the best! My dogs love her and are always excited when she comes over. Highly recommend!",
-	},
-];
+
 const location = "Brooklyn, NY";
 const distance = 0.8;
 
@@ -81,7 +53,7 @@ export function PetsitterProfile({
 									)}
 						</span>
 						<span className="text-muted-foreground ml-1">
-							({reviewsList.length} reviews)
+							({petsitterData.total_reviews} reviews)
 						</span>
 					</div>
 					<div className="flex items-center mt-1 text-muted-foreground">
