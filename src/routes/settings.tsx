@@ -24,7 +24,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { User, Petsitter, PetsitterProfile } from "@/types/profile";
+import type { PetsitterProfile } from "@/types/profile";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
