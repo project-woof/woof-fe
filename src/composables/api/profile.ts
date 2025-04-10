@@ -34,8 +34,20 @@ export function useProfileAPI() {
 		return petsittersRes;
 	};
 
-	const getPetsitterProfile = async (userId: string) => {
-		const response = await fetcher(`/profile/getPetsitterProfile/${userId}`, {
+	const getPetsitterProfile = async (
+		userId: string, 
+		userLat: number | undefined, 
+		userLon: number | undefined
+	) => {
+		const params = new URLSearchParams();
+		if (userLat !== undefined) {
+			params.append("userLat", userLat.toString());
+		}
+		if (userLon !== undefined) {
+			params.append("userLon", userLon.toString());
+		}
+
+		const response = await fetcher(`/profile/getPetsitterProfile/${userId}?${params.toString()}`, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",

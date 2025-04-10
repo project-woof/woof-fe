@@ -16,9 +16,6 @@ interface PetsitterProfileProps {
 
 // hard coded image reviews location distance and availability for now
 
-const location = "Brooklyn, NY";
-const distance = 0.8;
-
 export function PetsitterProfile({
 	petsitterData,
 	activeTab,
@@ -58,7 +55,7 @@ export function PetsitterProfile({
 					<div className="flex items-center mt-1 text-muted-foreground">
 						<MapPin className="h-4 w-4 mr-1" />
 						<span>
-							{location} • {distance} miles away
+							• {petsitterData.distance.toFixed(2)} km away
 						</span>
 					</div>
 				</div>
