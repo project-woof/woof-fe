@@ -92,7 +92,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 						<Star className="h-5 w-5 fill-yellow-400 text-yellow-400 mr-1" />
 						<span className="font-medium">{petsitterData.composite_score}</span>
 						<span className="text-muted-foreground ml-1">
-							({reviewData.length} reviews)
+							({petsitterData.total_reviews} reviews)
 						</span>
 					</div>
 				</div>
