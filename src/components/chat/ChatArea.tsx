@@ -45,7 +45,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		}
 	}, [messagesFetched, messagesData]);
 
-	const ws = useChatWebSocket(userId);
+	const { socket: ws } = useChatWebSocket(userId);
 
 	// Listen for incoming WebSocket messages.
 	useEffect(() => {
