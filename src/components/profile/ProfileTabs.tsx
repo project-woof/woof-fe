@@ -41,11 +41,14 @@ export const ProfileTabs = ({
 		limit,
 		reviewOffset,
 	);
-	console.log(reviewData);
 
 	useEffect(() => {
 		setBookingPagination(1);
 	}, [setBookingPagination]);
+
+	useEffect(() => {
+		setReviewPagination(1);
+	}, [setReviewPagination]);
 
 	function handlePrevPage() {
 		if (activeTab === "bookings" && bookingPagination > 1) {

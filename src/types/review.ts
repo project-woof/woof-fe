@@ -6,3 +6,10 @@ export interface Review {
     rating: number;
     comment: string;
 }
+
+export interface CreateReview {
+    reviewer_id: string;
+    reviewee_id: string;
+    rating: number;
+    comment: string;
+}

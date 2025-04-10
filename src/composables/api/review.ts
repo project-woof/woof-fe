@@ -1,4 +1,4 @@
-import type { Review } from "@/types/review";
+import type { CreateReview, Review } from "@/types/review";
 import { fetcher } from "@/util/fetcher";
 
 export function useReviewAPI() {
@@ -29,7 +29,19 @@ export function useReviewAPI() {
         return reviewRes;
     };
 
-    
+    const createReview = async (body: CreateReview) => {
+        const response = await fetcher(`/review/createReview`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return await response.json<Review>();
+    };
 
-    return { getReviews };
+    return { getReviews, createReview };
 }
