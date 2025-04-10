@@ -7,7 +7,17 @@ interface PetsitterGalleryProps {
 }
 
 export function PetsitterGallery({ petsitters }: PetsitterGalleryProps) {
-	if (!petsitters || petsitters.length === 0) {
+	// Handle all possible edge cases to prevent the "map is not a function" error
+	if (!petsitters) {
+		return (
+			<div className="text-center py-12">
+				<p className="text-navy text-lg">No petsitters found nearby.</p>
+			</div>
+		);
+	}
+	
+	// Ensure petsitters is an array before trying to map over it
+	if (!Array.isArray(petsitters) || petsitters.length === 0) {
 		return (
 			<div className="text-center py-12">
 				<p className="text-navy text-lg">No petsitters found nearby.</p>

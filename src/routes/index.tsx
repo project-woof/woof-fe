@@ -83,7 +83,7 @@ function Home() {
 				<Button
 					variant="outline"
 					onClick={handleNextPage}
-					disabled={petsittersData?.length !== limit}
+					disabled={!Array.isArray(petsittersData) || petsittersData.length !== limit}
 				>
 					Next
 				</Button>
