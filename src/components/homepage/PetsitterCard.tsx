@@ -9,10 +9,25 @@ interface PetsitterCardProps {
 }
 
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
-	const services =
-		typeof petsitter.service_tags === "string"
-			? JSON.parse(petsitter.service_tags)
-			: petsitter.service_tags;
+	const getServices = () => {
+		try {
+			// If it's a string, try to parse it as JSON
+			if (typeof petsitter.service_tags === "string") {
+				return JSON.parse(petsitter.service_tags);
+			} 
+			// If it's already an array, return it
+			else if (Array.isArray(petsitter.service_tags)) {
+				return petsitter.service_tags;
+			}
+			// Default to empty array if service_tags is undefined or invalid
+			return [];
+		} catch (error) {
+			console.error("Error parsing service_tags", error);
+			return []; // Return empty array if parsing fails
+		}
+	};
+	
+	const services = getServices();
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
