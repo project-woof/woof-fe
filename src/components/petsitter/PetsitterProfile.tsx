@@ -1,5 +1,4 @@
 import type { PetsitterProfile } from "@/types/profile";
-import type { Review } from "@/types/review";
 import { Heart, MapPin, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
