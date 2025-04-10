@@ -41,9 +41,20 @@ function Login() {
         <CardContent>
           <button
             onClick={handleGoogleLogin}
-            className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            className="flex items-center justify-center gap-2 w-full py-2 px-4 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+            style={{
+              fontFamily: 'Roboto, Arial, sans-serif',
+              fontWeight: 500,
+              color: '#444',
+              transition: 'background-color 0.3s'
+            }}
           >
-            Sign in with Google
+            <img 
+              src="https://developers.google.com/identity/images/g-logo.png" 
+              alt="Google logo" 
+              style={{ width: '18px', height: '18px' }} 
+            />
+            <span>Sign in with Google</span>
           </button>
         </CardContent>
       </Card>
