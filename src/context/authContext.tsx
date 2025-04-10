@@ -7,11 +7,13 @@ import { toast } from "sonner";
 interface AuthContextType {
 	userProfile: User | null;
 	setUserProfile: React.Dispatch<React.SetStateAction<User | null>>;
+	isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
 	userProfile: null,
 	setUserProfile: () => {},
+	isLoading: true,
 });
 
 interface AuthProviderProps {
@@ -20,6 +22,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [userProfile, setUserProfile] = useState<User | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -39,6 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		async function fetchUser() {
 			const token = localStorage.getItem("bearer_token");
 			if (!token) {
+				setIsLoading(false); // Update loading state
 				return;
 			}
 			try {
@@ -51,14 +55,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				if (response.status === 401) {
 					setUserProfile(null);
 					localStorage.removeItem("bearer_token");
+					setIsLoading(false); // Update loading state
 					return;
 				}
 				const data = await response.json<User>();
 				setUserProfile(data);
+				setIsLoading(false); // Update loading state
 			} catch (error) {
 				console.error("Error fetching user:", error);
 				setUserProfile(null);
 				localStorage.removeItem("bearer_token");
+				setIsLoading(false); // Update loading state
 			}
 		}
 		fetchUser();
@@ -79,6 +86,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const contextValue: AuthContextType = {
 		userProfile,
 		setUserProfile,
+		isLoading,
 	};
 
 	return (

@@ -174,12 +174,16 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 				<Avatar className="h-10 w-10 mr-3">
 					<AvatarImage
 						src={selectedChatRoom.profile_image_url}
-						alt={selectedChatRoom.username}
+						alt={selectedChatRoom.username || "User"}
 					/>
-					<AvatarFallback>{selectedChatRoom.username.charAt(0)}</AvatarFallback>
+					<AvatarFallback>
+						{(selectedChatRoom.username || "U").charAt(0)}
+					</AvatarFallback>
 				</Avatar>
 				<div>
-					<h3 className="font-medium">{selectedChatRoom.username}</h3>
+					<h3 className="font-medium">
+						{selectedChatRoom.username || "Unknown User"}
+					</h3>
 				</div>
 			</div>
 

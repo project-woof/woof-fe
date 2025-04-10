@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatArea } from "@/components/chat/ChatArea";
@@ -13,9 +13,10 @@ export const Route = createFileRoute("/chat")({
 function Chat() {
 	const [selectedChatRoom, setSelectedChatRoom] =
 		useState<ChatRoomSummary | null>(null);
-	const { userProfile } = useAuth();
+	const { userProfile, isLoading: authLoading } = useAuth();
 
-	if (!userProfile) {
+	// Show loading state while waiting for user profile
+	if (authLoading) {
 		return (
 			<main className="container mx-auto px-4 py-6">
 				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
@@ -27,23 +28,30 @@ function Chat() {
 		);
 	}
 
-	const { getChatRoomsByUserId } = useChatQuery();
-	const { data: chatRoomData, isFetched: chatRoomsFetched } =
-		getChatRoomsByUserId(userProfile.id);
-
-	if (chatRoomData === undefined) {
+	if (!userProfile) {
+		// Redirect to login if not authenticated
 		return (
 			<main className="container mx-auto px-4 py-6">
 				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
-					<div className="flex items-center justify-center h-full">
-						<p>Chat Room Fetch Error</p>
+					<div className="flex flex-col items-center justify-center h-full gap-4">
+						<p>Please log in to access your messages</p>
+						<button
+							className="px-4 py-2 bg-blue-500 text-white rounded"
+							onClick={() => (window.location.href = "/login")}
+						>
+							Log In
+						</button>
 					</div>
 				</div>
 			</main>
 		);
 	}
 
-	if (!chatRoomsFetched) {
+	const { getChatRoomsByUserId } = useChatQuery();
+	const { data: chatRoomData, isFetched: chatRoomsFetched } =
+		getChatRoomsByUserId(userProfile.id);
+
+	if (!chatRoomsFetched || !chatRoomData) {
 		return (
 			<main className="container mx-auto px-4 py-6">
 				<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
@@ -69,7 +77,7 @@ function Chat() {
 					{/* Chat Area */}
 					<ChatArea
 						selectedChatRoom={selectedChatRoom}
-						userId={userProfile!.id}
+						userId={userProfile.id}
 					/>
 				</div>
 			</div>
