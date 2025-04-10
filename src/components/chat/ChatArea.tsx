@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
-import type { ChatRoomSummary } from "@/types/chat";
+import type { ChatMessageSummary, ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
 import { useChatQuery } from "@/composables/queries/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChatWebSocket } from "@/hooks/useWebSocket";
 import { toast } from "sonner";
+import { generateUTCDateTime } from "@/util/format";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -29,45 +30,49 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	const queryClient = useQueryClient();
 	const { getMessagesByRoomId } = useChatQuery();
+	const [messages, setMessages] = useState<ChatMessageSummary[]>([]);
 	const [newMessage, setNewMessage] = useState("");
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-	// Fetch messages; this is the source of truth.
-	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
-	const allMessages = messages;
+	// Fetch messages for the selected chat room.
+	const { data: messagesData, isFetched: messagesFetched } =
+		getMessagesByRoomId(selectedChatRoom.room_id);
+	useEffect(() => {
+		if (messagesFetched && messagesData) {
+			setMessages(messagesData);
+		}
+	}, [messagesFetched, messagesData]);
 
-	// Use the improved WebSocket hook.
-	// This hook now exposes: socket, sendMessage (which queues messages if needed),
-	// and connectionStatus (connected, connecting, reconnecting, or disconnected).
-	const { socket, sendMessage, connectionStatus } = useChatWebSocket(userId);
+	const ws = useChatWebSocket(userId);
 
 	// Listen for incoming WebSocket messages.
 	useEffect(() => {
-		if (!socket) return;
+		if (!ws) return;
 		const handleIncomingMessage = (event: MessageEvent) => {
 			try {
 				const data = JSON.parse(event.data);
 				if (data.type === "message") {
-					// Invalidate queries so that chat rooms and messages are updated.
-					queryClient.invalidateQueries({
-						queryKey: ["getChatRoomsByUserId"],
-					});
+					queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
 					if (selectedChatRoom.room_id !== data.room_id) return;
-					queryClient.invalidateQueries({
-						queryKey: ["getMessagesByRoomId"],
-					});
+					const newMessage = {
+						message_id: data.message_id,
+						sender_id: data.sender_id,
+						text: data.message,
+						created_at: data.created_at,
+					};
+					setMessages((prevMessages) => [...prevMessages, newMessage]);
 				}
 			} catch (err) {
 				console.error("Error parsing incoming WS message:", err);
 			}
 		};
-		socket.addEventListener("message", handleIncomingMessage);
+		ws.addEventListener("message", handleIncomingMessage);
 		return () => {
-			socket.removeEventListener("message", handleIncomingMessage);
+			ws.removeEventListener("message", handleIncomingMessage);
 		};
-	}, [socket, selectedChatRoom.room_id, queryClient]);
+	}, [ws, selectedChatRoom.room_id]);
 
 	// Scroll to the bottom of the conversation when messages change.
 	const scrollToBottom = () => {
@@ -75,7 +80,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	};
 	useEffect(() => {
 		scrollToBottom();
-	}, [allMessages]);
+	}, [messages]);
 
 	// Handle scrolling to show/hide a "Scroll To Bottom" button.
 	const handleScroll = () => {
@@ -115,33 +120,31 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			message: newMessage,
 		};
 		setNewMessage("");
-		const sent = sendMessage(outgoingMessage);
-		if (sent) {
-			queryClient.invalidateQueries({
-				queryKey: ["getMessagesByRoomId"],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ["getChatRoomsByUserId"],
-			});
+		if (ws) {
+			ws.send(JSON.stringify(outgoingMessage));
+			const newMessageData = {
+				message_id: selectedChatRoom.room_id + "-" + Date.now(),
+				sender_id: userId,
+				text: newMessage,
+				created_at: generateUTCDateTime(new Date().toISOString()),
+			};
+			setMessages((prevMessages) => [...prevMessages, newMessageData]);
+			queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
 		} else {
-			toast.info("Message will be sent when connection is restored");
+			toast.error("WebSocket is not connected");
 		}
 	};
 
 	// Render messages with date bubbles
-	const renderedMessages = allMessages
-		.sort(
-			(a, b) =>
-				new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-		)
-		.reduce<React.ReactNode[]>((acc, message, idx) => {
+	const renderedMessages = messages.reduce<React.ReactNode[]>(
+		(acc, message, idx) => {
 			const messageDate = convertDateLocal(message.created_at);
 			if (idx === 0) {
 				acc.push(
 					<DateBubble key={`date-${message.message_id}`} date={messageDate} />,
 				);
 			} else {
-				const prevDate = convertDateLocal(allMessages[idx - 1].created_at);
+				const prevDate = convertDateLocal(messages[idx - 1].created_at);
 				if (messageDate !== prevDate) {
 					acc.push(
 						<DateBubble
@@ -159,7 +162,9 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 				/>,
 			);
 			return acc;
-		}, []);
+		},
+		[],
+	);
 
 	return (
 		<div className="col-span-2 flex flex-col h-full relative">
@@ -180,28 +185,6 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 							{selectedChatRoom.username || "Unknown User"}
 						</h3>
 					</div>
-				</div>
-				{/* Connection status indicator */}
-				<div className="flex items-center">
-					<div
-						className={`h-2 w-2 rounded-full mr-2 ${
-							connectionStatus === "connected"
-								? "bg-green-500"
-								: connectionStatus === "connecting" ||
-									  connectionStatus === "reconnecting"
-									? "bg-yellow-500"
-									: "bg-red-500"
-						}`}
-					/>
-					<span className="text-xs text-muted-foreground">
-						{connectionStatus === "connected"
-							? "Connected"
-							: connectionStatus === "connecting"
-								? "Connecting..."
-								: connectionStatus === "reconnecting"
-									? "Reconnecting..."
-									: "Disconnected"}
-					</span>
 				</div>
 			</div>
 
