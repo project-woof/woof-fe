@@ -11,6 +11,7 @@ import { DateBubble } from "./DateBubble";
 import { useChatQuery } from "@/composables/queries/chat";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChatWebSocket } from "@/hooks/useWebSocket";
+import { toast } from "sonner";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -29,34 +30,31 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	const queryClient = useQueryClient();
 	const { getMessagesByRoomId } = useChatQuery();
 	const [newMessage, setNewMessage] = useState("");
-	// Removed liveMessages: using a single source (the query data)
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-	// Fetch history messages from the API; this is the single source of truth.
+	// Fetch messages; this is the source of truth.
 	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
-
-	// Directly use messages from the query.
 	const allMessages = messages;
 
-	// Set up WebSocket connection (using your hook)
-	const ws = useChatWebSocket(userId);
+	// Use the improved WebSocket hook.
+	// This hook now exposes: socket, sendMessage (which queues messages if needed),
+	// and connectionStatus (connected, connecting, reconnecting, or disconnected).
+	const { socket, sendMessage, connectionStatus } = useChatWebSocket(userId);
 
-	// Listen for new messages coming from WebSocket.
+	// Listen for incoming WebSocket messages.
 	useEffect(() => {
-		if (!ws) return;
+		if (!socket) return;
 		const handleIncomingMessage = (event: MessageEvent) => {
 			try {
 				const data = JSON.parse(event.data);
 				if (data.type === "message") {
-					// Invalidate chat rooms to update ordering/last message.
+					// Invalidate queries so that chat rooms and messages are updated.
 					queryClient.invalidateQueries({
 						queryKey: ["getChatRoomsByUserId"],
 					});
-					// Only process messages for the current room.
 					if (selectedChatRoom.room_id !== data.room_id) return;
-					// Invalidate the messages query to refresh the conversation.
 					queryClient.invalidateQueries({
 						queryKey: ["getMessagesByRoomId"],
 					});
@@ -65,24 +63,23 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 				console.error("Error parsing incoming WS message:", err);
 			}
 		};
-
-		ws.addEventListener("message", handleIncomingMessage);
+		socket.addEventListener("message", handleIncomingMessage);
 		return () => {
-			ws.removeEventListener("message", handleIncomingMessage);
+			socket.removeEventListener("message", handleIncomingMessage);
 		};
-	}, [ws, selectedChatRoom.room_id, queryClient]);
+	}, [socket, selectedChatRoom.room_id, queryClient]);
 
+	// Scroll to the bottom of the conversation when messages change.
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
-
 	useEffect(() => {
 		scrollToBottom();
 	}, [allMessages]);
 
+	// Handle scrolling to show/hide a "Scroll To Bottom" button.
 	const handleScroll = () => {
 		if (!scrollAreaRef.current) return;
-		// The scrollable element might be a child of the ref.
 		const scrollableElement =
 			scrollAreaRef.current.querySelector(
 				"[data-radix-scroll-area-viewport]",
@@ -92,7 +89,6 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		const isAtBottom = distanceFromBottom < 100;
 		setShowScrollToBottom(!isAtBottom);
 	};
-
 	useEffect(() => {
 		handleScroll();
 		const scrollableElement =
@@ -109,32 +105,30 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		}
 	}, []);
 
+	// Send a message via WebSocket.
 	const handleSendMessage = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!newMessage.trim() || !selectedChatRoom) return;
-		try {
-			if (!ws || ws.readyState !== WebSocket.OPEN) return;
-			const outgoingMessage = {
-				action: "send_message",
-				room_id: selectedChatRoom.room_id,
-				message: newMessage,
-			};
-			// Remove optimistic update via local state:
-			// Instead, rely on query invalidation to update the messages list.
-			setNewMessage("");
-			ws.send(JSON.stringify(outgoingMessage));
-			// Immediately invalidate to fetch the updated messages.
+		const outgoingMessage = {
+			action: "send_message",
+			room_id: selectedChatRoom.room_id,
+			message: newMessage,
+		};
+		setNewMessage("");
+		const sent = sendMessage(outgoingMessage);
+		if (sent) {
 			queryClient.invalidateQueries({
 				queryKey: ["getMessagesByRoomId"],
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["getChatRoomsByUserId"],
 			});
-		} catch (error) {
-			console.error("Failed to send message:", error);
+		} else {
+			toast.info("Message will be sent when connection is restored");
 		}
 	};
 
+	// Render messages with date bubbles
 	const renderedMessages = allMessages
 		.sort(
 			(a, b) =>
@@ -169,21 +163,45 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	return (
 		<div className="col-span-2 flex flex-col h-full relative">
-			{/* Chat Header */}
-			<div className="p-4 border-b flex items-center">
-				<Avatar className="h-10 w-10 mr-3">
-					<AvatarImage
-						src={selectedChatRoom.profile_image_url}
-						alt={selectedChatRoom.username || "User"}
+			{/* Chat Header with connection status indicator */}
+			<div className="p-4 border-b flex items-center justify-between">
+				<div className="flex items-center">
+					<Avatar className="h-10 w-10 mr-3">
+						<AvatarImage
+							src={selectedChatRoom.profile_image_url}
+							alt={selectedChatRoom.username || "User"}
+						/>
+						<AvatarFallback>
+							{(selectedChatRoom.username || "U").charAt(0)}
+						</AvatarFallback>
+					</Avatar>
+					<div>
+						<h3 className="font-medium">
+							{selectedChatRoom.username || "Unknown User"}
+						</h3>
+					</div>
+				</div>
+				{/* Connection status indicator */}
+				<div className="flex items-center">
+					<div
+						className={`h-2 w-2 rounded-full mr-2 ${
+							connectionStatus === "connected"
+								? "bg-green-500"
+								: connectionStatus === "connecting" ||
+									  connectionStatus === "reconnecting"
+									? "bg-yellow-500"
+									: "bg-red-500"
+						}`}
 					/>
-					<AvatarFallback>
-						{(selectedChatRoom.username || "U").charAt(0)}
-					</AvatarFallback>
-				</Avatar>
-				<div>
-					<h3 className="font-medium">
-						{selectedChatRoom.username || "Unknown User"}
-					</h3>
+					<span className="text-xs text-muted-foreground">
+						{connectionStatus === "connected"
+							? "Connected"
+							: connectionStatus === "connecting"
+								? "Connecting..."
+								: connectionStatus === "reconnecting"
+									? "Reconnecting..."
+									: "Disconnected"}
+					</span>
 				</div>
 			</div>
 
