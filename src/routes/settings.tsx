@@ -8,7 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/context/authContext";
 import { useMutateProfile } from "@/composables/mutations/profile";
+import { useProfileQuery } from "@/composables/queries/profile";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ServiceTag, SERVICE_TAG_OPTIONS } from "@/types/service_tags";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -20,7 +23,8 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { User } from "@/types/profile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { User, Petsitter, PetsitterProfile } from "@/types/profile";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
@@ -31,17 +35,86 @@ function Settings() {
 	const { userProfile, setUserProfile } = useAuth();
 	const { updateUserProfile } = useMutateProfile();
 	
+	// General user fields
 	const [username, setUsername] = useState("");
 	const [description, setDescription] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
 	
-	// Initialize form when userProfile loads
+	// Petsitter fields
+	const [price, setPrice] = useState<string>("25");
+	const [petsitterDescription, setPetsitterDescription] = useState<string>("");
+	const [selectedTags, setSelectedTags] = useState<ServiceTag[]>([]);
+	
+	const [isLoading, setIsLoading] = useState(false);
+	const [activeTab, setActiveTab] = useState("general");
+	
+	const { getPetsitterProfileById } = useProfileQuery();
+	const [petsitterDataLoaded, setPetsitterDataLoaded] = useState(false);
+	
+	// Initialize basic user form fields
 	useEffect(() => {
 		if (userProfile) {
 			setUsername(userProfile.username || "");
 			setDescription(userProfile.description || "");
 		}
 	}, [userProfile]);
+	
+	// Fetch petsitter data if user is a petsitter
+	useEffect(() => {
+		const loadPetsitterData = async () => {
+			if (userProfile && userProfile.is_petsitter === 1 && !petsitterDataLoaded) {
+				try {
+					const { data: petsitterProfile } = getPetsitterProfileById(userProfile.id);
+					
+					if (petsitterProfile) {
+						// Set petsitter fields
+						if (petsitterProfile.price !== undefined) {
+							setPrice(String(petsitterProfile.price));
+						}
+						
+						if (petsitterProfile.petsitter_description !== undefined) {
+							setPetsitterDescription(petsitterProfile.petsitter_description);
+						}
+						
+						if (petsitterProfile.service_tags) {
+							// Handle the case where service_tags might be a JSON string or an array
+							let parsedTags;
+							if (typeof petsitterProfile.service_tags === 'string') {
+								try {
+									parsedTags = JSON.parse(petsitterProfile.service_tags);
+								} catch (e) {
+									parsedTags = [];
+								}
+							} else {
+								parsedTags = petsitterProfile.service_tags;
+							}
+							
+							if (Array.isArray(parsedTags)) {
+								setSelectedTags(parsedTags as ServiceTag[]);
+							}
+						}
+						
+						setPetsitterDataLoaded(true);
+					}
+				} catch (error) {
+					console.error("Error loading petsitter data:", error);
+					// If we can't load petsitter data, we'll use defaults
+					setPetsitterDataLoaded(true);
+				}
+			}
+		};
+		
+		loadPetsitterData();
+	}, [userProfile, petsitterDataLoaded, getPetsitterProfileById]);
+	
+	const handleTagChange = (tagId: ServiceTag) => {
+		setSelectedTags((prev) => {
+			if (prev.includes(tagId)) {
+				return prev.filter((id) => id !== tagId);
+			} else {
+				return [...prev, tagId];
+			}
+		});
+	};
 	
 	const handleSaveProfile = async () => {
 		if (!userProfile) {
@@ -53,11 +126,20 @@ function Settings() {
 		setIsLoading(true);
 		
 		try {
-			const updatedProfile: Partial<User> = {
+			// Create profile update object
+			const updatedProfile: Partial<PetsitterProfile> = {
 				id: userProfile.id,
 				username,
 				description
 			};
+			
+			// Add petsitter fields if the user is a petsitter
+			if (userProfile.is_petsitter === 1) {
+				updatedProfile.price = Number(price);
+				updatedProfile.petsitter_description = petsitterDescription;
+				// Convert service tags array to JSON string for backend
+				updatedProfile.service_tags = JSON.stringify(selectedTags);
+			}
 			
 			const result = await updateUserProfile.mutateAsync(updatedProfile);
 			
@@ -68,6 +150,10 @@ function Settings() {
 					username,
 					description
 				});
+				
+				// Reset petsitter data loaded flag to fetch fresh data
+				setPetsitterDataLoaded(false);
+				
 				toast.success("Profile updated successfully!");
 			}
 		} catch (error) {
@@ -130,52 +216,133 @@ function Settings() {
 									</div>
 								</div>
 
-								<div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-									<div className="space-y-2">
-										<Label htmlFor="username" className="text-navy">
-											Username
-										</Label>
-										<Input
-											id="username"
-											value={username}
-											onChange={(e) => setUsername(e.target.value)}
-											className="border-beige bg-cream"
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="email" className="text-navy">
-											Email
-										</Label>
-										<Input
-											id="email"
-											type="email"
-											value={userProfile.email || ""}
-											className="border-beige bg-cream"
-											disabled
-										/>
-										<p className="text-xs text-navy/70">
-											Email cannot be changed
-										</p>
-									</div>
-								</div>
+								{/* Settings Tabs */}
+								<Tabs 
+									defaultValue="general" 
+									className="w-full"
+									onValueChange={setActiveTab}
+									value={activeTab}
+								>
+									<TabsList className="grid w-full grid-cols-2">
+										<TabsTrigger value="general">General</TabsTrigger>
+										{userProfile.is_petsitter === 1 && (
+											<TabsTrigger value="petsitter">Petsitter Settings</TabsTrigger>
+										)}
+									</TabsList>
 
-								<div className="space-y-2">
-									<Label htmlFor="description" className="text-navy">
-										Bio
-									</Label>
-									<Textarea
-										id="description"
-										value={description}
-										onChange={(e) => setDescription(e.target.value)}
-										rows={4}
-										className="border-beige bg-cream"
-									/>
-									<p className="text-xs text-navy/70">
-										Brief description for your profile. URLs are hyperlinked.
-									</p>
-								</div>
+									{/* General Settings Tab */}
+									<TabsContent value="general" className="space-y-6 mt-6">
+										<div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+											<div className="space-y-2">
+												<Label htmlFor="username" className="text-navy">
+													Username
+												</Label>
+												<Input
+													id="username"
+													value={username}
+													onChange={(e) => setUsername(e.target.value)}
+													className="border-beige bg-cream"
+												/>
+											</div>
+											<div className="space-y-2">
+												<Label htmlFor="email" className="text-navy">
+													Email
+												</Label>
+												<Input
+													id="email"
+													type="email"
+													value={userProfile.email || ""}
+													className="border-beige bg-cream"
+													disabled
+												/>
+												<p className="text-xs text-navy/70">
+													Email cannot be changed
+												</p>
+											</div>
+										</div>
 
-								<div className="flex justify-end">
+										<div className="space-y-2">
+											<Label htmlFor="description" className="text-navy">
+												Bio
+											</Label>
+											<Textarea
+												id="description"
+												value={description}
+												onChange={(e) => setDescription(e.target.value)}
+												rows={4}
+												className="border-beige bg-cream"
+											/>
+											<p className="text-xs text-navy/70">
+												Brief description for your profile. URLs are hyperlinked.
+											</p>
+										</div>
+									</TabsContent>
+
+									{/* Petsitter Settings Tab */}
+									{userProfile.is_petsitter === 1 && (
+										<TabsContent value="petsitter" className="space-y-6 mt-6">
+											<div className="space-y-2">
+												<Label htmlFor="price" className="text-navy">
+													Hourly Rate ($)
+												</Label>
+												<Input
+													id="price"
+													type="number"
+													value={price}
+													onChange={(e) => setPrice(e.target.value)}
+													className="border-beige bg-cream"
+												/>
+												<p className="text-xs text-navy/70">
+													Your hourly rate for pet sitting services
+												</p>
+											</div>
+
+											<div className="space-y-2">
+												<Label htmlFor="petsitterDescription" className="text-navy">
+													Service Description
+												</Label>
+												<Textarea
+													id="petsitterDescription"
+													value={petsitterDescription}
+													onChange={(e) => setPetsitterDescription(e.target.value)}
+													rows={4}
+													className="border-beige bg-cream"
+												/>
+												<p className="text-xs text-navy/70">
+													Describe your pet sitting services and experience
+												</p>
+											</div>
+
+											<div className="space-y-2">
+												<Label className="text-navy block mb-2">Services Offered</Label>
+												<div className="grid grid-cols-2 gap-2 border-beige bg-cream/50 p-4 rounded-md">
+													{SERVICE_TAG_OPTIONS.map((tag) => (
+														<div key={tag.id} className="flex items-center space-x-2">
+															<Checkbox
+																id={tag.id}
+																checked={selectedTags.includes(tag.id as ServiceTag)}
+																onCheckedChange={() =>
+																	handleTagChange(tag.id as ServiceTag)
+																}
+															/>
+															<Label
+																htmlFor={tag.id}
+																className="cursor-pointer text-sm text-navy"
+															>
+																{tag.label}
+															</Label>
+														</div>
+													))}
+												</div>
+												<p className="text-xs text-navy/70">
+													Select the services you offer as a pet sitter
+												</p>
+											</div>
+										</TabsContent>
+									)}
+								</Tabs>
+
+								<div className="flex justify-end pt-4">
 									<AlertDialog>
 										<AlertDialogTrigger asChild>
 											<Button
