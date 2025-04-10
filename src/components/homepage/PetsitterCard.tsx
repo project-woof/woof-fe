@@ -14,7 +14,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 			// If it's a string, try to parse it as JSON
 			if (typeof petsitter.service_tags === "string") {
 				return JSON.parse(petsitter.service_tags);
-			} 
+			}
 			// If it's already an array, return it
 			else if (Array.isArray(petsitter.service_tags)) {
 				return petsitter.service_tags;
@@ -26,7 +26,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 			return []; // Return empty array if parsing fails
 		}
 	};
-	
+
 	const services = getServices();
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
@@ -52,10 +52,10 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 						<div className="flex items-center">
 							<Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
 							<span className="font-medium text-navy">
-								{petsitter.avg_rating}
+								{petsitter?.avg_rating?.toFixed(2) ?? "0"}
 							</span>
 							<span className="text-navy/70 text-sm ml-1">
-								({petsitter.total_reviews})
+								({petsitter?.total_reviews ?? 0})
 							</span>
 						</div>
 					</div>
