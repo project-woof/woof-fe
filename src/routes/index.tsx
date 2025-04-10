@@ -22,13 +22,18 @@ function Home() {
 	}, [setHomePagination]);
 
 	const { getPetsitterList } = useProfileQuery();
-	const { data: petsittersData, isFetched: petsittersFetched } =
+	const { data: petsittersData, isFetched: petsittersFetched, error } =
 		getPetsitterList(
 			userProfile ? userProfile.latitude : undefined,
 			userProfile ? userProfile?.longitude : undefined,
 			limit,
 			offset,
 		);
+	
+	// Log any errors to help with debugging
+	if (error) {
+		console.error("Error fetching petsitters:", error);
+	}
 
 	function handlePrevPage() {
 		if (homePagination > 1) {

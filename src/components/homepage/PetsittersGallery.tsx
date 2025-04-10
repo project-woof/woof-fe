@@ -6,18 +6,11 @@ interface PetsitterGalleryProps {
 	isFetched: boolean;
 }
 
-export function PetsitterGallery({ petsitters }: PetsitterGalleryProps) {
-	// Handle all possible edge cases to prevent the "map is not a function" error
-	if (!petsitters) {
-		return (
-			<div className="text-center py-12">
-				<p className="text-navy text-lg">No petsitters found nearby.</p>
-			</div>
-		);
-	}
+export function PetsitterGallery({ petsitters = [] }: PetsitterGalleryProps) {
+	// With the improved query, we should always get an array, but keep a defensive check
+	const petsitterArray = Array.isArray(petsitters) ? petsitters : [];
 	
-	// Ensure petsitters is an array before trying to map over it
-	if (!Array.isArray(petsitters) || petsitters.length === 0) {
+	if (petsitterArray.length === 0) {
 		return (
 			<div className="text-center py-12">
 				<p className="text-navy text-lg">No petsitters found nearby.</p>
@@ -27,7 +20,7 @@ export function PetsitterGallery({ petsitters }: PetsitterGalleryProps) {
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{petsitters.map((petsitter) => (
+			{petsitterArray.map((petsitter) => (
 				<PetsitterCard key={petsitter.id} petsitter={petsitter} />
 			))}
 		</div>
