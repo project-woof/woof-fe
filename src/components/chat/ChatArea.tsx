@@ -8,10 +8,8 @@ import { convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
 import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
-import type { CreateChatMessageBody } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
 import { useQueryClient } from "@tanstack/react-query";
-import { useMutateChat } from "@/composables/mutations/chat";
 import { useChatWebSocket } from "@/hooks/useWebSocket";
 
 interface ChatAreaProps {
@@ -28,42 +26,41 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		);
 	}
 
+	const queryClient = useQueryClient();
 	const { getMessagesByRoomId } = useChatQuery();
-	const { createMessageMutation } = useMutateChat();
 	const [newMessage, setNewMessage] = useState("");
-	const [liveMessages, setLiveMessages] = useState<any[]>([]); // state for WebSocket messages
+	// Removed liveMessages: using a single source (the query data)
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-	// Fetch history messages from the API
+	// Fetch history messages from the API; this is the single source of truth.
 	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
+
+	// Directly use messages from the query.
+	const allMessages = messages;
 
 	// Set up WebSocket connection (using your hook)
 	const ws = useChatWebSocket(userId);
 
-	// Listen for new messages coming from WebSocket and append them.
+	// Listen for new messages coming from WebSocket.
 	useEffect(() => {
 		if (!ws) return;
 		const handleIncomingMessage = (event: MessageEvent) => {
 			try {
 				const data = JSON.parse(event.data);
-				useQueryClient().invalidateQueries({
-					queryKey: ["getChatRoomsByUserId"],
-				});
 				if (data.type === "message") {
-					if (selectedChatRoom.room_id !== data.room_id) return; // Ignore messages not for the current room
-					const newMessage = {
-						message_id: data.message_id,
-						sender_id: data.sender_id,
-						room_id: data.room_id,
-						text: data.message,
-						created_at: data.created_at,
-					};
-					setLiveMessages((prevMessages) => [...prevMessages, newMessage]);
+					// Invalidate chat rooms to update ordering/last message.
+					queryClient.invalidateQueries({
+						queryKey: ["getChatRoomsByUserId"],
+					});
+					// Only process messages for the current room.
+					if (selectedChatRoom.room_id !== data.room_id) return;
+					// Invalidate the messages query to refresh the conversation.
+					queryClient.invalidateQueries({
+						queryKey: ["getMessagesByRoomId"],
+					});
 				}
-
-				// You might also handle "subscribed", "info", and "error" messages here.
 			} catch (err) {
 				console.error("Error parsing incoming WS message:", err);
 			}
@@ -73,9 +70,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		return () => {
 			ws.removeEventListener("message", handleIncomingMessage);
 		};
-	}, [ws]);
-
-	const allMessages = [...messages, ...liveMessages];
+	}, [ws, selectedChatRoom.room_id, queryClient]);
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,6 +82,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	const handleScroll = () => {
 		if (!scrollAreaRef.current) return;
+		// The scrollable element might be a child of the ref.
 		const scrollableElement =
 			scrollAreaRef.current.querySelector(
 				"[data-radix-scroll-area-viewport]",
@@ -116,27 +112,24 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	const handleSendMessage = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!newMessage.trim() || !selectedChatRoom) return;
-
-		const messageBody: CreateChatMessageBody = {
-			room_id: selectedChatRoom.room_id,
-			sender_id: userId,
-			text: newMessage,
-		};
-
 		try {
-			setNewMessage("");
-			const createdMessage =
-				await createMessageMutation.mutateAsync(messageBody);
 			if (!ws || ws.readyState !== WebSocket.OPEN) return;
 			const outgoingMessage = {
 				action: "send_message",
-				message_id: createdMessage.message_id,
-				sender_id: createdMessage.sender_id,
 				room_id: selectedChatRoom.room_id,
-				message: createdMessage.text,
-				created_at: createdMessage.created_at,
+				message: newMessage,
 			};
+			// Remove optimistic update via local state:
+			// Instead, rely on query invalidation to update the messages list.
+			setNewMessage("");
 			ws.send(JSON.stringify(outgoingMessage));
+			// Immediately invalidate to fetch the updated messages.
+			queryClient.invalidateQueries({
+				queryKey: ["getMessagesByRoomId"],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["getChatRoomsByUserId"],
+			});
 		} catch (error) {
 			console.error("Failed to send message:", error);
 		}
