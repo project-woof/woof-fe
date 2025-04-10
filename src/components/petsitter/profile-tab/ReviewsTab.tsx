@@ -10,29 +10,29 @@ interface ReviewsTabProps {
 // hard coded image reviews location and availability for now
 const reviewsList: Review[] = [
 	{
-		id: 1,
-		petsitter: "John D.",
-		avatar: "/placeholder.svg?height=40&width=40",
+		review_id: "1",
+		username: "John D.",
+		profile_image_url: "/placeholder.svg?height=40&width=40",
 		rating: 5,
-		date: "2 weeks ago",
+		created_at: "2 weeks ago",
 		comment:
 			"Sarah was amazing with my dog Max! She sent photos throughout the day and was very responsive. Will definitely book again.",
 	},
 	{
-		id: 2,
-		petsitter: "Emma S.",
-		avatar: "/placeholder.svg?height=40&width=40",
+		review_id: "2",
+		username: "Emma S.",
+		profile_image_url: "/placeholder.svg?height=40&width=40",
 		rating: 4,
-		date: "1 month ago",
+		created_at: "1 month ago",
 		comment:
 			"Very professional and caring. My cat was well taken care of while I was away.",
 	},
 	{
-		id: 3,
-		petsitter: "Michael T.",
-		avatar: "/placeholder.svg?height=40&width=40",
+		review_id: "3",
+		username: "Michael T.",
+		profile_image_url: "/placeholder.svg?height=40&width=40",
 		rating: 5,
-		date: "2 months ago",
+		created_at: "2 months ago",
 		comment:
 			"Sarah is the best! My dogs love her and are always excited when she comes over. Highly recommend!",
 	},
@@ -54,19 +54,20 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 
 				<div className="space-y-4">
 					{reviewsList.map((review) => (
-						<div key={review.id} className="border-b pb-4 last:border-0">
+						<div key={review.review_id} className="border-b pb-4 last:border-0">
 							<div className="flex justify-between items-start">
 								<div className="flex items-center">
 									<Avatar className="h-10 w-10 mr-3">
-										<AvatarImage src={review.avatar} alt={review.petsitter} />
-										<AvatarFallback>
-											{review.petsitter.charAt(0)}
-										</AvatarFallback>
+										<AvatarImage
+											src={review.profile_image_url}
+											alt={review.username}
+										/>
+										<AvatarFallback>{review.username.charAt(0)}</AvatarFallback>
 									</Avatar>
 									<div>
-										<h4 className="font-medium">{review.petsitter}</h4>
+										<h4 className="font-medium">{review.username}</h4>
 										<p className="text-sm text-muted-foreground">
-											{review.date}
+											{review.created_at}
 										</p>
 									</div>
 								</div>
