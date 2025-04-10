@@ -15,12 +15,12 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 			: petsitter.service_tags;
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
-			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream">
+			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
 				<div className="aspect-square relative overflow-hidden">
 					<img
 						src={petsitter.first_image || "/placeholder.svg"}
 						alt={petsitter.username}
-						className="object-cover w-full h-full"
+						className="object-cover w-full h-full overflow-hidden rounded-tl-lg rounded-tr-lg"
 					/>
 				</div>
 				<CardContent className="pt-4">
