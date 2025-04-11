@@ -5,7 +5,6 @@ import { useReviewQuery } from "@/composables/queries/review";
 import { usePagination } from "@/context/paginationContext";
 import type { PetsitterProfile } from "@/types/profile";
 import { Loader2, Star } from "lucide-react";
-import { useEffect } from "react";
 
 interface ReviewsTabProps {
 	petsitterData: PetsitterProfile;
@@ -23,9 +22,6 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 		reviewOffset,
 	);
 
-	useEffect(() => {
-		setReviewPagination(1);
-	}, [setReviewPagination]);
 
 	function handlePrevPage() {
 		if (reviewPagination > 1) {
@@ -39,7 +35,6 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 		}
 	}
 
-	console.log(petsitterData);
 	if (!reviewFetched) {
 		return (
 			<Card>
@@ -67,7 +62,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 			</Card>
 		);
 	}
-
+	
 	if (reviewData.length === 0) {
 		return (
 			<Card>
@@ -147,7 +142,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 				<Button
 					variant="outline"
 					onClick={handleNextPage}
-					disabled={reviewData?.length !== limit}
+					disabled={(reviewOffset + limit) >= petsitterData.total_reviews}
 				>
 					Next
 				</Button>
