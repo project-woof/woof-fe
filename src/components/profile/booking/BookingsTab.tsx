@@ -1,6 +1,6 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Star } from "lucide-react";
+import { Calendar } from "lucide-react";
 import type { BookingResponse } from "@/types/booking";
 import {
 	AlertDialog,
@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutateReview } from "@/composables/mutations/review";
 import { toast } from "sonner";
 import type { CreateReview } from "@/types/review";
+import { StarRating } from "./StarRating";
 
 interface BookingsTabProps {
 	bookings: BookingResponse[] | undefined;
@@ -48,14 +49,6 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 	}
 
 	const handleSubmitReview = async (petsitter: string, petowner: string) => {
-		// Here you would implement the API call to submit the review
-
-		// TODO:
-
-		console.log(`${petowner} is submitting review for booking ${petsitter}:`, {
-			rating,
-			comment,
-		});
 		const reviewBody: CreateReview = {
 			reviewer_id: petowner,
 			reviewee_id: petsitter,
@@ -74,32 +67,6 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 		setRating(3);
 		setComment("");
 		setSelectedBookingId(null);
-	};
-
-	// Star Rating component
-	const StarRating = ({
-		value,
-		onChange,
-	}: {
-		value: number;
-		onChange: (rating: number) => void;
-	}) => {
-		return (
-			<div className="flex items-center space-x-1 mb-4">
-				{[1, 2, 3, 4, 5].map((star) => (
-					<button
-						key={star}
-						type="button"
-						onClick={() => onChange(star)}
-						className="focus:outline-none"
-					>
-						<Star
-							className={`h-8 w-8 ${star <= value ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-						/>
-					</button>
-				))}
-			</div>
-		);
 	};
 
 	if (!isFetched) {
