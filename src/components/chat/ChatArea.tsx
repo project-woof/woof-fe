@@ -6,13 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
-import type { ChatMessageSummary, ChatRoomSummary } from "@/types/chat";
+import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
+import type { CreateChatMessageBody } from "@/types/chat";
 import { useChatQuery } from "@/composables/queries/chat";
-import { useQueryClient } from "@tanstack/react-query";
-import { useChatWebSocket } from "@/hooks/useWebSocket";
-import { toast } from "sonner";
-import { generateUTCDateTime } from "@/util/format";
+import { useMutateChat } from "@/composables/mutations/chat";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -28,61 +26,24 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		);
 	}
 
-	const queryClient = useQueryClient();
 	const { getMessagesByRoomId } = useChatQuery();
-	const [messages, setMessages] = useState<ChatMessageSummary[]>([]);
+	const { createMessageMutation } = useMutateChat();
 	const [newMessage, setNewMessage] = useState("");
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-	// Fetch messages for the selected chat room.
-	const { data: messagesData, isFetched: messagesFetched } =
-		getMessagesByRoomId(selectedChatRoom.room_id);
-	useEffect(() => {
-		if (messagesFetched && messagesData) {
-			setMessages(messagesData);
-		}
-	}, [messagesFetched, messagesData]);
+	// Use the query hook directly in the component
+	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
 
-	const { socket: ws } = useChatWebSocket(userId);
-
-	// Listen for incoming WebSocket messages.
-	useEffect(() => {
-		if (!ws) return;
-		const handleIncomingMessage = (event: MessageEvent) => {
-			try {
-				const data = JSON.parse(event.data);
-				if (data.type === "message") {
-					queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
-					if (selectedChatRoom.room_id !== data.room_id) return;
-					const newMessage = {
-						message_id: data.message_id,
-						sender_id: data.sender_id,
-						text: data.message,
-						created_at: data.created_at,
-					};
-					setMessages((prevMessages) => [...prevMessages, newMessage]);
-				}
-			} catch (err) {
-				console.error("Error parsing incoming WS message:", err);
-			}
-		};
-		ws.addEventListener("message", handleIncomingMessage);
-		return () => {
-			ws.removeEventListener("message", handleIncomingMessage);
-		};
-	}, [ws, selectedChatRoom.room_id]);
-
-	// Scroll to the bottom of the conversation when messages change.
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
+
 	useEffect(() => {
 		scrollToBottom();
 	}, [messages]);
 
-	// Handle scrolling to show/hide a "Scroll To Bottom" button.
 	const handleScroll = () => {
 		if (!scrollAreaRef.current) return;
 		const scrollableElement =
@@ -91,9 +52,10 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			) || scrollAreaRef.current;
 		const { scrollTop, scrollHeight, clientHeight } = scrollableElement;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-		const isAtBottom = distanceFromBottom < 100;
+		const isAtBottom = distanceFromBottom < 500;
 		setShowScrollToBottom(!isAtBottom);
 	};
+
 	useEffect(() => {
 		handleScroll();
 		const scrollableElement =
@@ -110,32 +72,24 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		}
 	}, []);
 
-	// Send a message via WebSocket.
 	const handleSendMessage = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!newMessage.trim() || !selectedChatRoom) return;
-		const outgoingMessage = {
-			action: "send_message",
+
+		const messageBody: CreateChatMessageBody = {
 			room_id: selectedChatRoom.room_id,
-			message: newMessage,
+			sender_id: userId,
+			text: newMessage,
 		};
-		setNewMessage("");
-		if (ws) {
-			ws.send(JSON.stringify(outgoingMessage));
-			const newMessageData = {
-				message_id: selectedChatRoom.room_id + "-" + Date.now(),
-				sender_id: userId,
-				text: newMessage,
-				created_at: generateUTCDateTime(new Date().toISOString()),
-			};
-			setMessages((prevMessages) => [...prevMessages, newMessageData]);
-			queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
-		} else {
-			toast.error("WebSocket is not connected");
+
+		try {
+			setNewMessage("");
+			await createMessageMutation.mutateAsync(messageBody);
+		} catch (error) {
+			console.error("Failed to send message:", error);
 		}
 	};
 
-	// Render messages with date bubbles
 	const renderedMessages = messages.reduce<React.ReactNode[]>(
 		(acc, message, idx) => {
 			const messageDate = convertDateLocal(message.created_at);
@@ -168,23 +122,17 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	return (
 		<div className="col-span-2 flex flex-col h-full relative">
-			{/* Chat Header with connection status indicator */}
-			<div className="p-4 border-b flex items-center justify-between">
-				<div className="flex items-center">
-					<Avatar className="h-10 w-10 mr-3">
-						<AvatarImage
-							src={selectedChatRoom.profile_image_url}
-							alt={selectedChatRoom.username || "User"}
-						/>
-						<AvatarFallback>
-							{(selectedChatRoom.username || "U").charAt(0)}
-						</AvatarFallback>
-					</Avatar>
-					<div>
-						<h3 className="font-medium">
-							{selectedChatRoom.username || "Unknown User"}
-						</h3>
-					</div>
+			{/* Chat Header */}
+			<div className="p-4 border-b flex items-center">
+				<Avatar className="h-10 w-10 mr-3">
+					<AvatarImage
+						src={selectedChatRoom.profile_image_url}
+						alt={selectedChatRoom.username}
+					/>
+					<AvatarFallback>{selectedChatRoom.username.charAt(0)}</AvatarFallback>
+				</Avatar>
+				<div>
+					<h3 className="font-medium">{selectedChatRoom.username}</h3>
 				</div>
 			</div>
 

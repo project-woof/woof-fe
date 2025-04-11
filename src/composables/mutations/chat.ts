@@ -73,7 +73,6 @@ export const useMutateChat = () => {
 				(oldData: ChatMessageSummary[] = []) => [...oldData, newMessage],
 			);
 
-			// Also invalidate the chat rooms to update last message
 			queryClient.invalidateQueries({ queryKey: ["getChatRoomsByUserId"] });
 		},
 	});

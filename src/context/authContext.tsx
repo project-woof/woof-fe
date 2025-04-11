@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		async function fetchUser() {
 			const token = localStorage.getItem("bearer_token");
 			if (!token) {
-				setIsLoading(false); // Update loading state
+				setIsLoading(false);
 				return;
 			}
 			try {
@@ -55,17 +55,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				if (response.status === 401) {
 					setUserProfile(null);
 					localStorage.removeItem("bearer_token");
-					setIsLoading(false); // Update loading state
+					setIsLoading(false);
 					return;
 				}
 				const data = await response.json<User>();
 				setUserProfile(data);
-				setIsLoading(false); // Update loading state
+				setIsLoading(false);
 			} catch (error) {
 				console.error("Error fetching user:", error);
 				setUserProfile(null);
 				localStorage.removeItem("bearer_token");
-				setIsLoading(false); // Update loading state
+				setIsLoading(false);
 			}
 		}
 		fetchUser();
