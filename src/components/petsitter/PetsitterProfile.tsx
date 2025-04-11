@@ -7,6 +7,8 @@ import { ReviewsTab } from "@/components/petsitter/profile-tab/ReviewsTab";
 import { AboutTab } from "@/components/petsitter/profile-tab/AboutTab";
 import { calculateCompositeScore } from "@/util/format";
 import { ImageGallery } from "./ImageGallery";
+import { useEffect } from "react";
+import { usePagination } from "@/context/paginationContext";
 
 interface PetsitterProfileProps {
 	petsitterData: PetsitterProfile;
@@ -21,6 +23,11 @@ export function PetsitterProfile({
 	activeTab,
 	setActiveTab,
 }: PetsitterProfileProps) {
+	const { setReviewPagination } = usePagination();
+	useEffect(() => {
+		setReviewPagination(1);
+	}, [setReviewPagination]);
+
 	const images = [
 		`${petsitterData.profile_image_url}`,
 		`${petsitterData.profile_image_url}`,
