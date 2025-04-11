@@ -3,12 +3,14 @@ import { useState } from "react";
 import { PetsitterProfile } from "@/components/petsitter/PetsitterProfile";
 import { BookingCard } from "@/components/petsitter/BookingCard";
 import { useProfileQuery } from "@/composables/queries/profile";
+import { useAuth } from "@/context/authContext";
 
 export const Route = createFileRoute("/petsitter/$id")({
 	component: Petsitter,
 });
 
 function Petsitter() {
+	const { userProfile } = useAuth();
 	const { id } = useParams({ from: "/petsitter/$id" });
 	const [activeTab, setActiveTab] = useState("about");
 
@@ -18,7 +20,9 @@ function Petsitter() {
 		isFetched: profileFetched,
 		isError: isProfileError,
 		error: profileError,
-	} = getPetsitterProfileById(id);
+	} = getPetsitterProfileById(id,
+		userProfile ? userProfile.latitude : undefined,
+		userProfile ? userProfile?.longitude : undefined,);
 	// TODO: remove hardcoded info
 	// hard coded image reviews location distance and availability for now
 

@@ -16,6 +16,9 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useMutateReview } from "@/composables/mutations/review";
+import { toast } from "sonner";
+import type { CreateReview } from "@/types/review";
 
 interface BookingsTabProps {
 	bookings: BookingResponse[] | undefined;
@@ -28,6 +31,7 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 	);
 	const [rating, setRating] = useState<number>(3);
 	const [comment, setComment] = useState<string>("");
+	const { createReviewMutation } = useMutateReview();
 
 	function getBookingStatus(start_date: string, end_date: string): string {
 		const currentTime = new Date();
@@ -43,15 +47,28 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 		}
 	}
 
-	const handleSubmitReview = (bookingId: string) => {
+	const handleSubmitReview = async (petsitter: string, petowner: string) => {
 		// Here you would implement the API call to submit the review
 
 		// TODO:
 
-		console.log(`Submitting review for booking ${bookingId}:`, {
+		console.log(`${petowner} is submitting review for booking ${petsitter}:`, {
 			rating,
 			comment,
 		});
+		const reviewBody: CreateReview = {
+			reviewer_id: petowner,
+			reviewee_id: petsitter,
+			rating: rating,
+			comment: comment,
+		};
+
+		try {
+			await createReviewMutation.mutateAsync(reviewBody);
+			toast("Review has been submitted.");
+		} catch (error) {
+			toast(`Failed to submit review: ${error}`);
+		}
 
 		// Reset form state
 		setRating(3);
@@ -188,7 +205,7 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 												Cancel
 											</AlertDialogCancel>
 											<AlertDialogAction
-												onClick={() => handleSubmitReview(booking.booking_id)}
+												onClick={() => handleSubmitReview(booking.petsitter_id, booking.petowner_id)}
 												disabled={rating === 0}
 											>
 												Submit Review

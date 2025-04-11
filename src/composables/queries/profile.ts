@@ -33,10 +33,14 @@ export const useProfileQuery = () => {
 		};
 	}
 
-	function getPetsitterProfileById(userId: string) {
+	function getPetsitterProfileById(
+		userId: string,
+		userLat: number | undefined,
+		userLon: number | undefined
+	) {
 		const { data, isFetched, isError, error } = useQuery<PetsitterProfile>({
-			queryKey: ["petsitters", userId],
-			queryFn: () => getPetsitterProfile(userId),
+			queryKey: ["petsitters", userId, userLat, userLon],
+			queryFn: () => getPetsitterProfile(userId, userLat, userLon),
 		});
 		return { data, isFetched, isError, error };
 	}

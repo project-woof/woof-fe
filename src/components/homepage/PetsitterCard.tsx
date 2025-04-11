@@ -9,10 +9,25 @@ interface PetsitterCardProps {
 }
 
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
-	const services =
-		typeof petsitter.service_tags === "string"
-			? JSON.parse(petsitter.service_tags)
-			: petsitter.service_tags;
+	const getServices = () => {
+		try {
+			// If it's a string, try to parse it as JSON
+			if (typeof petsitter.service_tags === "string") {
+				return JSON.parse(petsitter.service_tags);
+			}
+			// If it's already an array, return it
+			else if (Array.isArray(petsitter.service_tags)) {
+				return petsitter.service_tags;
+			}
+			// Default to empty array if service_tags is undefined or invalid
+			return [];
+		} catch (error) {
+			console.error("Error parsing service_tags", error);
+			return []; // Return empty array if parsing fails
+		}
+	};
+
+	const services = getServices();
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
@@ -31,16 +46,16 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 							</h3>
 							<div className="flex items-center mt-1 text-sm text-navy/70">
 								<MapPin className="h-3.5 w-3.5 mr-1" />
-								<span>{petsitter.distance.toFixed(1)} miles away</span>
+								<span>{petsitter.distance.toFixed(1)} km away</span>
 							</div>
 						</div>
 						<div className="flex items-center">
 							<Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
 							<span className="font-medium text-navy">
-								{petsitter.avg_rating}
+								{petsitter?.avg_rating?.toFixed(2) ?? "0"}
 							</span>
 							<span className="text-navy/70 text-sm ml-1">
-								({petsitter.total_reviews})
+								({petsitter?.total_reviews ?? 0})
 							</span>
 						</div>
 					</div>

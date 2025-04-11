@@ -34,22 +34,22 @@ function Settings() {
 	const router = useRouter();
 	const { userProfile, setUserProfile } = useAuth();
 	const { updateUserProfile } = useMutateProfile();
-	
+
 	// General user fields
 	const [username, setUsername] = useState("");
 	const [description, setDescription] = useState("");
-	
+
 	// Petsitter fields
 	const [price, setPrice] = useState<string>("25");
 	const [petsitterDescription, setPetsitterDescription] = useState<string>("");
 	const [selectedTags, setSelectedTags] = useState<ServiceTag[]>([]);
-	
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState("general");
-	
+
 	const { getPetsitterProfileById } = useProfileQuery();
 	const [petsitterDataLoaded, setPetsitterDataLoaded] = useState(false);
-	
+
 	// Initialize basic user form fields
 	useEffect(() => {
 		if (userProfile) {
@@ -57,28 +57,36 @@ function Settings() {
 			setDescription(userProfile.description || "");
 		}
 	}, [userProfile]);
-	
+
 	// Fetch petsitter data if user is a petsitter
 	useEffect(() => {
 		const loadPetsitterData = async () => {
-			if (userProfile && userProfile.is_petsitter === 1 && !petsitterDataLoaded) {
+			if (
+				userProfile &&
+				userProfile.is_petsitter === 1 &&
+				!petsitterDataLoaded
+			) {
 				try {
-					const { data: petsitterProfile } = getPetsitterProfileById(userProfile.id);
-					
+					const { data: petsitterProfile } = getPetsitterProfileById(
+						userProfile.id,
+						userProfile.latitude,
+						userProfile.longitude,
+					);
+
 					if (petsitterProfile) {
 						// Set petsitter fields
 						if (petsitterProfile.price !== undefined) {
 							setPrice(String(petsitterProfile.price));
 						}
-						
+
 						if (petsitterProfile.petsitter_description !== undefined) {
 							setPetsitterDescription(petsitterProfile.petsitter_description);
 						}
-						
+
 						if (petsitterProfile.service_tags) {
 							// Handle the case where service_tags might be a JSON string or an array
 							let parsedTags;
-							if (typeof petsitterProfile.service_tags === 'string') {
+							if (typeof petsitterProfile.service_tags === "string") {
 								try {
 									parsedTags = JSON.parse(petsitterProfile.service_tags);
 								} catch (e) {
@@ -87,12 +95,12 @@ function Settings() {
 							} else {
 								parsedTags = petsitterProfile.service_tags;
 							}
-							
+
 							if (Array.isArray(parsedTags)) {
 								setSelectedTags(parsedTags as ServiceTag[]);
 							}
 						}
-						
+
 						setPetsitterDataLoaded(true);
 					}
 				} catch (error) {
@@ -102,10 +110,10 @@ function Settings() {
 				}
 			}
 		};
-		
+
 		loadPetsitterData();
 	}, [userProfile, petsitterDataLoaded, getPetsitterProfileById]);
-	
+
 	const handleTagChange = (tagId: ServiceTag) => {
 		setSelectedTags((prev) => {
 			if (prev.includes(tagId)) {
@@ -115,24 +123,24 @@ function Settings() {
 			}
 		});
 	};
-	
+
 	const handleSaveProfile = async () => {
 		if (!userProfile) {
 			toast.error("User profile not found. Please login again.");
 			router.navigate({ to: "/login" });
 			return;
 		}
-		
+
 		setIsLoading(true);
-		
+
 		try {
 			// Create profile update object
 			const updatedProfile: Partial<PetsitterProfile> = {
 				id: userProfile.id,
 				username,
-				description
+				description,
 			};
-			
+
 			// Add petsitter fields if the user is a petsitter
 			if (userProfile.is_petsitter === 1) {
 				updatedProfile.price = Number(price);
@@ -140,20 +148,20 @@ function Settings() {
 				// Convert service tags array to JSON string for backend
 				updatedProfile.service_tags = JSON.stringify(selectedTags);
 			}
-			
+
 			const result = await updateUserProfile.mutateAsync(updatedProfile);
-			
+
 			if (result) {
 				// Update local state with the new profile data
 				setUserProfile({
 					...userProfile,
 					username,
-					description
+					description,
 				});
-				
+
 				// Reset petsitter data loaded flag to fetch fresh data
 				setPetsitterDataLoaded(false);
-				
+
 				toast.success("Profile updated successfully!");
 			}
 		} catch (error) {
@@ -217,8 +225,8 @@ function Settings() {
 								</div>
 
 								{/* Settings Tabs */}
-								<Tabs 
-									defaultValue="general" 
+								<Tabs
+									defaultValue="general"
 									className="w-full"
 									onValueChange={setActiveTab}
 									value={activeTab}
@@ -226,7 +234,9 @@ function Settings() {
 									<TabsList className="grid w-full grid-cols-2">
 										<TabsTrigger value="general">General</TabsTrigger>
 										{userProfile.is_petsitter === 1 && (
-											<TabsTrigger value="petsitter">Petsitter Settings</TabsTrigger>
+											<TabsTrigger value="petsitter">
+												Petsitter Settings
+											</TabsTrigger>
 										)}
 									</TabsList>
 
@@ -273,7 +283,8 @@ function Settings() {
 												className="border-beige bg-cream"
 											/>
 											<p className="text-xs text-navy/70">
-												Brief description for your profile. URLs are hyperlinked.
+												Brief description for your profile. URLs are
+												hyperlinked.
 											</p>
 										</div>
 									</TabsContent>
@@ -298,13 +309,18 @@ function Settings() {
 											</div>
 
 											<div className="space-y-2">
-												<Label htmlFor="petsitterDescription" className="text-navy">
+												<Label
+													htmlFor="petsitterDescription"
+													className="text-navy"
+												>
 													Service Description
 												</Label>
 												<Textarea
 													id="petsitterDescription"
 													value={petsitterDescription}
-													onChange={(e) => setPetsitterDescription(e.target.value)}
+													onChange={(e) =>
+														setPetsitterDescription(e.target.value)
+													}
 													rows={4}
 													className="border-beige bg-cream"
 												/>
@@ -314,13 +330,20 @@ function Settings() {
 											</div>
 
 											<div className="space-y-2">
-												<Label className="text-navy block mb-2">Services Offered</Label>
+												<Label className="text-navy block mb-2">
+													Services Offered
+												</Label>
 												<div className="grid grid-cols-2 gap-2 border-beige bg-cream/50 p-4 rounded-md">
 													{SERVICE_TAG_OPTIONS.map((tag) => (
-														<div key={tag.id} className="flex items-center space-x-2">
+														<div
+															key={tag.id}
+															className="flex items-center space-x-2"
+														>
 															<Checkbox
 																id={tag.id}
-																checked={selectedTags.includes(tag.id as ServiceTag)}
+																checked={selectedTags.includes(
+																	tag.id as ServiceTag,
+																)}
 																onCheckedChange={() =>
 																	handleTagChange(tag.id as ServiceTag)
 																}
@@ -354,9 +377,12 @@ function Settings() {
 										</AlertDialogTrigger>
 										<AlertDialogContent>
 											<AlertDialogHeader>
-												<AlertDialogTitle>Confirm profile update?</AlertDialogTitle>
+												<AlertDialogTitle>
+													Confirm profile update?
+												</AlertDialogTitle>
 												<AlertDialogDescription>
-													Are you sure you want to save these changes to your profile?
+													Are you sure you want to save these changes to your
+													profile?
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>

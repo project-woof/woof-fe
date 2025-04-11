@@ -9,10 +9,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookingsTab } from "@/components/profile/booking/BookingsTab";
-// import { ReviewsTab } from "@/components/profile/review/ReviewsTab";
+import { ReviewsTab } from "@/components/profile/review/ReviewsTab";
 import { useBookingQuery } from "@/composables/queries/booking";
 import type { User } from "@/types/profile";
 import { usePagination } from "@/context/paginationContext";
+import { useReviewQuery } from "@/composables/queries/review";
 
 interface ProfileTabsProps {
 	userData: User;
@@ -25,30 +26,46 @@ export const ProfileTabs = ({
 	activeTab,
 	setActiveTab,
 }: ProfileTabsProps) => {
-	const { bookingPagination, setBookingPagination } = usePagination();
+	const { bookingPagination, reviewPagination, setBookingPagination, setReviewPagination } = usePagination();
 	const limit = 5;
-	const offset = (bookingPagination - 1) * limit;
+	const bookingOffset = (bookingPagination - 1) * limit;
+	const reviewOffset = (reviewPagination - 1) * limit;
+
 	const { getBookingsByPetowner } = useBookingQuery();
 	const { data: bookingData, isFetched: bookingFetched } =
-		getBookingsByPetowner(userData.id, limit, offset);
-	// const { data: reviewData, isFetched: reviewFetched } = getReviewsByReviewer(
-	//   "uuid-user1",
-	//   5,
-	//   0
-	// );
+		getBookingsByPetowner(userData.id, limit, bookingOffset);
+	
+	const { getReviewsByReviewerId } = useReviewQuery();
+	const { data: reviewData, isFetched: reviewFetched } = getReviewsByReviewerId(
+		userData.id,
+		limit,
+		reviewOffset,
+	);
 
 	useEffect(() => {
 		setBookingPagination(1);
 	}, [setBookingPagination]);
 
+	useEffect(() => {
+		setReviewPagination(1);
+	}, [setReviewPagination]);
+
 	function handlePrevPage() {
-		if (bookingPagination > 1) {
-			setBookingPagination((prev) => prev - 1);
+		if (activeTab === "bookings" && bookingPagination > 1) {
+			setBookingPagination((current) => current - 1);
+		}
+		if (activeTab === "reviews" && reviewPagination > 1) {
+			setReviewPagination((current) => current - 1);
 		}
 	}
 
 	function handleNextPage() {
-		setBookingPagination((prev) => prev + 1);
+		if (activeTab === "bookings" && bookingData?.length === limit) {
+			setBookingPagination((current) => current + 1);
+		}
+		if (activeTab === "reviews" && reviewData?.length === limit) {
+			setReviewPagination((current) => current + 1);
+		}
 	}
 
 	return (
@@ -99,7 +116,25 @@ export const ProfileTabs = ({
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						{/* <ReviewsTab reviews={reviewData} isFetched={reviewFetched} /> */}
+						<ReviewsTab reviews={reviewData} isFetched={reviewFetched} />
+						{/* Pagination Buttons */}
+						<div className="flex items-center justify-center gap-4 mt-6">
+							<Button
+								variant="outline"
+								onClick={handlePrevPage}
+								disabled={reviewPagination === 1}
+							>
+								Previous
+							</Button>
+							<span className="text-navy">Page {reviewPagination}</span>
+							<Button
+								variant="outline"
+								onClick={handleNextPage}
+								disabled={reviewData?.length !== limit}
+							>
+								Next
+							</Button>
+						</div>
 					</CardContent>
 				</Card>
 			</TabsContent>

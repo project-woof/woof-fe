@@ -1,5 +1,4 @@
 import type { PetsitterProfile } from "@/types/profile";
-import type { Review } from "@/types/review";
 import { Heart, MapPin, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,37 +15,6 @@ interface PetsitterProfileProps {
 }
 
 // hard coded image reviews location distance and availability for now
-const reviewsList: Review[] = [
-	{
-		id: 1,
-		petsitter: "John D.",
-		avatar: "/placeholder.svg?height=40&width=40",
-		rating: 5,
-		date: "2 weeks ago",
-		comment:
-			"Sarah was amazing with my dog Max! She sent photos throughout the day and was very responsive. Will definitely book again.",
-	},
-	{
-		id: 2,
-		petsitter: "Emma S.",
-		avatar: "/placeholder.svg?height=40&width=40",
-		rating: 4,
-		date: "1 month ago",
-		comment:
-			"Very professional and caring. My cat was well taken care of while I was away.",
-	},
-	{
-		id: 3,
-		petsitter: "Michael T.",
-		avatar: "/placeholder.svg?height=40&width=40",
-		rating: 5,
-		date: "2 months ago",
-		comment:
-			"Sarah is the best! My dogs love her and are always excited when she comes over. Highly recommend!",
-	},
-];
-const location = "Brooklyn, NY";
-const distance = 0.8;
 
 export function PetsitterProfile({
 	petsitterData,
@@ -58,14 +26,12 @@ export function PetsitterProfile({
 		`${petsitterData.profile_image_url}`,
 		`${petsitterData.profile_image_url}`,
 	];
+
 	return (
 		<div className="lg:col-span-2">
 			{/* Image Gallery */}
 			<div className="mb-6">
-				<ImageGallery
-					images={images}
-					username={petsitterData.username}
-				/>
+				<ImageGallery images={images} username={petsitterData.username} />
 			</div>
 
 			{/* Petsitter Info */}
@@ -83,13 +49,13 @@ export function PetsitterProfile({
 									)}
 						</span>
 						<span className="text-muted-foreground ml-1">
-							({reviewsList.length} reviews)
+							({petsitterData.total_reviews} reviews)
 						</span>
 					</div>
 					<div className="flex items-center mt-1 text-muted-foreground">
 						<MapPin className="h-4 w-4 mr-1" />
 						<span>
-							{location} • {distance} miles away
+							• {petsitterData.distance.toFixed(2)} km away
 						</span>
 					</div>
 				</div>
