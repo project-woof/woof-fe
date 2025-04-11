@@ -22,6 +22,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth";
 import { useAuth } from "@/context/authContext";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 export default function Header() {
 	const router = useRouter();
@@ -83,6 +84,7 @@ export default function Header() {
 						</nav>
 
 						<div className="flex items-center space-x-4">
+							<NotificationDropdown userId={userProfile.id} />
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="ghost" className="rounded-full h-8 w-8 p-0">

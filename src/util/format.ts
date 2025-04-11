@@ -29,6 +29,12 @@ export function convertDateLocal(timeStr: string): string {
 	});
 }
 
+export function convertDateTimeLocal(timeStr: string): string {
+	const date = convertDateLocal(timeStr);
+	const time = convertTimeLocal(timeStr);
+	return `${date} at ${time}`;
+}
+
 export function convertDateTimeToISO(date: Date, timeStr: string): string {
 	// Extract year, month, and day from the Date object
 	const year = date.getFullYear();
