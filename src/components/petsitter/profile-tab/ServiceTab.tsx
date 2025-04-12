@@ -11,6 +11,26 @@ export function ServicesTab({ petsitterData }: ServicesTabProps) {
 		typeof petsitterData.service_tags === "string"
 			? JSON.parse(petsitterData.service_tags)
 			: petsitterData.service_tags;
+
+	// Check if services array is empty or undefined
+	if (!services || services.length === 0) {
+		return (
+			<Card>
+				<CardContent className="pt-6 text-center">
+					<div className="flex flex-col items-center justify-center space-y-4">
+						<PawPrint className="h-12 w-12 text-muted-foreground" />
+						<h3 className="text-lg font-semibold text-muted-foreground">
+							No services offered yet
+						</h3>
+						<p className="text-sm text-muted-foreground">
+							This petsitter hasn't added any services to their profile.
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
+
 	return (
 		<Card>
 			<CardContent className="pt-6">
