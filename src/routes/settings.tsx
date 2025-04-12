@@ -11,7 +11,11 @@ import { useMutateProfile } from "@/composables/mutations/profile";
 import { useProfileQuery } from "@/composables/queries/profile";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ServiceTag, SERVICE_TAG_OPTIONS, SERVICE_TAG_LABELS } from "@/types/service_tags";
+import {
+	ServiceTag,
+	SERVICE_TAG_OPTIONS,
+	SERVICE_TAG_LABELS,
+} from "@/types/service_tags";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -94,17 +98,17 @@ function Settings() {
 							} else {
 								parsedTags = petsitterProfile.service_tags;
 							}
-						
+
 							if (Array.isArray(parsedTags)) {
 								const mappedTags = parsedTags
-									.map(label => {
+									.map((label) => {
 										const tag = Object.entries(SERVICE_TAG_LABELS).find(
-											([_, value]) => value === label
+											([_, value]) => value === label,
 										)?.[0] as ServiceTag;
 										return tag;
 									})
-									.filter(tag => tag !== undefined);
-						
+									.filter((tag) => tag !== undefined);
+
 								setSelectedTags(mappedTags);
 							}
 						}
@@ -155,7 +159,7 @@ function Settings() {
 				updatedProfile.petsitter_description = petsitterDescription;
 				// Explicitly parse and recreate the array to remove escaping
 				updatedProfile.service_tags = JSON.parse(
-					JSON.stringify(selectedTags.map(tag => SERVICE_TAG_LABELS[tag]))
+					JSON.stringify(selectedTags.map((tag) => SERVICE_TAG_LABELS[tag])),
 				);
 			}
 
@@ -352,7 +356,7 @@ function Settings() {
 															<Checkbox
 																id={tag.id}
 																checked={selectedTags.includes(
-																	tag.id as ServiceTag,
+																	tag.label as ServiceTag,
 																)}
 																onCheckedChange={() =>
 																	handleTagChange(tag.id as ServiceTag)
