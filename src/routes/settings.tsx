@@ -87,19 +87,26 @@ function Settings() {
 							setPetsitterDescription(petsitterProfile.petsitter_description);
 						}
 
+						// In the petsitter data loading logic
 						if (petsitterProfile.service_tags) {
 							let parsedTags = petsitterProfile.service_tags;
-						
+
+							console.log("Raw service tags:", parsedTags);
+							console.log("SERVICE_TAG_OPTIONS:", SERVICE_TAG_OPTIONS);
+
 							if (Array.isArray(parsedTags)) {
 								const mappedTags = parsedTags
-									.map(label => {
+									.map((label) => {
+										console.log("Checking label:", label);
 										const tag = Object.values(ServiceTag).find(
-											tagValue => tagValue === label
+											(tagValue) => tagValue === label,
 										);
+										console.log("Mapped tag:", tag);
 										return tag;
 									})
-									.filter(tag => tag !== undefined);
-						
+									.filter((tag) => tag !== undefined);
+
+								console.log("Mapped tags:", mappedTags);
 								setSelectedTags(mappedTags as ServiceTag[]);
 							}
 						}
