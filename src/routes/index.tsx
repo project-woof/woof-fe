@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
@@ -34,25 +34,41 @@ function Home() {
   const limit = 9;
   const offset = (homePagination - 1) * limit;
 
-  // Filter states
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [distanceRange, setDistanceRange] = useState([10]);
-  const [priceRange, setPriceRange] = useState([50, 150]);
+  // Temporary states for dragging
+  const [tempDistanceRange, setTempDistanceRange] = useState([1000]);
+  const [tempPriceRange, setTempPriceRange] = useState([0, 9999]);
+
+  // Applied states for actual query
+  const [distanceRange, setDistanceRange] = useState([1000]);
+  const [priceRange, setPriceRange] = useState([0, 9999]);
   const [sortBy, setSortBy] = useState("distance");
   const [selectedServices, setSelectedServices] = useState<ServiceTag[]>([]);
 
-  useEffect(() => {
-    setHomePagination(1);
-  }, [setHomePagination]);
+  // Refs to track dragging state
+  const isDraggingDistance = useRef(false);
+  const isDraggingPrice = useRef(false);
+
+  // Filter popover state
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const { getPetsitterList } = useProfileQuery();
-  const { data: petsittersData, isFetched: petsittersFetched, error } =
-    getPetsitterList(
-      userProfile ? userProfile.latitude : undefined,
-      userProfile ? userProfile?.longitude : undefined,
-      limit,
-      offset,
-    );
+  const { 
+    data: petsittersData, 
+    isFetched: petsittersFetched, 
+    error 
+  } = getPetsitterList(
+    userProfile?.latitude, 
+    userProfile?.longitude, 
+    limit, 
+    offset,
+    {
+      distance: distanceRange[0],
+      priceMin: priceRange[0],
+      priceMax: priceRange[1],
+      services: selectedServices,
+      sortBy: sortBy as 'distance' | 'reviews' | 'rating'
+    }
+  );
 
   // Log any errors to help with debugging
   if (error) {
@@ -69,17 +85,6 @@ function Home() {
     setHomePagination((prev) => prev + 1);
   }
 
-  function applyFilters() {
-    // This will be implemented later
-    console.log("Applying filters:", { 
-      distanceRange, 
-      priceRange,
-      sortBy,
-      selectedServices
-    });
-    setIsFilterOpen(false);
-  }
-
   function toggleService(service: ServiceTag) {
     setSelectedServices(prev => {
       if (prev.includes(service)) {
@@ -88,6 +93,15 @@ function Home() {
         return [...prev, service];
       }
     });
+  }
+
+  function resetFilters() {
+    setTempDistanceRange([1000]);
+    setTempPriceRange([0, 9999]);
+    setDistanceRange([1000]);
+    setPriceRange([0, 9999]);
+    setSortBy("distance");
+    setSelectedServices([]);
   }
 
   if (!petsittersFetched) {
@@ -127,16 +141,25 @@ function Home() {
                   <div className="flex justify-between">
                     <Label htmlFor="distance" className="text-navy">Distance</Label>
                     <span className="text-sm text-navy">
-                      {distanceRange[0]} km
+                      {tempDistanceRange[0]} km
                     </span>
                   </div>
                   <Slider
                     id="distance"
                     min={1}
-                    max={50}
+                    max={1000}
                     step={1}
-                    value={distanceRange}
-                    onValueChange={setDistanceRange}
+                    value={tempDistanceRange}
+                    onValueChange={(value) => {
+                      setTempDistanceRange(value);
+                      isDraggingDistance.current = true;
+                    }}
+                    onPointerUp={() => {
+                      if (isDraggingDistance.current) {
+                        setDistanceRange(tempDistanceRange);
+                        isDraggingDistance.current = false;
+                      }
+                    }}
                     className="text-navy"
                   />
                 </div>
@@ -146,16 +169,25 @@ function Home() {
                   <div className="flex justify-between">
                     <Label htmlFor="price" className="text-navy">Price Range</Label>
                     <span className="text-sm text-navy">
-                      ${priceRange[0]} - ${priceRange[1]}
+                      ${tempPriceRange[0]} - ${tempPriceRange[1]}
                     </span>
                   </div>
                   <Slider
                     id="price"
-                    min={10}
-                    max={300}
-                    step={5}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
+                    min={0}
+                    max={9999}
+                    step={1}
+                    value={tempPriceRange}
+                    onValueChange={(value) => {
+                      setTempPriceRange(value);
+                      isDraggingPrice.current = true;
+                    }}
+                    onPointerUp={() => {
+                      if (isDraggingPrice.current) {
+                        setPriceRange(tempPriceRange);
+                        isDraggingPrice.current = false;
+                      }
+                    }}
                     className="text-navy"
                   />
                 </div>
@@ -183,73 +215,31 @@ function Home() {
                   </RadioGroup>
                 </div>
 
-                {/* Services Filter using ServiceTag enum */}
+                {/* Services Filter */}
                 <div className="space-y-2">
                   <Label className="text-navy">Services</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="dog-sitting" 
-                        checked={selectedServices.includes(ServiceTag.DOG_SITTING)}
-                        onCheckedChange={() => toggleService(ServiceTag.DOG_SITTING)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="dog-sitting" className="text-navy text-sm">{ServiceTag.DOG_SITTING}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="cat-sitting" 
-                        checked={selectedServices.includes(ServiceTag.CAT_SITTING)}
-                        onCheckedChange={() => toggleService(ServiceTag.CAT_SITTING)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="cat-sitting" className="text-navy text-sm">{ServiceTag.CAT_SITTING}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="dog-walking" 
-                        checked={selectedServices.includes(ServiceTag.DOG_WALKING)}
-                        onCheckedChange={() => toggleService(ServiceTag.DOG_WALKING)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="dog-walking" className="text-navy text-sm">{ServiceTag.DOG_WALKING}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="pet-daycare" 
-                        checked={selectedServices.includes(ServiceTag.PET_DAYCARE)}
-                        onCheckedChange={() => toggleService(ServiceTag.PET_DAYCARE)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="pet-daycare" className="text-navy text-sm">{ServiceTag.PET_DAYCARE}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="long-term-care" 
-                        checked={selectedServices.includes(ServiceTag.LONG_TERM_CARE)}
-                        onCheckedChange={() => toggleService(ServiceTag.LONG_TERM_CARE)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="long-term-care" className="text-navy text-sm">{ServiceTag.LONG_TERM_CARE}</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="pet-boarding" 
-                        checked={selectedServices.includes(ServiceTag.PET_BOARDING)}
-                        onCheckedChange={() => toggleService(ServiceTag.PET_BOARDING)}
-                        className="border-navy text-navy"
-                      />
-                      <Label htmlFor="pet-boarding" className="text-navy text-sm">{ServiceTag.PET_BOARDING}</Label>
-                    </div>
+                    {Object.values(ServiceTag).map((service) => (
+                      <div key={service} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={service}
+                          checked={selectedServices.includes(service)}
+                          onCheckedChange={() => toggleService(service)}
+                          className="border-navy text-navy"
+                        />
+                        <Label htmlFor={service} className="text-navy text-sm">{service}</Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="border-t border-navy pt-4">
                 <Button 
-                  onClick={applyFilters} 
-                  className="w-full bg-navy text-cream hover:bg-cream hover:text-navy hover:border-navy"
+                  variant="outline"
+                  onClick={resetFilters}
+                  className="w-full"
                 >
-                  Apply Filters
+                  Reset Filters
                 </Button>
               </CardFooter>
             </Card>
@@ -283,3 +273,5 @@ function Home() {
     </main>
   );
 }
+
+export default Home;
