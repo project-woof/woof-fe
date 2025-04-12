@@ -11,7 +11,7 @@ import { useMutateProfile } from "@/composables/mutations/profile";
 import { useProfileQuery } from "@/composables/queries/profile";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ServiceTag, SERVICE_TAG_OPTIONS } from "@/types/service_tags";
+import { ServiceTag, SERVICE_TAG_OPTIONS, SERVICE_TAG_LABELS } from "@/types/service_tags";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -145,10 +145,13 @@ function Settings() {
 			if (userProfile.is_petsitter === 1) {
 				updatedProfile.price = Number(price);
 				updatedProfile.petsitter_description = petsitterDescription;
-				// Convert service tags array to JSON string for backend
-				updatedProfile.service_tags = JSON.stringify(selectedTags);
+				// This will produce ["Dog Sitting"] instead of "[\"Dog Sitting\"]"
+				updatedProfile.service_tags = JSON.stringify(
+					selectedTags.map(tag => SERVICE_TAG_LABELS[tag]),
+					null, 0  // Key part: using 0 as the space argument
+				);
 			}
-
+			
 			const result = await updateUserProfile.mutateAsync(updatedProfile);
 
 			if (result) {
