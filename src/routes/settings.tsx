@@ -84,7 +84,6 @@ function Settings() {
 						}
 
 						if (petsitterProfile.service_tags) {
-							// Handle the case where service_tags might be a JSON string or an array
 							let parsedTags;
 							if (typeof petsitterProfile.service_tags === "string") {
 								try {
@@ -95,9 +94,18 @@ function Settings() {
 							} else {
 								parsedTags = petsitterProfile.service_tags;
 							}
-
+						
 							if (Array.isArray(parsedTags)) {
-								setSelectedTags(parsedTags as ServiceTag[]);
+								const mappedTags = parsedTags
+									.map(label => {
+										const tag = Object.entries(SERVICE_TAG_LABELS).find(
+											([_, value]) => value === label
+										)?.[0] as ServiceTag;
+										return tag;
+									})
+									.filter(tag => tag !== undefined);
+						
+								setSelectedTags(mappedTags);
 							}
 						}
 
