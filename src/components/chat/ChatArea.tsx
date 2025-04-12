@@ -85,7 +85,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			text: newMessage,
 		};
 		const notificationBody: CreateNotificationBody = {
-			user_id: "uuid-user1", // TODO: Change ChatRoomSummary to include user_id
+			user_id: selectedChatRoom.user_id,
 			sender_id: userId,
 			room_id: selectedChatRoom.room_id,
 			notification_type: "message",

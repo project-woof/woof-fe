@@ -36,6 +36,7 @@ export const useMutateChat = () => {
 			}
 			const newChatRoom: ChatRoomSummary = {
 				room_id: data.room_id,
+				user_id: data.user_id,
 				username: data.username,
 				profile_image_url: data.profile_image_url,
 				last_message: data.last_message,

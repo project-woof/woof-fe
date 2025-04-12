@@ -19,7 +19,7 @@ export function useNotificationAPI() {
 	};
 
 	const create = async (body: CreateNotificationBody) => {
-		const response = await fetcher(`/chat/createChatRoom`, {
+		const response = await fetcher(`/notification/createNotification`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
