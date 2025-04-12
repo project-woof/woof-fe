@@ -9,11 +9,18 @@ interface PetsitterCardProps {
 }
 
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
-	const getServices = () => {
+	const getServices = (): string[] => {
 		try {
 			// If it's a string, try to parse it as JSON
 			if (typeof petsitter.service_tags === "string") {
-				return JSON.parse(petsitter.service_tags);
+				// Handle the specific case where it's exactly the string "[]"
+				if (petsitter.service_tags === "[]") {
+					return [];
+				}
+				
+				const parsed = JSON.parse(petsitter.service_tags);
+				// Make sure the parsed result is an array
+				return Array.isArray(parsed) ? parsed : [];
 			}
 			// If it's already an array, return it
 			else if (Array.isArray(petsitter.service_tags)) {
@@ -28,6 +35,8 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	};
 
 	const services = getServices();
+	console.log("services:", services);
+	
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
@@ -60,14 +69,18 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 						</div>
 					</div>
 					<div className="mt-2 flex flex-wrap gap-1">
-						{services.map((service: string, index: number) => (
-							<span
-								key={index}
-								className="inline-block bg-beige text-navy text-xs px-2 py-1 rounded-full"
-							>
-								{service}
-							</span>
-						))}
+						{Array.isArray(services) && services.length > 0 ? (
+							services.map((service: string, index: number) => (
+								<span
+									key={index}
+									className="inline-block bg-beige text-navy text-xs px-2 py-1 rounded-full"
+								>
+									{service}
+								</span>
+							))
+						) : (
+							<span className="text-sm text-navy/70">No services listed</span>
+						)}
 					</div>
 				</CardContent>
 				<CardFooter className="pt-0">
