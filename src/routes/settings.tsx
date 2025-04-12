@@ -62,10 +62,6 @@ function Settings() {
 		}
 	}, [userProfile]);
 
-	useEffect(() => {
-		console.log('Selected tags:', selectedTags);
-	}, [selectedTags]);
-
 	// Fetch petsitter data if user is a petsitter
 	useEffect(() => {
 		const loadPetsitterData = async () => {
@@ -90,31 +86,21 @@ function Settings() {
 						if (petsitterProfile.petsitter_description !== undefined) {
 							setPetsitterDescription(petsitterProfile.petsitter_description);
 						}
+
 						if (petsitterProfile.service_tags) {
-							let parsedTags;
-							if (typeof petsitterProfile.service_tags === "string") {
-								try {
-									parsedTags = JSON.parse(petsitterProfile.service_tags);
-									console.log('Parsed tags:', parsedTags);
-								} catch (e) {
-									parsedTags = [];
-								}
-							} else {
-								parsedTags = petsitterProfile.service_tags;
-							}
+							let parsedTags = petsitterProfile.service_tags;
 						
 							if (Array.isArray(parsedTags)) {
 								const mappedTags = parsedTags
 									.map(label => {
-										const tag = Object.entries(SERVICE_TAG_LABELS).find(
-											([_, value]) => value === label
-										)?.[0] as ServiceTag;
+										const tag = Object.values(ServiceTag).find(
+											tagValue => tagValue === label
+										);
 										return tag;
 									})
 									.filter(tag => tag !== undefined);
 						
-								console.log('Mapped tags:', mappedTags);
-								setSelectedTags(mappedTags);
+								setSelectedTags(mappedTags as ServiceTag[]);
 							}
 						}
 
@@ -423,3 +409,5 @@ function Settings() {
 		</main>
 	);
 }
+
+export default Settings;
