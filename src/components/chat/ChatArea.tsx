@@ -9,8 +9,10 @@ import { MessageBubble } from "./MessageBubble";
 import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
 import type { CreateChatMessageBody } from "@/types/chat";
+import type { CreateNotificationBody } from "@/types/notification";
 import { useChatQuery } from "@/composables/queries/chat";
 import { useMutateChat } from "@/composables/mutations/chat";
+import { useMutateNotification } from "@/composables/mutations/notification";
 
 interface ChatAreaProps {
 	selectedChatRoom: ChatRoomSummary | null;
@@ -28,6 +30,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 
 	const { getMessagesByRoomId } = useChatQuery();
 	const { createMessageMutation } = useMutateChat();
+	const { createNotificationMutation } = useMutateNotification();
 	const [newMessage, setNewMessage] = useState("");
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -81,10 +84,17 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			sender_id: userId,
 			text: newMessage,
 		};
+		const notificationBody: CreateNotificationBody = {
+			user_id: "uuid-user1", // TODO: Change ChatRoomSummary to include user_id
+			sender_id: userId,
+			room_id: selectedChatRoom.room_id,
+			notification_type: "message",
+		};
 
 		try {
 			setNewMessage("");
 			await createMessageMutation.mutateAsync(messageBody);
+			await createNotificationMutation.mutateAsync(notificationBody);
 		} catch (error) {
 			console.error("Failed to send message:", error);
 		}

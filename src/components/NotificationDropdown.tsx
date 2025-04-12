@@ -7,14 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNotificationQuery } from "@/composables/queries/notification";
+import { useMutateNotification } from "@/composables/mutations/notification";
 import { convertDateTimeLocal } from "@/util/format";
+import { toast } from "sonner";
+import { useRouter } from "@tanstack/react-router";
 
 interface NotificationTabProps {
 	userId: string;
 }
 
 export default function NotificationDropdown({ userId }: NotificationTabProps) {
+	const router = useRouter();
 	const { getNotificationsByUserId } = useNotificationQuery();
+	const { clearNotificationMutation, clearAllNotificationMutation } =
+		useMutateNotification();
 	const { data: notifications = [] } = getNotificationsByUserId(userId);
 	const notificationTitles: Record<string, string> = {
 		message: "New messages",
@@ -22,13 +28,26 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 		booking_response: "Booking Confirmed",
 	};
 
-	async function clearAllNotifications() {
-		console.log("Cleared all!");
-	}
+	const clearNotifications = async (room_id: string) => {
+		try {
+			await clearNotificationMutation.mutateAsync({
+				roomId: room_id,
+				userId,
+			});
+			router.navigate({ to: "/chat" });
+		} catch (error) {
+			console.error("Error clearing notifications:", error);
+		}
+	};
 
-	async function markAsRead(notification_id: string) {
-		console.log(`Cleared ${notification_id}!`);
-	}
+	const clearAllNotifications = async () => {
+		try {
+			await clearAllNotificationMutation.mutateAsync(userId);
+			toast("All notifications have been cleared");
+		} catch (error) {
+			console.error("Error clearing notifications:", error);
+		}
+	};
 
 	return (
 		<DropdownMenu>
@@ -50,9 +69,9 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 							variant="ghost"
 							size="sm"
 							className="text-xs hover:bg-accent"
-							onClick={clearAllNotifications}
+							onClick={() => clearAllNotifications()}
 						>
-							Mark all as read
+							Clear all notifications
 						</Button>
 					)}
 				</div>
@@ -62,7 +81,7 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 							<div
 								key={notification.notification_id}
 								className="p-3 border-b last:border-0 cursor-pointer hover:bg-accent"
-								onClick={() => markAsRead(notification.notification_id)}
+								onClick={() => clearNotifications(notification.room_id)}
 							>
 								<div className="flex justify-between items-start">
 									<h4 className="text-sm font-medium">

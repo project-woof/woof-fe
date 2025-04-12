@@ -36,7 +36,7 @@ export function useNotificationAPI() {
 		const response = await fetcher(
 			`/notification/clearNotifications/${roomId}`,
 			{
-				method: "POST",
+				method: "DELETE",
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -48,5 +48,21 @@ export function useNotificationAPI() {
 		return response;
 	};
 
-	return { getByUserId, create, clear };
+	const clearAll = async (userId: string) => {
+		const response = await fetcher(
+			`/notification/clearAllNotifications/${userId}`,
+			{
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			},
+		);
+		if (!response.ok) {
+			throw new Error("Network response was not ok");
+		}
+		return response;
+	};
+
+	return { getByUserId, create, clear, clearAll };
 }
