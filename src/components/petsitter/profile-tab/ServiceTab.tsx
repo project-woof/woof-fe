@@ -7,13 +7,33 @@ interface ServicesTabProps {
 }
 
 export function ServicesTab({ petsitterData }: ServicesTabProps) {
-	const services =
-		typeof petsitterData.service_tags === "string"
-			? JSON.parse(petsitterData.service_tags)
-			: petsitterData.service_tags;
+	// Helper function to parse services safely
+	const parseServices = (serviceTags: unknown): string[] => {
+		// If it's already an array, return it
+		if (Array.isArray(serviceTags)) {
+			return serviceTags;
+		}
 
-	// Check if services array is empty or undefined
-	if (!services || services.length === 0) {
+		// If it's a string, try to parse it
+		if (typeof serviceTags === 'string') {
+			try {
+				const parsed = JSON.parse(serviceTags);
+				return Array.isArray(parsed) ? parsed : [];
+			} catch {
+				// If parsing fails, split the string
+				return serviceTags.split(',').map(service => service.trim());
+			}
+		}
+
+		// If it's neither an array nor a string, return an empty array
+		return [];
+	};
+
+	// Parse services
+	const services = parseServices(petsitterData.service_tags);
+
+	// Check if services array is empty
+	if (services.length === 0) {
 		return (
 			<Card>
 				<CardContent className="pt-6 text-center">
