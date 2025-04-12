@@ -145,13 +145,12 @@ function Settings() {
 			if (userProfile.is_petsitter === 1) {
 				updatedProfile.price = Number(price);
 				updatedProfile.petsitter_description = petsitterDescription;
-				// This will produce ["Dog Sitting"] instead of "[\"Dog Sitting\"]"
-				updatedProfile.service_tags = JSON.stringify(
-					selectedTags.map(tag => SERVICE_TAG_LABELS[tag]),
-					null, 0  // Key part: using 0 as the space argument
+				// Explicitly parse and recreate the array to remove escaping
+				updatedProfile.service_tags = JSON.parse(
+					JSON.stringify(selectedTags.map(tag => SERVICE_TAG_LABELS[tag]))
 				);
 			}
-			
+
 			const result = await updateUserProfile.mutateAsync(updatedProfile);
 
 			if (result) {
