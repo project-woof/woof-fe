@@ -59,6 +59,19 @@ function Onboarding() {
 			return;
 		}
 
+		// Validate services for petsitter
+		if (isPetsitter) {
+			if (price === "") {
+				toast.error("Please set your hourly rate.");
+				return;
+			}
+
+			if (selectedTags.length === 0) {
+				toast.error("Please select at least one service you offer.");
+				return;
+			}
+		}
+
 		const newProfileDetails: Partial<Petsitter> = {
 			id: userProfile.id,
 			is_petsitter: isPetsitter ? 1 : 0,
@@ -72,6 +85,7 @@ function Onboarding() {
 		if (description.trim()) {
 			newProfileDetails.description = description.trim();
 		}
+
 		if (isPetsitter) {
 			newProfileDetails.price = price ? Number.parseFloat(price) : undefined;
 			newProfileDetails.petsitter_description =
@@ -126,8 +140,6 @@ function Onboarding() {
 	};
 
 	const renderContent = () => {
-		// If coming from login (already authenticated) or if authenticated after selecting role
-		// if (userProfile) {
 		return (
 			<div className="space-y-4">
 				<Tabs
@@ -215,6 +227,18 @@ function Onboarding() {
 								</div>
 							</div>
 						</div>
+
+						{/* Validation messages */}
+						{isPetsitter && price === "" && (
+							<div className="text-sm text-amber-600 text-center mt-2">
+								Please set your hourly rate
+							</div>
+						)}
+						{isPetsitter && selectedTags.length === 0 && (
+							<div className="text-sm text-red-600 text-center mt-2">
+								Please select at least one service you offer
+							</div>
+						)}
 					</TabsContent>
 				</Tabs>
 
@@ -273,23 +297,15 @@ function Onboarding() {
 					</div>
 				</div>
 
-				{/* Validation message */}
-				{isPetsitter && price === "" && (
-					<div className="text-sm text-amber-600 text-center">
-						Please set your hourly rate before continuing
-					</div>
-				)}
-
 				<Button
 					className="w-full"
 					onClick={handleSubmit}
-					disabled={isPetsitter && price === ""}
+					disabled={isPetsitter && (price === "" || selectedTags.length === 0)}
 				>
 					Continue
 				</Button>
 			</div>
 		);
-		// }
 	};
 
 	return (
@@ -314,3 +330,5 @@ function Onboarding() {
 		</div>
 	);
 }
+
+export default Onboarding;
