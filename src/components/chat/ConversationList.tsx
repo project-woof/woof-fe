@@ -4,14 +4,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import type { ChatRoomSummary } from "@/types/chat";
+import { usePollingQuery } from "@/composables/queries/polling";
 
 interface ConversationListProps {
+	userId: string;
 	chatRooms: ChatRoomSummary[];
 	selectedChatRoom: ChatRoomSummary | null;
 	setSelectedChatRoom: (conversation: ChatRoomSummary) => void;
 }
 
 export function ConversationList({
+	userId,
 	chatRooms,
 	selectedChatRoom,
 	setSelectedChatRoom,
@@ -24,6 +27,9 @@ export function ConversationList({
 		const username = chatRoom.username || "";
 		return username.toLowerCase().includes(searchQuery.toLowerCase());
 	});
+
+	const { pollMessages } = usePollingQuery();
+	pollMessages(userId);
 
 	return (
 		<div className="border-r">

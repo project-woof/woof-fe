@@ -9,8 +9,6 @@ export const useChatQuery = () => {
 		const { data, isFetched } = useQuery<ChatRoomSummary[]>({
 			queryKey: ["getChatRoomsByUserId", userId],
 			queryFn: () => getChatRooms(userId),
-			// TODO: Switch to long polling
-			refetchInterval: 5000, // Refetch every 5 seconds
 		});
 		return { data, isFetched };
 	}
@@ -19,8 +17,6 @@ export const useChatQuery = () => {
 		const { data, isFetched } = useQuery<ChatMessageSummary[]>({
 			queryKey: ["getMessagesByRoomId", roomId],
 			queryFn: () => getMessages(roomId),
-			// TODO: Switch to long polling
-			refetchInterval: 5000, // Refetch every 5 seconds
 		});
 		return { data, isFetched };
 	}

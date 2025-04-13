@@ -82,6 +82,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 		const messageBody: CreateChatMessageBody = {
 			room_id: selectedChatRoom.room_id,
 			sender_id: userId,
+			recipient_id: selectedChatRoom.user_id,
 			text: newMessage,
 		};
 		const notificationBody: CreateNotificationBody = {

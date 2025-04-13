@@ -7,27 +7,28 @@ export const useMutateProfile = () => {
 	const { updateProfile } = useProfileAPI();
 
 	const updateUserProfile = useMutation({
-		mutationFn: (partialUser: Partial<PetsitterProfile>) => updateProfile(partialUser),
+		mutationFn: (partialUser: Partial<PetsitterProfile>) =>
+			updateProfile(partialUser),
 		onSuccess: (isSuccess, variables) => {
 			if (isSuccess) {
-                console.log("Profile update successful", variables);
-                
-                // Invalidate specific petsitter profile
-                if (variables.id) {
-                    // Invalidate the specific petsitter profile
-                    queryClient.invalidateQueries({ 
-                        queryKey: ["petsitters", variables.id] 
-                    });
-                    
-                    // Also invalidate the petsitter list to ensure home page gets fresh data
-                    queryClient.invalidateQueries({
-                        queryKey: ["petsitters"],
-                        exact: false
-                    });
-                }
-            } else {
-                console.warn("Profile update failed", variables);
-            }
+				console.log("Profile update successful", variables);
+
+				// Invalidate specific petsitter profile
+				if (variables.id) {
+					// Invalidate the specific petsitter profile
+					queryClient.invalidateQueries({
+						queryKey: ["petsitters", variables.id],
+					});
+
+					// Also invalidate the petsitter list to ensure home page gets fresh data
+					queryClient.invalidateQueries({
+						queryKey: ["petsitters"],
+						exact: false,
+					});
+				}
+			} else {
+				console.warn("Profile update failed", variables);
+			}
 		},
 	});
 

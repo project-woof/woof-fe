@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNotificationQuery } from "@/composables/queries/notification";
+import { usePollingQuery } from "@/composables/queries/polling";
 import { useMutateNotification } from "@/composables/mutations/notification";
 import { convertDateTimeLocal } from "@/util/format";
 import { toast } from "sonner";
@@ -22,6 +23,10 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 	const { clearNotificationMutation, clearAllNotificationMutation } =
 		useMutateNotification();
 	const { data: notifications = [] } = getNotificationsByUserId(userId);
+
+	const { pollNotifications } = usePollingQuery();
+	pollNotifications(userId);
+
 	const notificationTitles: Record<string, string> = {
 		message: "New messages",
 		booking_request: "Booking Requested",

@@ -9,8 +9,6 @@ export const useNotificationQuery = () => {
 		const { data, isFetched } = useQuery<Notification[]>({
 			queryKey: ["getNotificationsByUserId", userId],
 			queryFn: () => getByUserId(userId),
-			// TODO: Switch to long polling
-			refetchInterval: 5000, // Refetch every 5 seconds
 		});
 		return { data, isFetched };
 	}

@@ -40,5 +40,6 @@ export interface CreateChatRoomBody {
 export interface CreateChatMessageBody {
 	room_id: string;
 	sender_id: string;
+	recipient_id: string;
 	text: string;
 }

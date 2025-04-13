@@ -69,6 +69,7 @@ function Chat() {
 				<div className="grid grid-cols-1 md:grid-cols-3 h-full">
 					{/* Conversation List */}
 					<ConversationList
+						userId={userProfile.id}
 						chatRooms={chatRoomData}
 						selectedChatRoom={selectedChatRoom}
 						setSelectedChatRoom={setSelectedChatRoom}

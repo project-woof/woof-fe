@@ -35,7 +35,6 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	};
 
 	const services = getServices();
-	console.log("services:", services);
 	
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>

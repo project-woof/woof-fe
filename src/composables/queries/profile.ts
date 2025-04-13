@@ -16,30 +16,24 @@ export const useProfileQuery = () => {
 			priceMin?: number;
 			priceMax?: number;
 			services?: ServiceTag[];
-			sortBy?: 'distance' | 'reviews' | 'rating';
-		}
+			sortBy?: "distance" | "reviews" | "rating";
+		},
 	) {
 		const { data, isFetched, error, refetch } = useQuery<PetsitterProfile[]>({
 			queryKey: [
-				"petsitters", 
-				userLat, 
-				userLon, 
-				limit, 
-				offset, 
+				"petsitters",
+				userLat,
+				userLon,
+				limit,
+				offset,
 				// Include filter properties in query key to trigger refetch when filters change
 				filters?.distance,
 				filters?.priceMin,
 				filters?.priceMax,
-				filters?.services?.sort().join(','),
-				filters?.sortBy
+				filters?.services?.sort().join(","),
+				filters?.sortBy,
 			],
-			queryFn: () => getPetsitters(
-				userLat, 
-				userLon, 
-				limit, 
-				offset,
-				filters
-			),
+			queryFn: () => getPetsitters(userLat, userLon, limit, offset, filters),
 			// Add specific select to ensure we always return an array even if backend has issues
 			select: (data) => {
 				// Guard against non-array data
@@ -48,22 +42,22 @@ export const useProfileQuery = () => {
 					return [];
 				}
 				return data;
-			}
+			},
 		});
-		
+
 		// Always return an array even if there's an error or undefined data
-		return { 
-			data: data || [], 
+		return {
+			data: data || [],
 			isFetched,
 			error,
-			refetch
+			refetch,
 		};
 	}
 
 	function getPetsitterProfileById(
 		userId: string,
 		userLat: number | undefined,
-		userLon: number | undefined
+		userLon: number | undefined,
 	) {
 		const { data, isFetched, isError, error } = useQuery<PetsitterProfile>({
 			queryKey: ["petsitters", userId, userLat, userLon],
