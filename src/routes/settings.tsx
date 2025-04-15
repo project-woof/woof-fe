@@ -29,6 +29,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
+import { FileUploadDialog } from "@/components/setting/FileUploadDialog";
+import { ProfileImageInput } from "@/components/setting/ProfileImageInput";
+import { FileUpload } from "@/components/setting/FileUpload";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
@@ -165,7 +168,9 @@ function Settings() {
 		<main className="container mx-auto px-4 py-6">
 			<div className="max-w-4xl mx-auto">
 				<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
-
+				
+				<ProfileImageInput />
+				<FileUploadDialog />
 				{/* Profile Information Card */}
 				<Card className="border-beige bg-cream">
 					<CardContent className="pt-6">
@@ -209,12 +214,23 @@ function Settings() {
 									onValueChange={setActiveTab}
 									value={activeTab}
 								>
-									<TabsList className="grid w-full grid-cols-2">
+									<TabsList
+										className={
+											userProfile.is_petsitter === 1
+												? "grid w-full grid-cols-3"
+												: "grid w-full grid-cols-1"
+										}
+									>
 										<TabsTrigger value="general">General</TabsTrigger>
 										{userProfile.is_petsitter === 1 && (
-											<TabsTrigger value="petsitter">
-												Petsitter Settings
-											</TabsTrigger>
+											<>
+												<TabsTrigger value="petsitter">
+													Petsitter Settings
+												</TabsTrigger>
+												<TabsTrigger value="petsitter-images">
+													Petsitter Images Settings
+												</TabsTrigger>
+											</>
 										)}
 									</TabsList>
 
@@ -269,77 +285,82 @@ function Settings() {
 
 									{/* Petsitter Settings Tab */}
 									{userProfile.is_petsitter === 1 && (
-										<TabsContent value="petsitter" className="space-y-6 mt-6">
-											<div className="space-y-2">
-												<Label htmlFor="price" className="text-navy">
-													Hourly Rate ($)
-												</Label>
-												<Input
-													id="price"
-													type="number"
-													value={price}
-													onChange={(e) => setPrice(Number(e.target.value))}
-													className="border-beige bg-cream"
-												/>
-												<p className="text-xs text-navy/70">
-													Your hourly rate for pet sitting services
-												</p>
-											</div>
-
-											<div className="space-y-2">
-												<Label
-													htmlFor="petsitterDescription"
-													className="text-navy"
-												>
-													Service Description
-												</Label>
-												<Textarea
-													id="petsitterDescription"
-													value={petsitterDescription}
-													onChange={(e) =>
-														setPetsitterDescription(e.target.value)
-													}
-													rows={4}
-													className="border-beige bg-cream"
-												/>
-												<p className="text-xs text-navy/70">
-													Describe your pet sitting services and experience
-												</p>
-											</div>
-
-											<div className="space-y-2">
-												<Label className="text-navy block mb-2">
-													Services Offered
-												</Label>
-												<div className="grid grid-cols-2 gap-2 border-beige bg-cream/50 p-4 rounded-md">
-													{SERVICE_TAG_OPTIONS.map((tag) => (
-														<div
-															key={tag.id}
-															className="flex items-center space-x-2"
-														>
-															<Checkbox
-																id={tag.id}
-																checked={selectedTags.includes(
-																	tag.label as ServiceTag,
-																)}
-																onCheckedChange={() =>
-																	handleTagChange(tag.id as ServiceTag)
-																}
-															/>
-															<Label
-																htmlFor={tag.id}
-																className="cursor-pointer text-sm text-navy"
-															>
-																{tag.label}
-															</Label>
-														</div>
-													))}
+										<>
+											<TabsContent value="petsitter" className="space-y-6 mt-6">
+												<div className="space-y-2">
+													<Label htmlFor="price" className="text-navy">
+														Hourly Rate ($)
+													</Label>
+													<Input
+														id="price"
+														type="number"
+														value={price}
+														onChange={(e) => setPrice(Number(e.target.value))}
+														className="border-beige bg-cream"
+													/>
+													<p className="text-xs text-navy/70">
+														Your hourly rate for pet sitting services
+													</p>
 												</div>
-												<p className="text-xs text-navy/70">
-													Select the services you offer as a pet sitter
-												</p>
-											</div>
-										</TabsContent>
+
+												<div className="space-y-2">
+													<Label
+														htmlFor="petsitterDescription"
+														className="text-navy"
+													>
+														Service Description
+													</Label>
+													<Textarea
+														id="petsitterDescription"
+														value={petsitterDescription}
+														onChange={(e) =>
+															setPetsitterDescription(e.target.value)
+														}
+														rows={4}
+														className="border-beige bg-cream"
+													/>
+													<p className="text-xs text-navy/70">
+														Describe your pet sitting services and experience
+													</p>
+												</div>
+
+												<div className="space-y-2">
+													<Label className="text-navy block mb-2">
+														Services Offered
+													</Label>
+													<div className="grid grid-cols-2 gap-2 border-beige bg-cream/50 p-4 rounded-md">
+														{SERVICE_TAG_OPTIONS.map((tag) => (
+															<div
+																key={tag.id}
+																className="flex items-center space-x-2"
+															>
+																<Checkbox
+																	id={tag.id}
+																	checked={selectedTags.includes(
+																		tag.label as ServiceTag,
+																	)}
+																	onCheckedChange={() =>
+																		handleTagChange(tag.id as ServiceTag)
+																	}
+																/>
+																<Label
+																	htmlFor={tag.id}
+																	className="cursor-pointer text-sm text-navy"
+																>
+																	{tag.label}
+																</Label>
+															</div>
+														))}
+													</div>
+													<p className="text-xs text-navy/70">
+														Select the services you offer as a pet sitter
+													</p>
+												</div>
+											</TabsContent>
+											<TabsContent value="petsitter-images" className="space-y-6 mt-6">
+												<FileUpload userId={userProfile.id}/>
+											</TabsContent>
+										</>
 									)}
 								</Tabs>
 
@@ -349,6 +370,7 @@ function Settings() {
 											<Button
 												className="bg-navy hover:bg-navy-light text-cream"
 												disabled={isLoading}
+												hidden={activeTab === "petsitter-images"}
 											>
 												{isLoading ? "Saving..." : "Save Changes"}
 											</Button>
