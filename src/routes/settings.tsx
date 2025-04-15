@@ -29,8 +29,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
-import { FileUploadDialog } from "@/components/setting/FileUploadDialog";
-import { ProfileImageInput } from "@/components/setting/ProfileImageInput";
 import { FileUpload } from "@/components/setting/FileUpload";
 
 export const Route = createFileRoute("/settings")({
