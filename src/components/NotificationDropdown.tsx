@@ -97,7 +97,7 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 									</span>
 								</div>
 								<p className="text-sm text-muted-foreground mt-1">
-									{`You have ${notification.count} new message${notification.count === 1 ? "" : "s"} from ${notification.sender_id}`}
+									{`You have ${notification.count} new message${notification.count === 1 ? "" : "s"} from ${notification.sender_username}`}
 								</p>
 							</div>
 						))
