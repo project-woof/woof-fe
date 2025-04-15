@@ -12,6 +12,7 @@ import { useMutateNotification } from "@/composables/mutations/notification";
 import { convertDateTimeLocal } from "@/util/format";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
+import type { Notification } from "@/types/notification";
 
 interface NotificationTabProps {
 	userId: string;
@@ -51,6 +52,16 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 			toast("All notifications have been cleared");
 		} catch (error) {
 			console.error("Error clearing notifications:", error);
+		}
+	};
+
+	const displayMessage = (notification: Notification) => {
+		if (notification.notification_type === "message") {
+			return `You have ${notification.count} new message${notification.count === 1 ? "" : "s"} from ${notification.username}`;
+		} else if (notification.notification_type === "booking_request") {
+			return `You have received a booking request from ${notification.username}`;
+		} else {
+			return `You're booking with ${notification.username} has been confirmed`;
 		}
 	};
 
@@ -97,7 +108,7 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 									</span>
 								</div>
 								<p className="text-sm text-muted-foreground mt-1">
-									{`You have ${notification.count} new message${notification.count === 1 ? "" : "s"} from ${notification.username}`}
+									{displayMessage(notification)}
 								</p>
 							</div>
 						))
@@ -107,18 +118,6 @@ export default function NotificationDropdown({ userId }: NotificationTabProps) {
 						</div>
 					)}
 				</div>
-				{/* Either remove or create new notification page */}
-				{notifications.length > 0 && (
-					<div className="p-2 border-t">
-						<Button
-							variant="ghost"
-							size="sm"
-							className="w-full text-sm hover:bg-accent"
-						>
-							View all notifications
-						</Button>
-					</div>
-				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
