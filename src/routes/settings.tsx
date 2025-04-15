@@ -169,8 +169,6 @@ function Settings() {
 			<div className="max-w-4xl mx-auto">
 				<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
 				
-				<ProfileImageInput />
-				<FileUploadDialog />
 				{/* Profile Information Card */}
 				<Card className="border-beige bg-cream">
 					<CardContent className="pt-6">
