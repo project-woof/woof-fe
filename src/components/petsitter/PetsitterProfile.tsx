@@ -29,7 +29,7 @@ export function PetsitterProfile({
 }: PetsitterProfileProps) {
 	const { setReviewPagination } = usePagination();
 	const { getImageKeysByUserId } = useImageQuery();
-	const { data: imageData} = getImageKeysByUserId(
+	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
 		petsitterData.id,
 	);
 
@@ -47,7 +47,11 @@ export function PetsitterProfile({
 		<div className="lg:col-span-2">
 			{/* Image Gallery */}
 			<div className="mb-6">
-				<ImageGallery images={imageUrls} username={petsitterData.username} />
+				<ImageGallery
+					images={imageUrls}
+					username={petsitterData.username}
+					isFetched={imagesFetched}
+				/>
 			</div>
 
 			{/* Petsitter Info */}
