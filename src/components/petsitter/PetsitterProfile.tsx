@@ -29,7 +29,7 @@ export function PetsitterProfile({
 }: PetsitterProfileProps) {
 	const { setReviewPagination } = usePagination();
 	const { getImageKeysByUserId } = useImageQuery();
-	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
+	const { data: imageData} = getImageKeysByUserId(
 		petsitterData.id,
 	);
 
