@@ -37,6 +37,10 @@ export const Route = createFileRoute("/settings")({
 function Settings() {
 	const router = useRouter();
 	const { userProfile, setUserProfile } = useAuth();
+	if (userProfile === null) {
+		router.navigate({ to: "/login" });
+		return;
+	}
 	const { updateUserProfile } = useMutateProfile();
 
 	// General user fields
@@ -44,7 +48,7 @@ function Settings() {
 	const [description, setDescription] = useState("");
 
 	// Petsitter fields
-	const [price, setPrice] = useState<string>("25");
+	const [price, setPrice] = useState<number>(25);
 	const [petsitterDescription, setPetsitterDescription] = useState<string>("");
 	const [selectedTags, setSelectedTags] = useState<ServiceTag[]>([]);
 
@@ -52,7 +56,11 @@ function Settings() {
 	const [activeTab, setActiveTab] = useState("general");
 
 	const { getPetsitterProfileById } = useProfileQuery();
-	const [petsitterDataLoaded, setPetsitterDataLoaded] = useState(false);
+	const { data: petsitterProfile } = getPetsitterProfileById(
+		userProfile.id,
+		userProfile.latitude,
+		userProfile.longitude,
+	);
 
 	// Initialize basic user form fields
 	useEffect(() => {
@@ -64,65 +72,26 @@ function Settings() {
 
 	// Fetch petsitter data if user is a petsitter
 	useEffect(() => {
-		const loadPetsitterData = async () => {
-			if (
-				userProfile &&
-				userProfile.is_petsitter === 1 &&
-				!petsitterDataLoaded
-			) {
-				try {
-					const { data: petsitterProfile } = getPetsitterProfileById(
-						userProfile.id,
-						userProfile.latitude,
-						userProfile.longitude,
-					);
+		if (petsitterProfile === undefined) {
+			return;
+		}
 
-					if (petsitterProfile) {
-						// Set petsitter fields
-						if (petsitterProfile.price !== undefined) {
-							setPrice(String(petsitterProfile.price));
-						}
+		console.log(petsitterProfile);
 
-						if (petsitterProfile.petsitter_description !== undefined) {
-							setPetsitterDescription(petsitterProfile.petsitter_description);
-						}
+		// Set petsitter fields
+		if (petsitterProfile.price !== undefined) {
+			setPrice(petsitterProfile.price);
+		}
 
-						// In the petsitter data loading logic
-						if (petsitterProfile.service_tags) {
-							let parsedTags = petsitterProfile.service_tags;
+		if (petsitterProfile.petsitter_description !== undefined) {
+			setPetsitterDescription(petsitterProfile.petsitter_description);
+		}
 
-							console.log("Raw service tags:", parsedTags);
-							console.log("SERVICE_TAG_OPTIONS:", SERVICE_TAG_OPTIONS);
-
-							if (Array.isArray(parsedTags)) {
-								const mappedTags = parsedTags
-									.map((label) => {
-										console.log("Checking label:", label);
-										const tag = Object.values(ServiceTag).find(
-											(tagValue) => tagValue === label,
-										);
-										console.log("Mapped tag:", tag);
-										return tag;
-									})
-									.filter((tag) => tag !== undefined);
-
-								console.log("Mapped tags:", mappedTags);
-								setSelectedTags(mappedTags as ServiceTag[]);
-							}
-						}
-
-						setPetsitterDataLoaded(true);
-					}
-				} catch (error) {
-					console.error("Error loading petsitter data:", error);
-					// If we can't load petsitter data, we'll use defaults
-					setPetsitterDataLoaded(true);
-				}
-			}
-		};
-
-		loadPetsitterData();
-	}, [userProfile, petsitterDataLoaded, getPetsitterProfileById]);
+		// In the petsitter data loading logic
+		if (petsitterProfile.service_tags) {
+			setSelectedTags(JSON.parse(petsitterProfile.service_tags));
+		}
+	}, [petsitterProfile]);
 
 	const handleTagChange = (tagId: ServiceTag) => {
 		setSelectedTags((prev) => {
@@ -170,9 +139,6 @@ function Settings() {
 					username,
 					description,
 				});
-
-				// Reset petsitter data loaded flag to fetch fresh data
-				setPetsitterDataLoaded(false);
 
 				toast.success("Profile updated successfully!");
 			}
@@ -312,7 +278,7 @@ function Settings() {
 													id="price"
 													type="number"
 													value={price}
-													onChange={(e) => setPrice(e.target.value)}
+													onChange={(e) => setPrice(Number(e.target.value))}
 													className="border-beige bg-cream"
 												/>
 												<p className="text-xs text-navy/70">
