@@ -1,7 +1,7 @@
 export interface Notification {
 	notification_id: string;
 	user_id: string;
-	sender_username: string;
+	username: string;
 	sender_id: string;
 	room_id: string;
 	notification_type: string;
