@@ -12,7 +12,7 @@ interface ReviewsTabProps {
 
 export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 	const { reviewPagination, setReviewPagination } = usePagination();
-	const limit = 5;
+	const limit = 3;
 	const reviewOffset = (reviewPagination - 1) * limit;
 
 	const { getReviewsByRevieweeId } = useReviewQuery();

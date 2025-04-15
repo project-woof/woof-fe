@@ -9,12 +9,16 @@ import { calculateCompositeScore } from "@/util/format";
 import { ImageGallery } from "./ImageGallery";
 import { useEffect } from "react";
 import { usePagination } from "@/context/paginationContext";
+import { useImageQuery } from "@/composables/queries/image";
+import type { ImageList } from "@/types/image";
 
 interface PetsitterProfileProps {
 	petsitterData: PetsitterProfile;
 	activeTab: string;
 	setActiveTab: (val: string) => void;
 }
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 // hard coded image reviews location distance and availability for now
 
@@ -24,21 +28,26 @@ export function PetsitterProfile({
 	setActiveTab,
 }: PetsitterProfileProps) {
 	const { setReviewPagination } = usePagination();
+	const { getImageKeysByUserId } = useImageQuery();
+	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
+		petsitterData.id,
+	);
+
+	function getImageUrls(imageList: ImageList): string[] {
+		return imageList.images.map((key) => `${API_URL}/image/getImage/${key}`);
+	}
+
 	useEffect(() => {
 		setReviewPagination(1);
 	}, [setReviewPagination]);
 
-	const images = [
-		`${petsitterData.profile_image_url}`,
-		`${petsitterData.profile_image_url}`,
-		`${petsitterData.profile_image_url}`,
-	];
+	const imageUrls = imageData ? getImageUrls(imageData) : [];
 
 	return (
 		<div className="lg:col-span-2">
 			{/* Image Gallery */}
 			<div className="mb-6">
-				<ImageGallery images={images} username={petsitterData.username} />
+				<ImageGallery images={imageUrls} username={petsitterData.username} />
 			</div>
 
 			{/* Petsitter Info */}
@@ -61,9 +70,7 @@ export function PetsitterProfile({
 					</div>
 					<div className="flex items-center mt-1 text-muted-foreground">
 						<MapPin className="h-4 w-4 mr-1" />
-						<span>
-							• {petsitterData.distance.toFixed(2)} km away
-						</span>
+						<span>• {petsitterData.distance.toFixed(2)} km away</span>
 					</div>
 				</div>
 				<div className="flex space-x-2">
