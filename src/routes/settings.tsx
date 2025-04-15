@@ -29,8 +29,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
-import { FileUploadDialog } from "@/components/setting/FileUploadDialog";
-import { ProfileImageInput } from "@/components/setting/ProfileImageInput";
 import { FileUpload } from "@/components/setting/FileUpload";
 
 export const Route = createFileRoute("/settings")({
@@ -169,8 +167,6 @@ function Settings() {
 			<div className="max-w-4xl mx-auto">
 				<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
 				
-				<ProfileImageInput />
-				<FileUploadDialog />
 				{/* Profile Information Card */}
 				<Card className="border-beige bg-cream">
 					<CardContent className="pt-6">
