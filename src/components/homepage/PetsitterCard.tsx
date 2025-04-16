@@ -3,12 +3,32 @@ import { MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { PetsitterProfile } from "@/types/profile";
+import type { ImageList } from "@/types/image";
+import { useImageQuery } from "@/composables/queries/image";
 
 interface PetsitterCardProps {
 	petsitter: PetsitterProfile;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
+	const placeholderImage = `${API_URL}/image/getImage/placeholder.jpg`;
+	const { getImageKeysByUserId } = useImageQuery();
+	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
+		petsitter.id,
+	);
+	let imageUrl = placeholderImage;
+
+	function getFirstImageUrl(imageList: ImageList): string {
+		console.log(`user: ${petsitter.username}, url: ${imageUrl}`)
+		return `${API_URL}/image/getImage/${imageList.images[0]}`
+	}
+	
+	if (imagesFetched && imageData && imageData.images.length > 0) {
+		imageUrl = getFirstImageUrl(imageData);
+	} 
+
 	const getServices = (): string[] => {
 		try {
 			// If it's a string, try to parse it as JSON
@@ -17,7 +37,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 				if (petsitter.service_tags === "[]") {
 					return [];
 				}
-				
+
 				const parsed = JSON.parse(petsitter.service_tags);
 				// Make sure the parsed result is an array
 				return Array.isArray(parsed) ? parsed : [];
@@ -35,13 +55,13 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	};
 
 	const services = getServices();
-	
+
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
 				<div className="aspect-square relative overflow-hidden">
 					<img
-						src={petsitter.first_image || "/placeholder.svg"}
+						src={imageUrl}
 						alt={petsitter.username}
 						className="object-cover w-full h-full overflow-hidden rounded-tl-lg rounded-tr-lg"
 					/>
