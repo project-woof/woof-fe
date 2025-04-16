@@ -354,7 +354,7 @@ function Settings() {
 												</div>
 											</TabsContent>
 											<TabsContent value="petsitter-images" className="space-y-6 mt-6">
-												<FileUpload userId={userProfile.id}/>
+												<FileUpload userId={userProfile.id} isOnboarding={false}/>
 											</TabsContent>
 										</>
 									)}

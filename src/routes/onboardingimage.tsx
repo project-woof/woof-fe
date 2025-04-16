@@ -36,7 +36,7 @@ function Onboarding() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<FileUpload userId={userProfile.id} />
+					<FileUpload userId={userProfile.id} isOnboarding={true}/>
 				</CardContent>
 			</Card>
 		</div>

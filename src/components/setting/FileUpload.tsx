@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { X, ImagePlus } from "lucide-react";
 import {
@@ -17,6 +18,7 @@ import type { CreateImage } from "@/types/image";
 
 interface FileUploadProps {
 	userId: string;
+    isOnboarding: boolean;
 }
 interface PetsitterImage {
 	id: string;
@@ -24,7 +26,8 @@ interface PetsitterImage {
 	preview: string;
 }
 
-export function FileUpload({ userId }: FileUploadProps) {
+export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
+	const router = useRouter();
 	const { createPetsitterImageMutation } = useMutateImage();
 	const [images, setImages] = useState<PetsitterImage[]>([]);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +86,9 @@ export function FileUpload({ userId }: FileUploadProps) {
 			await createPetsitterImageMutation.mutateAsync(createImageBody);
 			setImages([]);
 			toast("Image changes has been requested.");
+            if (isOnboarding){
+                router.navigate({ to: "/" });
+            }
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
 		}
