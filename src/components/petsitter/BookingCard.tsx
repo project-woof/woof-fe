@@ -21,8 +21,10 @@ import { useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/context/authContext";
 import type { Booking } from "@/types/booking";
+import type { CreateNotificationBody } from "@/types/notification";
 import { addHoursToDateTime, convertDateTimeToISO } from "@/util/format";
 import { useMutateBooking } from "@/composables/mutations/booking";
+import { useMutateNotification } from "@/composables/mutations/notification";
 import { useMutateChat } from "@/composables/mutations/chat";
 
 interface BookingCardProps {
@@ -33,6 +35,7 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 	const router = useRouter();
 	const { userProfile } = useAuth();
 	const { createChatRoomMutation } = useMutateChat();
+	const { createNotificationMutation } = useMutateNotification();
 	const [date, setDate] = useState<Date | undefined>(new Date());
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
 	const [hours, setHours] = useState<number>(2);
@@ -80,10 +83,24 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 
 		try {
 			await createBooking.mutateAsync(bookingBody);
-			toast("Booking has been requested.");
+			const response = await createChatRoom();
+			const createNotificationBody: CreateNotificationBody = {
+				user_id: petsitterData.id,
+				sender_id: userProfile.id,
+				room_id: response!.room_id,
+				notification_type: "booking_request",
+			};
+			await createNotificationMutation.mutateAsync(createNotificationBody);
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
 		}
+	};
+
+	const handleRoomOnMessageClick = async () => {
+		await createChatRoom();
+		router.navigate({
+			to: "/chat",
+		});
 	};
 
 	const updateTotalPrice = (newHours: number) => {
@@ -103,10 +120,8 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 		};
 
 		try {
-			await createChatRoomMutation.mutateAsync(chatRoomData);
-			router.navigate({
-				to: "/chat",
-			});
+			const response = await createChatRoomMutation.mutateAsync(chatRoomData);
+			return response;
 		} catch (error) {
 			console.error("Error creating chat room:", error);
 		}
@@ -247,7 +262,7 @@ export function BookingCard({ petsitterData }: BookingCardProps) {
 					<Button
 						variant="outline"
 						className="w-full flex items-center justify-center"
-						onClick={() => createChatRoom()}
+						onClick={() => handleRoomOnMessageClick()}
 					>
 						<MessageSquare className="h-4 w-4 mr-2" />
 						Message

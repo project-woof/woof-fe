@@ -8,6 +8,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "../ui/alert-dialog";
+import "react-image-crop/dist/ReactCrop.css";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
 import { Button } from "../ui/button";
 import { useMutateImage } from "@/composables/mutations/image";
@@ -270,12 +271,26 @@ export function FileUpload({ userId }: FileUploadProps) {
 								onChange={(c) => setCrop(c)}
 								onComplete={(c) => setCompletedCrop(c)}
 								aspect={1}
+								className="react-crop-wrapper"
 							>
 								<img
 									ref={imgRef}
 									alt="Crop me"
-									src={imageSrc || "/placeholder.svg"}
-									style={{ maxWidth: "100%" }}
+									src={imageSrc}
+									style={{
+										maxWidth: "100%",
+										display: "block",
+										maxHeight: "60vh",
+									}}
+									onLoad={() => {
+										setCrop({
+											unit: "%",
+											width: 90,
+											height: 90,
+											x: 5,
+											y: 5,
+										});
+									}}
 								/>
 							</ReactCrop>
 						)}
