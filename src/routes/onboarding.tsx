@@ -97,7 +97,11 @@ function Onboarding() {
 		try {
 			await updateUserProfile.mutateAsync(newProfileDetails);
 			toast("Update has been requested.");
-			router.navigate({ to: "/" });
+			if (isPetsitter) {
+				router.navigate({ to: "/onboardingimage" });
+			} else {
+				router.navigate({ to: "/" });
+			}
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
 		}

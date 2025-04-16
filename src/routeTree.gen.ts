@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as ProfileImport } from './routes/profile'
+import { Route as OnboardingimageImport } from './routes/onboardingimage'
 import { Route as OnboardingImport } from './routes/onboarding'
 import { Route as LoginImport } from './routes/login'
 import { Route as ChatImport } from './routes/chat'
@@ -30,6 +31,12 @@ const SettingsRoute = SettingsImport.update({
 const ProfileRoute = ProfileImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OnboardingimageRoute = OnboardingimageImport.update({
+  id: '/onboardingimage',
+  path: '/onboardingimage',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingImport
       parentRoute: typeof rootRoute
     }
+    '/onboardingimage': {
+      id: '/onboardingimage'
+      path: '/onboardingimage'
+      fullPath: '/onboardingimage'
+      preLoaderRoute: typeof OnboardingimageImport
+      parentRoute: typeof rootRoute
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -126,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboardingimage': typeof OnboardingimageRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/petsitter/$id': typeof PetsitterIdRoute
@@ -136,6 +151,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboardingimage': typeof OnboardingimageRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/petsitter/$id': typeof PetsitterIdRoute
@@ -147,6 +163,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboardingimage': typeof OnboardingimageRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/petsitter/$id': typeof PetsitterIdRoute
@@ -159,6 +176,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/login'
     | '/onboarding'
+    | '/onboardingimage'
     | '/profile'
     | '/settings'
     | '/petsitter/$id'
@@ -168,6 +186,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/login'
     | '/onboarding'
+    | '/onboardingimage'
     | '/profile'
     | '/settings'
     | '/petsitter/$id'
@@ -177,6 +196,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/login'
     | '/onboarding'
+    | '/onboardingimage'
     | '/profile'
     | '/settings'
     | '/petsitter/$id'
@@ -188,6 +208,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
+  OnboardingimageRoute: typeof OnboardingimageRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   PetsitterIdRoute: typeof PetsitterIdRoute
@@ -198,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
+  OnboardingimageRoute: OnboardingimageRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   PetsitterIdRoute: PetsitterIdRoute,
@@ -217,6 +239,7 @@ export const routeTree = rootRoute
         "/chat",
         "/login",
         "/onboarding",
+        "/onboardingimage",
         "/profile",
         "/settings",
         "/petsitter/$id"
@@ -233,6 +256,9 @@ export const routeTree = rootRoute
     },
     "/onboarding": {
       "filePath": "onboarding.tsx"
+    },
+    "/onboardingimage": {
+      "filePath": "onboardingimage.tsx"
     },
     "/profile": {
       "filePath": "profile.tsx"

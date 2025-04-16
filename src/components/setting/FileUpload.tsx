@@ -80,6 +80,7 @@ export function FileUpload({ userId }: FileUploadProps) {
 
 		try {
 			await createPetsitterImageMutation.mutateAsync(createImageBody);
+			setImages([]);
 			toast("Image changes has been requested.");
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
