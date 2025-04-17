@@ -24,9 +24,11 @@ export const useMutateImage = () => {
         mutationFn: (imageDetails: CreateImage) => createPetsitterImage(imageDetails),
         onSuccess: (isSuccess, variables) => {
             if (isSuccess) {
-
                 if (variables) {
                     queryClient.invalidateQueries({ queryKey: ["petsitters"] });
+                }
+                if (variables) {
+                    queryClient.invalidateQueries({ queryKey: ["getImageKeysByUserId"] });
                 }
             } else {
                 console.warn("Profile update failed", variables);

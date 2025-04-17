@@ -18,15 +18,21 @@ import type { CreateImage } from "@/types/image";
 
 interface FileUploadProps {
 	userId: string;
-    isOnboarding: boolean;
+	isOnboarding: boolean;
+	preservedImageKeys: string[];
 }
+
 interface PetsitterImage {
 	id: string;
 	file: File;
 	preview: string;
 }
 
-export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
+export function FileUpload({
+	userId,
+	isOnboarding,
+	preservedImageKeys,
+}: FileUploadProps) {
 	const router = useRouter();
 	const { createPetsitterImageMutation } = useMutateImage();
 	const [images, setImages] = useState<PetsitterImage[]>([]);
@@ -35,6 +41,7 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 	const [originalFile, setOriginalFile] = useState<File | null>(null);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const MAX_IMAGES = 6;
+	let imagesAllowed = MAX_IMAGES - preservedImageKeys.length;
 	const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 	const [crop, setCrop] = useState<Crop>({
 		unit: "%",
@@ -52,7 +59,7 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 		if (!files || files.length === 0) return;
 		const uploadedFile = files[0];
 
-		if (images.length + 1 >= MAX_IMAGES) return;
+		if (images.length + 1 > imagesAllowed) return;
 
 		// Validate file type
 		if (!uploadedFile.type.startsWith("image/")) return;
@@ -80,15 +87,16 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 		const createImageBody: CreateImage = {
 			userId: userId,
 			files: files,
+			preserve: preservedImageKeys,
 		};
 
 		try {
 			await createPetsitterImageMutation.mutateAsync(createImageBody);
 			setImages([]);
 			toast("Image changes has been requested.");
-            if (isOnboarding){
-                router.navigate({ to: "/" });
-            }
+			if (isOnboarding) {
+				router.navigate({ to: "/" });
+			}
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
 		}
@@ -191,9 +199,10 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 
 	return (
 		<div className="mt-6">
-			<h3 className="text-base font-medium mb-2">Portfolio Images</h3>
+			<h3 className="text-base font-medium mb-2">Upload Images</h3>
 			<p className="text-sm text-gray-600 mb-4">
-				Upload up to 6 images showcasing your pet sitting services
+				Upload up to 6 images showcasing your pet sitting services. You can only
+				have a maximum of 6 images. 
 			</p>
 
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -223,7 +232,7 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 				))}
 
 				{/* Add image placeholder */}
-				{images.length < MAX_IMAGES && (
+				{images.length < imagesAllowed ? (
 					<button
 						type="button"
 						onClick={handleUploadClick}
@@ -232,6 +241,12 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 						<ImagePlus className="h-8 w-8 text-gray-400" />
 						<span className="text-sm text-gray-500">Add Image</span>
 					</button>
+				) : (
+					<div className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-red-500 border-red-300 bg-red-50 text-center px-2">
+						<span className="text-sm font-medium">
+							Maximum of {MAX_IMAGES} images reached. Delete existing ones to upload more.
+						</span>
+					</div>
 				)}
 			</div>
 
@@ -256,7 +271,7 @@ export function FileUpload({ userId, isOnboarding }: FileUploadProps) {
 					onClick={sendImages}
 					disabled={images.length < 1}
 				>
-					Submit images
+					Submit changes
 				</Button>
 			</div>
 

@@ -5,4 +5,5 @@ export interface ImageList {
 export interface CreateImage {
 	userId: string;
 	files: File[];
+	preserve: string[];
 }

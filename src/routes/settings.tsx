@@ -30,6 +30,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
 import { FileUpload } from "@/components/setting/FileUpload";
+import ExistingImageGallery from "@/components/setting/ExistingImagesGallery";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
@@ -52,6 +53,7 @@ function Settings() {
 	const [price, setPrice] = useState<number>(25);
 	const [petsitterDescription, setPetsitterDescription] = useState<string>("");
 	const [selectedTags, setSelectedTags] = useState<ServiceTag[]>([]);
+	const [preservedImageKeys, setPreservedImageKeys] = useState<string[]>([]);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState("general");
@@ -76,8 +78,6 @@ function Settings() {
 		if (petsitterProfile === undefined) {
 			return;
 		}
-
-		console.log(petsitterProfile);
 
 		// Set petsitter fields
 		if (petsitterProfile.price !== undefined) {
@@ -166,7 +166,7 @@ function Settings() {
 		<main className="container mx-auto px-4 py-6">
 			<div className="max-w-4xl mx-auto">
 				<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
-				
+
 				{/* Profile Information Card */}
 				<Card className="border-beige bg-cream">
 					<CardContent className="pt-6">
@@ -353,8 +353,20 @@ function Settings() {
 													</p>
 												</div>
 											</TabsContent>
-											<TabsContent value="petsitter-images" className="space-y-6 mt-6">
-												<FileUpload userId={userProfile.id} isOnboarding={false}/>
+											<TabsContent
+												value="petsitter-images"
+												className="space-y-6 mt-6"
+											>
+												<ExistingImageGallery
+													userId={userProfile.id}
+													preservedImageKeys={preservedImageKeys}
+													setPreservedImageKeys={setPreservedImageKeys}
+												/>
+												<FileUpload
+													userId={userProfile.id}
+													isOnboarding={false}
+													preservedImageKeys={preservedImageKeys}
+												/>
 											</TabsContent>
 										</>
 									)}

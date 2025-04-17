@@ -21,7 +21,6 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	let imageUrl = placeholderImage;
 
 	function getFirstImageUrl(imageList: ImageList): string {
-		console.log(`user: ${petsitter.username}, url: ${imageUrl}`)
 		return `${API_URL}/image/getImage/${imageList.images[0]}`
 	}
 	

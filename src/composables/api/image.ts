@@ -38,6 +38,10 @@ export function useImageAPI() {
         Array.from(createImage.files).forEach((file) => {
           formData.append("image", file);
         });
+        
+        if (createImage.preserve) {
+            formData.append("preserve", JSON.stringify(createImage.preserve));
+        }
       
         const response = await fetcher(`/image/createImage/${createImage.userId}?type=petsitter`, {
           method: "POST",
