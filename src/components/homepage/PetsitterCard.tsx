@@ -20,7 +20,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	let imageUrl = placeholderImage;
 
 	function getFirstImageUrl(imageList: ImageList): string {
-		return buildImageUrl(imageList.images[0]);
+		return buildImageUrl(`${imageList.images[0]}?v=${new Date().toISOString()}`);
 	}
 	
 	if (imagesFetched && imageData && imageData.images.length > 0) {
