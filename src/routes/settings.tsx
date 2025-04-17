@@ -152,6 +152,10 @@ function Settings() {
 		}
 	};
 
+	const handleChangeAvatar = async () => {
+		router.navigate({ to: "/profileimage" })
+	}
+
 	if (!userProfile) {
 		return (
 			<main className="container mx-auto px-4 py-6">
@@ -198,7 +202,8 @@ function Settings() {
 										<Button
 											variant="outline"
 											size="sm"
-											className="mb-2 border-beige bg-cream text-navy hover:bg-beige hover:text-navy"
+											className="mb-2 border-beige"
+											onClick={handleChangeAvatar}
 										>
 											Change Avatar
 										</Button>

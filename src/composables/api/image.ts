@@ -1,4 +1,4 @@
-import type { CreateImage, ImageList } from "@/types/image";
+import type { CreatePetsitterImages, CreateProfileImage, ImageList } from "@/types/image";
 import { fetcher } from "@/util/fetcher";
 
 export function useImageAPI() {
@@ -28,13 +28,10 @@ export function useImageAPI() {
         return await response.json<ImageList>();
     };
 
-    const createProfileImage = async (createImage: CreateImage) => {
+    const createProfileImage = async (createImage: CreateProfileImage) => {
         const formData = new FormData();
-        
-        Array.from(createImage.files).forEach((file) => {
-          formData.append("image", file);
-        });
-      
+        formData.append("image", createImage.file);
+
         const response = await fetcher(`/image/createImage/${createImage.userId}?type=profile`, {
           method: "POST",
           body: formData,
@@ -45,7 +42,7 @@ export function useImageAPI() {
         return await response.json<ImageList>();
     };
     
-    const createPetsitterImage = async (createImage: CreateImage) => {
+    const createPetsitterImage = async (createImage: CreatePetsitterImages) => {
         const formData = new FormData();
         
         Array.from(createImage.files).forEach((file) => {

@@ -1,20 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useImageAPI } from "@/composables/api/image";
-import type { CreateImage } from "@/types/image";
+import type { CreatePetsitterImages, CreateProfileImage } from "@/types/image";
 
 export const useMutateImage = () => {
     const queryClient = useQueryClient();
     const { createProfileImage, createPetsitterImage } = useImageAPI();
 
     const createProfileImageMutation = useMutation({
-        mutationFn: (imageDetails: CreateImage) => createProfileImage(imageDetails),
+        mutationFn: (imageDetails: CreateProfileImage) => createProfileImage(imageDetails),
         onSuccess: (response, variables) => {
             if (response) {
                 queryClient.invalidateQueries({
-                    queryKey: ["getImageKeysByUserId", variables.userId],
+                    queryKey: ["getProfilekeyByUserId", variables.userId],
                   })
-                
-                queryClient.invalidateQueries({ queryKey: ["petsitters"] });
             } else {
                 console.warn("Profile update failed", variables);
             }
@@ -22,7 +20,7 @@ export const useMutateImage = () => {
     });
 
     const createPetsitterImageMutation = useMutation({
-        mutationFn: (imageDetails: CreateImage) => createPetsitterImage(imageDetails),
+        mutationFn: (imageDetails: CreatePetsitterImages) => createPetsitterImage(imageDetails),
         onSuccess: (response, variables) => {
             if (response) {
                 queryClient.invalidateQueries({

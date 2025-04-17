@@ -8,13 +8,13 @@ import {
 } from "@/components/ui/card";
 import { PawPrint } from "lucide-react";
 import { useAuth } from "@/context/authContext";
-import { FileUpload } from "@/components/setting/FileUpload";
+import AvatarUpload from "@/components/setting/AvatarUpload";
 
-export const Route = createFileRoute("/onboardingimage")({
-	component: OnboardingImage,
+export const Route = createFileRoute("/profileimage")({
+	component: ProfileImage,
 });
 
-function OnboardingImage() {
+function ProfileImage() {
 	const { userProfile } = useAuth();
 
 	if (!userProfile) {
@@ -35,21 +35,17 @@ function OnboardingImage() {
 					<div className="flex justify-center mb-2">
 						<PawPrint className="h-10 w-10 text-primary" />
 					</div>
-					<CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+					<CardTitle className="text-2xl font-bold">Profile Image</CardTitle>
 					<CardDescription>
-						Upload images to display your personality!
+						Upload profile to display your personality!
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<FileUpload
-						userId={userProfile.id}
-						isOnboarding={true}
-						preservedImageKeys={[]}
-					/>
+					<AvatarUpload userId={userProfile.id}/>
 				</CardContent>
 			</Card>
 		</div>
 	);
 }
 
-export default OnboardingImage;
+export default ProfileImage;

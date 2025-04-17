@@ -100,7 +100,7 @@ function Onboarding() {
 			if (isPetsitter) {
 				router.navigate({ to: "/onboardingimage" });
 			} else {
-				router.navigate({ to: "/" });
+				router.navigate({ to: "/profileimage" });
 			}
 		} catch (error) {
 			toast(`Failed to send message: ${error}`);
