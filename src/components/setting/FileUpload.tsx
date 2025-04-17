@@ -62,10 +62,16 @@ export function FileUpload({
 		if (images.length + 1 > imagesAllowed) return;
 
 		// Validate file type
-		if (!uploadedFile.type.startsWith("image/")) return;
+		if (!uploadedFile.type.startsWith("image/")) {
+			toast(`Only images can be uploaded!`);
+			return;
+		}
 
 		// Validate file size
-		if (uploadedFile.size > MAX_FILE_SIZE) return;
+		if (uploadedFile.size > MAX_FILE_SIZE) {
+			toast(`File is too big: Limit of 2MB`);
+			return;
+		}
 
 		setOriginalFile(uploadedFile);
 

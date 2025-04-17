@@ -31,10 +31,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
 import { FileUpload } from "@/components/setting/FileUpload";
 import ExistingImageGallery from "@/components/setting/ExistingImagesGallery";
+import { useImageQuery } from "@/composables/queries/image";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
 });
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Settings() {
 	const router = useRouter();
@@ -65,6 +68,11 @@ function Settings() {
 		userProfile.longitude,
 	);
 
+	const { getProfileKeyByUserId } = useImageQuery();
+	const { data: profileKey, isFetched: profileKeyFetched } = getProfileKeyByUserId(
+		userProfile.id
+	)
+
 	// Initialize basic user form fields
 	useEffect(() => {
 		if (userProfile) {
@@ -93,6 +101,13 @@ function Settings() {
 			setSelectedTags(JSON.parse(petsitterProfile.service_tags));
 		}
 	}, [petsitterProfile]);
+	
+	const handleProfile = () => {
+		if (profileKeyFetched && profileKey) {
+			return profileKey.images.length > 0 ? `${API_URL}/image/getImage/${profileKey.images[0]}` : userProfile.profile_image_url
+		}
+		return userProfile.profile_image_url
+	};
 
 	const handleTagChange = (tagId: ServiceTag) => {
 		setSelectedTags((prev) => {
@@ -182,7 +197,7 @@ function Settings() {
 								<div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
 									<Avatar className="h-24 w-24 bg-beige">
 										<AvatarImage
-											src={userProfile.profile_image_url}
+											src={handleProfile()}
 											alt={username}
 										/>
 										<AvatarFallback className="text-navy text-xl">
