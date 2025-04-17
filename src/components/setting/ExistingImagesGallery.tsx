@@ -31,15 +31,15 @@ export default function ExistingImageGallery({
 		);
 		setImagesUrl(updatedImages);
 	};
-
-	// const handleUndo = () => {
-	// 	return;
-	// };
+    // const refreshImages = async () => {
+    //     await refetch()
+    //   }
 
 
 
 	function getAllImageUrls(imageList: string[]): string[] {
-		return imageList.map((image) => `${API_URL}/image/getImage/${image}`);
+        const timestamp = Date.now()
+		return imageList.map((image) => `${API_URL}/image/getImage/${image}?t=${timestamp}`);
 	}
 
 	useEffect(() => {
@@ -81,9 +81,9 @@ export default function ExistingImageGallery({
 			{/* <Button
 				variant="default"
 				className=""
-				onClick={handleUndo}
+				onClick={refreshImages}
 			>
-				Undo
+				Refresh
 			</Button> */}
 		</div>
 	);

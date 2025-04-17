@@ -79,9 +79,6 @@ export function FileUpload({
 	};
 
 	const sendImages = async () => {
-		if (images.length < 1) {
-			return;
-		}
 		const files = images.map((image) => image.file);
 
 		const createImageBody: CreateImage = {
@@ -201,8 +198,7 @@ export function FileUpload({
 		<div className="mt-6">
 			<h3 className="text-base font-medium mb-2">Upload Images</h3>
 			<p className="text-sm text-gray-600 mb-4">
-				Upload up to 6 images showcasing your pet sitting services. You can only
-				have a maximum of 6 images. 
+				Upload new images to showcase your pet sitting services.
 			</p>
 
 			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -244,7 +240,8 @@ export function FileUpload({
 				) : (
 					<div className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-red-500 border-red-300 bg-red-50 text-center px-2">
 						<span className="text-sm font-medium">
-							Maximum of {MAX_IMAGES} images reached. Delete existing ones to upload more.
+							Maximum of {MAX_IMAGES} images reached. Delete existing ones to
+							upload more.
 						</span>
 					</div>
 				)}
@@ -269,7 +266,7 @@ export function FileUpload({
 					variant="default"
 					className=""
 					onClick={sendImages}
-					disabled={images.length < 1}
+					disabled={preservedImageKeys.length < 1 && images.length < 1}
 				>
 					Submit changes
 				</Button>
