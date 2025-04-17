@@ -30,10 +30,6 @@ export default function Header() {
 	const [isOpen, setIsOpen] = useState(false);
 	const { userProfile, setUserProfile } = useAuth();
 
-	if (userProfile && pathname === "/onboarding") {
-		return null;
-	}
-
 	const navigation = [
 		{ name: "Home", href: "/", icon: Home },
 		{ name: "Messages", href: "/chat", icon: MessageSquare },
@@ -101,7 +97,7 @@ export default function Header() {
 									<div className="flex items-center justify-start gap-2 p-2">
 										<Avatar className="h-8 w-8">
 											<AvatarImage
-												src={userProfile?.profile_image_url}
+												src={`${userProfile?.profile_image_url}?v=${new Date().toISOString()}`}
 												alt={userProfile?.username}
 											/>
 											<AvatarFallback>{userProfile?.username}</AvatarFallback>

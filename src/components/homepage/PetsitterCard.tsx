@@ -17,7 +17,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 				if (petsitter.service_tags === "[]") {
 					return [];
 				}
-				
+
 				const parsed = JSON.parse(petsitter.service_tags);
 				// Make sure the parsed result is an array
 				return Array.isArray(parsed) ? parsed : [];
@@ -35,13 +35,16 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	};
 
 	const services = getServices();
-	
+
 	return (
 		<Link to="/petsitter/$id" params={{ id: petsitter.id.toString() }}>
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
 				<div className="aspect-square relative overflow-hidden">
 					<img
-						src={petsitter.first_image || "/placeholder.svg"}
+						src={
+							`${petsitter.first_image}?v=${new Date().toISOString()}` ||
+							"/placeholder.svg"
+						}
 						alt={petsitter.username}
 						className="object-cover w-full h-full overflow-hidden rounded-tl-lg rounded-tr-lg"
 					/>
