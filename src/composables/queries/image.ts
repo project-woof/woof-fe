@@ -4,7 +4,15 @@ import type { ImageList } from "@/types/image";
 
 
 export const useImageQuery = () => {
-	const { getImageKeys } = useImageAPI();
+	const { getImageKeys, getProfileKey } = useImageAPI();
+
+	function getProfileKeyByUserId(userId: string) {
+		const { data, isFetched } = useQuery<ImageList>({
+			queryKey: ["getProfilekeyByUserId", userId],
+			queryFn: () => getProfileKey(userId),
+		});
+		return { data, isFetched };
+	}
 
 	function getImageKeysByUserId(userId: string) {
 		const { data, isFetched } = useQuery<ImageList>({
@@ -15,5 +23,5 @@ export const useImageQuery = () => {
 	}
 
 
-	return { getImageKeysByUserId, };
+	return { getProfileKeyByUserId, getImageKeysByUserId, };
 };

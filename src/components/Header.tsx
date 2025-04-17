@@ -23,6 +23,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth";
 import { useAuth } from "@/context/authContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import { buildImageUrl } from "@/util/format";
 
 export default function Header() {
 	const router = useRouter();
@@ -86,7 +87,11 @@ export default function Header() {
 									<Button variant="ghost" className="rounded-full h-8 w-8 p-0">
 										<Avatar>
 											<AvatarImage
-												src={userProfile?.profile_image_url}
+												src={
+													userProfile?.profile_image_url
+														? buildImageUrl(userProfile.profile_image_url)
+														: undefined
+												}
 												alt={userProfile?.username}
 											/>
 											<AvatarFallback>{userProfile?.username}</AvatarFallback>
@@ -97,7 +102,11 @@ export default function Header() {
 									<div className="flex items-center justify-start gap-2 p-2">
 										<Avatar className="h-8 w-8">
 											<AvatarImage
-												src={`${userProfile?.profile_image_url}?v=${new Date().toISOString()}`}
+												src={
+													`${userProfile?.profile_image_url}?v=${new Date().toISOString()}`
+														? buildImageUrl(`${userProfile?.profile_image_url}?v=${new Date().toISOString()}`)
+														: undefined
+												}
 												alt={userProfile?.username}
 											/>
 											<AvatarFallback>{userProfile?.username}</AvatarFallback>

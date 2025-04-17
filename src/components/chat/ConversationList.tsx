@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import type { ChatRoomSummary } from "@/types/chat";
 import { usePollingQuery } from "@/composables/queries/polling";
+import { buildImageUrl } from "@/util/format";
 
 interface ConversationListProps {
 	userId: string;
@@ -60,7 +61,7 @@ export function ConversationList({
 								<div className="relative mr-3">
 									<Avatar>
 										<AvatarImage
-											src={chatRoom.profile_image_url}
+											src={buildImageUrl(chatRoom.profile_image_url)}
 											alt={chatRoom.username || "User"}
 										/>
 										<AvatarFallback>

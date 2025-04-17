@@ -20,6 +20,7 @@ import { useMutateReview } from "@/composables/mutations/review";
 import { toast } from "sonner";
 import type { CreateReview } from "@/types/review";
 import { StarRating } from "./StarRating";
+import { buildImageUrl } from "@/util/format";
 
 interface BookingsTabProps {
 	bookings: BookingResponse[] | undefined;
@@ -104,7 +105,11 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 					>
 						<Avatar className="h-10 w-10 mr-3">
 							<AvatarImage
-								src={booking.profile_image_url}
+								src={
+									booking.profile_image_url
+										? buildImageUrl(booking.profile_image_url)
+										: undefined
+								}
 								alt={booking.username}
 							/>
 							<AvatarFallback>{booking.username.charAt(0)}</AvatarFallback>
@@ -172,7 +177,12 @@ export const BookingsTab = ({ bookings, isFetched }: BookingsTabProps) => {
 												Cancel
 											</AlertDialogCancel>
 											<AlertDialogAction
-												onClick={() => handleSubmitReview(booking.petsitter_id, booking.petowner_id)}
+												onClick={() =>
+													handleSubmitReview(
+														booking.petsitter_id,
+														booking.petowner_id,
+													)
+												}
 												disabled={rating === 0}
 											>
 												Submit Review

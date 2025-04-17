@@ -30,6 +30,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
 import { FileUpload } from "@/components/setting/FileUpload";
+import ExistingImageGallery from "@/components/setting/ExistingImagesGallery";
+import { buildImageUrl } from "@/util/format";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
@@ -52,6 +54,7 @@ function Settings() {
 	const [price, setPrice] = useState<number>(25);
 	const [petsitterDescription, setPetsitterDescription] = useState<string>("");
 	const [selectedTags, setSelectedTags] = useState<ServiceTag[]>([]);
+	const [preservedImageKeys, setPreservedImageKeys] = useState<string[]>([]);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState("general");
@@ -76,8 +79,6 @@ function Settings() {
 		if (petsitterProfile === undefined) {
 			return;
 		}
-
-		console.log(petsitterProfile);
 
 		// Set petsitter fields
 		if (petsitterProfile.price !== undefined) {
@@ -151,6 +152,10 @@ function Settings() {
 		}
 	};
 
+	const handleChangeAvatar = async () => {
+		router.navigate({ to: "/profileimage" })
+	}
+
 	if (!userProfile) {
 		return (
 			<main className="container mx-auto px-4 py-6">
@@ -166,7 +171,7 @@ function Settings() {
 		<main className="container mx-auto px-4 py-6">
 			<div className="max-w-4xl mx-auto">
 				<h1 className="text-2xl font-bold mb-6 text-navy">Settings</h1>
-				
+
 				{/* Profile Information Card */}
 				<Card className="border-beige bg-cream">
 					<CardContent className="pt-6">
@@ -182,7 +187,11 @@ function Settings() {
 								<div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
 									<Avatar className="h-24 w-24 bg-beige">
 										<AvatarImage
-											src={userProfile.profile_image_url}
+											src={
+												userProfile?.profile_image_url
+													? buildImageUrl(userProfile.profile_image_url)
+													: undefined
+											}
 											alt={username}
 										/>
 										<AvatarFallback className="text-navy text-xl">
@@ -193,7 +202,8 @@ function Settings() {
 										<Button
 											variant="outline"
 											size="sm"
-											className="mb-2 border-beige bg-cream text-navy hover:bg-beige hover:text-navy"
+											className="mb-2 border-beige"
+											onClick={handleChangeAvatar}
 										>
 											Change Avatar
 										</Button>
@@ -353,8 +363,20 @@ function Settings() {
 													</p>
 												</div>
 											</TabsContent>
-											<TabsContent value="petsitter-images" className="space-y-6 mt-6">
-												<FileUpload userId={userProfile.id}/>
+											<TabsContent
+												value="petsitter-images"
+												className="space-y-6 mt-6"
+											>
+												<ExistingImageGallery
+													userId={userProfile.id}
+													preservedImageKeys={preservedImageKeys}
+													setPreservedImageKeys={setPreservedImageKeys}
+												/>
+												<FileUpload
+													userId={userProfile.id}
+													isOnboarding={false}
+													preservedImageKeys={preservedImageKeys}
+												/>
 											</TabsContent>
 										</>
 									)}

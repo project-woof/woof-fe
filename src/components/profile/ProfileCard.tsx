@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
+import { buildImageUrl } from "@/util/format";
 
 interface ProfileCardProps {
 	userData: any;
@@ -22,7 +23,7 @@ export const ProfileCard = ({ userData }: ProfileCardProps) => {
 				<div className="flex flex-col items-center">
 					<Avatar className="h-24 w-24 mb-4">
 						<AvatarImage
-							src={userData.profile_image_url}
+							src={buildImageUrl(userData.profile_image_url)}
 							alt={userData.username}
 						/>
 						<AvatarFallback>

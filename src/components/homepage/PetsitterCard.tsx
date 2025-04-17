@@ -3,12 +3,30 @@ import { MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { PetsitterProfile } from "@/types/profile";
+import type { ImageList } from "@/types/image";
+import { useImageQuery } from "@/composables/queries/image";
+import { buildImageUrl } from "@/util/format";
 
 interface PetsitterCardProps {
 	petsitter: PetsitterProfile;
 }
 
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
+	const placeholderImage = buildImageUrl("placeholder.jpg");
+	const { getImageKeysByUserId } = useImageQuery();
+	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
+		petsitter.id,
+	);
+	let imageUrl = placeholderImage;
+
+	function getFirstImageUrl(imageList: ImageList): string {
+		return buildImageUrl(imageList.images[0]);
+	}
+	
+	if (imagesFetched && imageData && imageData.images.length > 0) {
+		imageUrl = getFirstImageUrl(imageData);
+	} 
+
 	const getServices = (): string[] => {
 		try {
 			// If it's a string, try to parse it as JSON
@@ -41,10 +59,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 			<Card className="h-full hover:shadow-md transition-shadow border-beige bg-cream pt-0">
 				<div className="aspect-square relative overflow-hidden">
 					<img
-						src={
-							`${petsitter.first_image}?v=${new Date().toISOString()}` ||
-							"/placeholder.svg"
-						}
+						src={imageUrl}
 						alt={petsitter.username}
 						className="object-cover w-full h-full overflow-hidden rounded-tl-lg rounded-tr-lg"
 					/>

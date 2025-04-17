@@ -1,5 +1,6 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { Review } from "@/types/review";
+import { buildImageUrl } from "@/util/format";
 import { Star } from "lucide-react";
 
 interface ReviewsTabProps {
@@ -28,7 +29,7 @@ export const ReviewsTab = ({ reviews }: ReviewsTabProps) => {
 						<div className="flex items-center">
 							<Avatar className="h-10 w-10 mr-3">
 								<AvatarImage
-									src={review.profile_image_url}
+									src={buildImageUrl(review.profile_image_url)}
 									alt={review.username}
 								/>
 								<AvatarFallback>{review.username.charAt(0)}</AvatarFallback>

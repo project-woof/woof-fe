@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useReviewQuery } from "@/composables/queries/review";
 import { usePagination } from "@/context/paginationContext";
 import type { PetsitterProfile } from "@/types/profile";
+import { buildImageUrl } from "@/util/format";
 import { Loader2, Star } from "lucide-react";
 
 interface ReviewsTabProps {
@@ -21,7 +22,6 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 		limit,
 		reviewOffset,
 	);
-
 
 	function handlePrevPage() {
 		if (reviewPagination > 1) {
@@ -62,7 +62,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 			</Card>
 		);
 	}
-	
+
 	if (reviewData.length === 0) {
 		return (
 			<Card>
@@ -99,7 +99,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 								<div className="flex items-center">
 									<Avatar className="h-10 w-10 mr-3">
 										<AvatarImage
-											src={review.profile_image_url}
+											src={buildImageUrl(review.profile_image_url)}
 											alt={review.username}
 										/>
 										<AvatarFallback>{review.username.charAt(0)}</AvatarFallback>
@@ -142,7 +142,7 @@ export function ReviewsTab({ petsitterData }: ReviewsTabProps) {
 				<Button
 					variant="outline"
 					onClick={handleNextPage}
-					disabled={(reviewOffset + limit) >= petsitterData.total_reviews}
+					disabled={reviewOffset + limit >= petsitterData.total_reviews}
 				>
 					Next
 				</Button>

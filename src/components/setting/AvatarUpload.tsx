@@ -1,48 +1,37 @@
-import { useRouter } from "@tanstack/react-router";
 import { useState, useRef } from "react";
-import { X, ImagePlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "../ui/alert-dialog";
-import "react-image-crop/dist/ReactCrop.css";
+} from "@/components/ui/alert-dialog";
+import { ImagePlus, X } from "lucide-react";
 import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
-import { Button } from "../ui/button";
-import { useMutateImage } from "@/composables/mutations/image";
+import "react-image-crop/dist/ReactCrop.css";
 import { toast } from "sonner";
-import type { CreatePetsitterImages } from "@/types/image";
+import type { CreateProfileImage } from "@/types/image";
+import { useMutateImage } from "@/composables/mutations/image";
+import { useRouter } from "@tanstack/react-router";
 
-interface FileUploadProps {
+interface AvatarUploadProps {
 	userId: string;
-	isOnboarding: boolean;
-	preservedImageKeys: string[];
 }
 
-interface PetsitterImage {
-	id: string;
-	file: File;
-	preview: string;
-}
-
-export function FileUpload({
-	userId,
-	isOnboarding,
-	preservedImageKeys,
-}: FileUploadProps) {
+export default function AvatarUpload({ userId }: AvatarUploadProps) {
 	const router = useRouter();
-	const { createPetsitterImageMutation } = useMutateImage();
-	const [images, setImages] = useState<PetsitterImage[]>([]);
-	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [image, setImage] = useState<{ preview: string; file: File } | null>(
+		null,
+	);
 	const [imageSrc, setImageSrc] = useState<string | null>(null);
 	const [originalFile, setOriginalFile] = useState<File | null>(null);
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const MAX_IMAGES = 6;
-	let imagesAllowed = MAX_IMAGES - preservedImageKeys.length;
-	const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const imgRef = useRef<HTMLImageElement>(null);
 	const [crop, setCrop] = useState<Crop>({
 		unit: "%",
 		width: 90,
@@ -50,73 +39,36 @@ export function FileUpload({
 		x: 5,
 		y: 5,
 	});
-	const inputRef = useRef<HTMLInputElement>(null);
 	const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-	const imgRef = useRef<HTMLImageElement>(null);
+	const { createProfileImageMutation } = useMutateImage();
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		if (!files || files.length === 0) return;
-		const uploadedFile = files[0];
 
-		if (images.length + 1 > imagesAllowed) return;
+		const uploadedFile = files[0];
 
 		// Validate file type
 		if (!uploadedFile.type.startsWith("image/")) {
-			toast(`Only images can be uploaded!`);
+			toast("Please select an image file");
 			return;
 		}
 
-		// Validate file size
-		if (uploadedFile.size > MAX_FILE_SIZE) {
-			toast(`File is too big: Limit of 2MB`);
+		// Validate file size (2MB max)
+		if (uploadedFile.size > 2 * 1024 * 1024) {
+			toast("File size exceeds 2MB limit");
 			return;
 		}
 
 		setOriginalFile(uploadedFile);
 
-		// Only process image files
+		// Read the file as data URL
 		const reader = new FileReader();
 		reader.addEventListener("load", () => {
 			setImageSrc(reader.result?.toString() || "");
 			setDialogOpen(true);
 		});
 		reader.readAsDataURL(uploadedFile);
-	};
-
-	const sendImages = async () => {
-		const files = images.map((image) => image.file);
-
-		const createImageBody: CreatePetsitterImages = {
-			userId: userId,
-			files: files,
-			preserve: preservedImageKeys,
-		};
-
-		try {
-			await createPetsitterImageMutation.mutateAsync(createImageBody);
-			setImages([]);
-			toast("Image changes has been requested.");
-			if (isOnboarding) {
-				router.navigate({ to: "/profileimage" });
-			}
-		} catch (error) {
-			toast(`Failed to send message: ${error}`);
-		}
-	};
-
-	const removeImage = (id: string) => {
-		setImages((prev) => {
-			const filtered = prev.filter((image) => image.id !== id);
-
-			// Revoke the object URL to avoid memory leaks
-			const imageToRemove = prev.find((image) => image.id === id);
-			if (imageToRemove) {
-				URL.revokeObjectURL(imageToRemove.preview);
-			}
-
-			return filtered;
-		});
 	};
 
 	const handleUploadClick = () => {
@@ -165,13 +117,12 @@ export function FileUpload({
 
 					const preview = URL.createObjectURL(newFile);
 
-					const newPetsitterImage: PetsitterImage = {
-						id: crypto.randomUUID(),
+					// Set the single image
+					setImage({
 						file: newFile,
 						preview,
-					};
+					});
 
-					setImages((prev) => [...prev, newPetsitterImage]);
 					setDialogOpen(false);
 
 					// Reset input
@@ -195,61 +146,78 @@ export function FileUpload({
 		setOriginalFile(null);
 
 		// Reset the input
-		if (inputRef.current) {
-			inputRef.current.value = "";
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
+
+	const removeImage = () => {
+		if (image?.preview) {
+			URL.revokeObjectURL(image.preview);
+		}
+		setImage(null);
+	};
+
+	const uploadImage = async () => {
+		if (!image) return;
+
+		const formData = new FormData();
+		formData.append("image", image.file);
+		try {
+			const createImageBody: CreateProfileImage = {
+				userId: userId,
+				file: image.file,
+			};
+
+			try {
+				await createProfileImageMutation.mutateAsync(createImageBody);
+				setImage(null);
+				toast("Image changes has been requested.");
+				router.navigate({ to: "/" });
+			} catch (error) {
+				toast(`Failed to send message: ${error}`);
+			}
+
+			// Clear image after successful upload
+			if (image.preview) {
+				URL.revokeObjectURL(image.preview);
+			}
+			setImage(null);
+		} catch (error) {
+			console.error("Error uploading image:", error);
+			toast(`Failed to upload image: ${error}`);
 		}
 	};
 
 	return (
-		<div className="mt-6">
-			<h3 className="text-base font-medium mb-2">Upload Images</h3>
-			<p className="text-sm text-gray-600 mb-4">
-				Upload new images to showcase your pet sitting services.
-			</p>
+		<div className="p-6 max-w-md mx-auto">
 
-			<div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-				{/* Display existing images */}
-				{images.map((image) => (
-					<div
-						key={image.id}
-						className="relative aspect-square border rounded-lg overflow-hidden bg-white"
-					>
-						<div className="">
-							<img
-								src={image.preview || "/placeholder.svg"}
-								alt="Pet sitting portfolio image"
-								className="absolute inset-0 w-full h-full object-cover"
-							/>
-						</div>
-
+			<div className="mb-6">
+				{image ? (
+					<div className="relative aspect-square border rounded-lg overflow-hidden bg-white">
+						<img
+							src={image.preview || "/placeholder.svg"}
+							alt="Uploaded image"
+							className="absolute inset-0 w-full h-full object-cover"
+						/>
 						<button
 							type="button"
-							onClick={() => removeImage(image.id)}
+							onClick={removeImage}
 							className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-1 hover:bg-black/90 transition-colors"
 							aria-label="Remove image"
 						>
 							<X className="h-4 w-4" />
 						</button>
 					</div>
-				))}
-
-				{/* Add image placeholder */}
-				{images.length < imagesAllowed ? (
+				) : (
 					<button
 						type="button"
 						onClick={handleUploadClick}
-						className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+						className="w-full aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
 					>
 						<ImagePlus className="h-8 w-8 text-gray-400" />
 						<span className="text-sm text-gray-500">Add Image</span>
 					</button>
-				) : (
-					<div className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-red-500 border-red-300 bg-red-50 text-center px-2">
-						<span className="text-sm font-medium">
-							Maximum of {MAX_IMAGES} images reached. Delete existing ones to
-							upload more.
-						</span>
-					</div>
 				)}
 			</div>
 
@@ -259,24 +227,17 @@ export function FileUpload({
 				ref={fileInputRef}
 				onChange={handleFileChange}
 				accept="image/jpeg,image/png,image/gif"
-				multiple
 				className="hidden"
 			/>
 
-			<div className="text-sm text-gray-500">
-				JPG, GIF or PNG. Max size 2MB.
+			<div className="text-sm text-gray-500 mb-6">
+				JPG, PNG or GIF. Max size 2MB.
 			</div>
 
-			<div className="flex justify-end pt-4">
-				<Button
-					variant="default"
-					className=""
-					onClick={sendImages}
-					disabled={preservedImageKeys.length < 1 && images.length < 1}
-				>
-					Submit changes
-				</Button>
-			</div>
+			{/* Upload button */}
+			<Button onClick={uploadImage} disabled={!image} className="w-full">
+				Upload Image
+			</Button>
 
 			{/* Cropping Dialog */}
 			<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -300,7 +261,7 @@ export function FileUpload({
 								<img
 									ref={imgRef}
 									alt="Crop me"
-									src={imageSrc}
+									src={imageSrc || "/placeholder.svg"}
 									style={{
 										maxWidth: "100%",
 										display: "block",
@@ -315,16 +276,19 @@ export function FileUpload({
 											y: 5,
 										});
 									}}
+									crossOrigin="anonymous"
 								/>
 							</ReactCrop>
 						)}
 					</div>
 
 					<AlertDialogFooter>
-						<Button variant="outline" onClick={cancelCropping}>
+						<AlertDialogCancel onClick={cancelCropping}>
 							Cancel
-						</Button>
-						<Button onClick={processCroppedImage}>Crop & Save</Button>
+						</AlertDialogCancel>
+						<AlertDialogAction onClick={processCroppedImage}>
+							Crop & Save
+						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
