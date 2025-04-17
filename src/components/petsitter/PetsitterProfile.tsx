@@ -32,7 +32,9 @@ export function PetsitterProfile({
 	);
 
 	function getImageUrls(imageList: ImageList): string[] {
-		return imageList.images.map((key) => buildImageUrl(key));
+		return imageList.images.map((key) =>
+			buildImageUrl(`${key}?v=${new Date().toISOString()}`),
+		);
 	}
 
 	useEffect(() => {

@@ -23,8 +23,6 @@ function Petsitter() {
 	} = getPetsitterProfileById(id,
 		userProfile ? userProfile.latitude : undefined,
 		userProfile ? userProfile?.longitude : undefined,);
-	// TODO: remove hardcoded info
-	// hard coded image reviews location distance and availability for now
 
 	if (!profileFetched) {
 		return (

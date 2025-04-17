@@ -89,7 +89,7 @@ export default function Header() {
 											<AvatarImage
 												src={
 													userProfile?.profile_image_url
-														? buildImageUrl(userProfile.profile_image_url)
+														? buildImageUrl(`${userProfile?.profile_image_url}?v=${new Date().toISOString()}`)
 														: undefined
 												}
 												alt={userProfile?.username}
