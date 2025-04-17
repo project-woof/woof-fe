@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { convertDateLocal } from "@/util/format";
+import { buildImageUrl, convertDateLocal } from "@/util/format";
 import { MessageBubble } from "./MessageBubble";
 import type { ChatRoomSummary } from "@/types/chat";
 import { DateBubble } from "./DateBubble";
@@ -137,7 +137,7 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 			<div className="p-4 border-b flex items-center">
 				<Avatar className="h-10 w-10 mr-3">
 					<AvatarImage
-						src={selectedChatRoom.profile_image_url}
+						src={buildImageUrl(selectedChatRoom.profile_image_url)}
 						alt={selectedChatRoom.username}
 					/>
 					<AvatarFallback>{selectedChatRoom.username.charAt(0)}</AvatarFallback>

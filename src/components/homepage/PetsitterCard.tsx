@@ -5,15 +5,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { PetsitterProfile } from "@/types/profile";
 import type { ImageList } from "@/types/image";
 import { useImageQuery } from "@/composables/queries/image";
+import { buildImageUrl } from "@/util/format";
 
 interface PetsitterCardProps {
 	petsitter: PetsitterProfile;
 }
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 export function PetsitterCard({ petsitter }: PetsitterCardProps) {
-	const placeholderImage = `${API_URL}/image/getImage/placeholder.jpg`;
+	const placeholderImage = buildImageUrl("placeholder.jpg");
 	const { getImageKeysByUserId } = useImageQuery();
 	const { data: imageData, isFetched: imagesFetched } = getImageKeysByUserId(
 		petsitter.id,
@@ -21,7 +20,7 @@ export function PetsitterCard({ petsitter }: PetsitterCardProps) {
 	let imageUrl = placeholderImage;
 
 	function getFirstImageUrl(imageList: ImageList): string {
-		return `${API_URL}/image/getImage/${imageList.images[0]}`
+		return buildImageUrl(imageList.images[0]);
 	}
 	
 	if (imagesFetched && imageData && imageData.images.length > 0) {

@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useImageQuery } from "@/composables/queries/image";
+import { buildImageUrl } from "@/util/format";
 
 interface ExistingImageGalleryProps {
 	userId: string;
 	preservedImageKeys: string[];
 	setPreservedImageKeys: React.Dispatch<React.SetStateAction<string[]>>;
 }
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 export default function ExistingImageGallery({
 	userId,
@@ -39,7 +38,7 @@ export default function ExistingImageGallery({
 
 	function getAllImageUrls(imageList: string[]): string[] {
         const timestamp = Date.now()
-		return imageList.map((image) => `${API_URL}/image/getImage/${image}?t=${timestamp}`);
+		return imageList.map((image) => `${buildImageUrl(image)}?t=${timestamp}`);
 	}
 
 	useEffect(() => {

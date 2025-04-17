@@ -101,3 +101,8 @@ export function calculateCompositeScore(
 	const multiplier = Math.pow(10, decimalPlaces);
 	return Math.round(score * multiplier) / multiplier;
 }
+
+export function buildImageUrl(key: string): string {
+	const API_URL = import.meta.env.VITE_API_URL;
+	return `${API_URL}/image/getImage/${key}`
+}

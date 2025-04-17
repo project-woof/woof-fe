@@ -31,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PetsitterProfile } from "@/types/profile";
 import { FileUpload } from "@/components/setting/FileUpload";
 import ExistingImageGallery from "@/components/setting/ExistingImagesGallery";
+import { buildImageUrl } from "@/util/format";
 
 export const Route = createFileRoute("/settings")({
 	component: Settings,
@@ -182,7 +183,11 @@ function Settings() {
 								<div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 mb-6">
 									<Avatar className="h-24 w-24 bg-beige">
 										<AvatarImage
-											src={userProfile.profile_image_url}
+											src={
+												userProfile?.profile_image_url
+													? buildImageUrl(userProfile.profile_image_url)
+													: undefined
+											}
 											alt={username}
 										/>
 										<AvatarFallback className="text-navy text-xl">

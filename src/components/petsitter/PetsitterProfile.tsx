@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ServicesTab } from "@/components/petsitter/profile-tab/ServiceTab";
 import { ReviewsTab } from "@/components/petsitter/profile-tab/ReviewsTab";
 import { AboutTab } from "@/components/petsitter/profile-tab/AboutTab";
-import { calculateCompositeScore } from "@/util/format";
+import { buildImageUrl, calculateCompositeScore } from "@/util/format";
 import { ImageGallery } from "./ImageGallery";
 import { useEffect } from "react";
 import { usePagination } from "@/context/paginationContext";
@@ -17,8 +17,6 @@ interface PetsitterProfileProps {
 	activeTab: string;
 	setActiveTab: (val: string) => void;
 }
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 // hard coded image reviews location distance and availability for now
 
@@ -34,7 +32,7 @@ export function PetsitterProfile({
 	);
 
 	function getImageUrls(imageList: ImageList): string[] {
-		return imageList.images.map((key) => `${API_URL}/image/getImage/${key}`);
+		return imageList.images.map((key) => buildImageUrl(key));
 	}
 
 	useEffect(() => {
