@@ -15,7 +15,6 @@ function Chat() {
 		useState<ChatRoomSummary | null>(null);
 	const { userProfile, isLoading: authLoading } = useAuth();
 
-	// Show loading state while waiting for user profile
 	if (authLoading) {
 		return (
 			<main className="container mx-auto px-4 py-6">
@@ -67,15 +66,12 @@ function Chat() {
 		<main className="container mx-auto px-4 py-6">
 			<div className="bg-white rounded-lg shadow overflow-hidden h-[calc(100vh-10rem)]">
 				<div className="grid grid-cols-1 md:grid-cols-3 h-full">
-					{/* Conversation List */}
 					<ConversationList
 						userId={userProfile.id}
 						chatRooms={chatRoomData}
 						selectedChatRoom={selectedChatRoom}
 						setSelectedChatRoom={setSelectedChatRoom}
 					/>
-
-					{/* Chat Area */}
 					<ChatArea
 						selectedChatRoom={selectedChatRoom}
 						userId={userProfile.id}

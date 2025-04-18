@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
+	// Check if the token is in the URL and store it in localStorage
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			const params = new URLSearchParams(window.location.search);

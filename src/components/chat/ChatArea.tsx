@@ -35,8 +35,6 @@ export function ChatArea({ selectedChatRoom, userId }: ChatAreaProps) {
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-
-	// Use the query hook directly in the component
 	const { data: messages = [] } = getMessagesByRoomId(selectedChatRoom.room_id);
 
 	const scrollToBottom = () => {

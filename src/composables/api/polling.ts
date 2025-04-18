@@ -17,6 +17,7 @@ export function usePollingAPI() {
 			throw new Error("Network response was not ok");
 		}
 		const signal = (await response.json()) as PollSignal;
+		// Return with timestamp for useEffect in polling queries
 		return { ...signal, timestamp: Date.now() };
 	};
 
